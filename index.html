@@ -8,46 +8,10 @@
                     const revenues = transactions.filter(t => t.type === 'revenue');
                     const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
                     
-                    if (transactions.length === 0 && orders.length === 0) {
-                        suggestions.push('🕷️ Spider-AI inizializzato! Aggiungi transazioni e ordini per analisi avanzate.');
+                    if (transactions.length === 0) {
+                        suggestions.push('🕷️ Spider-AI inizializzato! Aggiungi transazioni per analisi avanzate.');
                         suggestions.push('🚀 Sistema pronto per machine learning sui tuoi dati business.');
                         return suggestions;
-                    }
-                    
-                    // Orders analysis
-                    if (orders.length > 0) {
-                        const pendingOrders = orders.filter(o => o.status === 'pending').length;
-                        const inProgressOrders = orders.filter(o => o.status === 'in-progress').length;
-                        const completedOrders = orders.filter(o => o.status === 'completed').length;
-                        const highPriorityOrders = orders.filter(o => o.priority === 'high').length;
-                        
-                        suggestions.push(`📋 Gestione Ordini: ${orders.length} totali (${pendingOrders} in attesa, ${inProgressOrders} in corso, ${completedOrders} completati)`);
-                        
-                        if (highPriorityOrders > 0) {
-                            suggestions.push(`🔥 PRIORITÀ ALTA: ${highPriorityOrders} ordini urgenti richiedono attenzione!`);
-                        }
-                        
-                        // Check overdue orders
-                        const now = new Date();
-                        const overdueOrders = orders.filter(o => {
-                            const completion = new Date(o.estimatedCompletion);
-                            return completion < now && o.status !== 'completed';
-                        });
-                        
-                        if (overdueOrders.length > 0) {
-                            suggestions.push(`⚠️ SPIDER-ALERT: ${overdueOrders.length} ordini in ritardo! Azione immediata richiesta.`);
-                        }
-                        
-                        // Popular models analysis
-                        const modelCounts = {};
-                        orders.forEach(o => {
-                            const model = o.specifications.modello;
-                            modelCounts[model] = (modelCounts[model] || 0) + 1;
-                        });
-                        const topModel = Object.entries(modelCounts).sort(([,a], [,b]) => b - a)[0];
-                        if (topModel) {
-                            suggestions.push(`🎮 Modello più richiesto: ${topModel[0]} (${topModel[1]} ordini)`);
-                        }
                     }
                     
                     if (totalRevenue > 0) {
@@ -57,6 +21,18 @@
                         }
                         if (totalRevenue > 5000) {
                             suggestions.push('🚀 Business in crescita! Considera diversificazione prodotti.');
+                        }
+                    }
+                    
+                    // Orders analysis
+                    if (orders.length > 0) {
+                        const inProgress = orders.filter(o => o.stato === 'in_lavorazione').length;
+                        const pending = orders.filter(o => o.stato === 'attesa_componenti').length;
+                        if (inProgress > 0) {
+                            suggestions.push(`📋 ${inProgress} ordini in lavorazione - Buon workflow attivo!`);
+                        }
+                        if (pending > 0) {
+                            suggestions.push(`⏳ ${pending} ordini in attesa componenti - Controlla forniture.`);
                         }
                     }
                     
@@ -87,14 +63,6 @@
                         suggestions.push('⚠️ Margine basso. Rivedi struttura costi o prezzi.');
                     }
                     
-                    // Order efficiency analysis
-                    if (orders.length > 3) {
-                        const avgCompletionTime = orders.filter(o => o.status === 'completed').length;
-                        if (avgCompletionTime / orders.length > 0.7) {
-                            suggestions.push('⚡ Efficienza ordini elevata! Workflow ottimizzato.');
-                        }
-                    }
-                    
                     // Trend analysis
                     const recentTransactions = transactions.slice(-5);
                     const recentRevenue = recentTransactions.filter(t => t.type === 'revenue').length;
@@ -123,7 +91,7 @@
             generatePredictions: function(data) {
                 const { transactions = [], clients = [], inventory = [], orders = [] } = data;
                 
-                if (transactions.length < 3 && orders.length < 2) {
+                if (transactions.length < 3) {
                     return [{
                         title: "🔮 Raccolta Dati in Corso",
                         description: "Il neural network necessita di più dati per generare predizioni accurate.",
@@ -135,39 +103,25 @@
                 
                 // Revenue prediction based on historical data
                 const revenues = transactions.filter(t => t.type === 'revenue');
-                if (revenues.length > 0) {
-                    const avgRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0) / revenues.length;
-                    const trendMultiplier = revenues.length > 5 ? 1.15 : 1.08;
+                const avgRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0) / revenues.length;
+                const trendMultiplier = revenues.length > 5 ? 1.15 : 1.08;
+                
+                predictions.push({
+                    title: "📈 Proiezione Ricavi",
+                    description: `Basandomi sui pattern recenti, prevedo ricavi medi di ${formatCurrency(avgRevenue * trendMultiplier)} per i prossimi ordini (+${Math.round((trendMultiplier - 1) * 100)}%).`,
+                    confidence: Math.min(78 + revenues.length * 2, 95)
+                });
+                
+                // Orders analysis
+                if (orders.length > 0) {
+                    const completedOrders = orders.filter(o => o.stato === 'completato' || o.stato === 'consegnato').length;
+                    const completionRate = (completedOrders / orders.length) * 100;
                     
                     predictions.push({
-                        title: "📈 Proiezione Ricavi",
-                        description: `Basandomi sui pattern recenti, prevedo ricavi medi di ${formatCurrency(avgRevenue * trendMultiplier)} per i prossimi ordini (+${Math.round((trendMultiplier - 1) * 100)}%).`,
-                        confidence: Math.min(78 + revenues.length * 2, 95)
+                        title: "📋 Gestione Ordini",
+                        description: `Tasso di completamento ordini: ${completionRate.toFixed(1)}%. ${orders.length - completedOrders} ordini attivi richiedono attenzione.`,
+                        confidence: 88
                     });
-                }
-                
-                // Orders workflow prediction
-                if (orders.length > 2) {
-                    const avgOrdersPerMonth = orders.length; // Simplified for demo
-                    const pendingOrders = orders.filter(o => o.status !== 'completed').length;
-                    
-                    predictions.push({
-                        title: "📋 Gestione Workload",
-                        description: `Con ${pendingOrders} ordini attivi, prevedo completamento entro ${Math.ceil(pendingOrders / 2)} settimane mantenendo il ritmo attuale. Considera prioritizzazione per ottimizzare delivery.`,
-                        confidence: 84
-                    });
-                }
-                
-                // Popular customizations prediction
-                if (orders.length > 1) {
-                    const customizations = orders.map(o => o.specifications.display).filter(Boolean);
-                    if (customizations.length > 0) {
-                        predictions.push({
-                            title: "🎮 Trend Personalizzazioni",
-                            description: "Display IPS e modifiche audio sono le richieste più popolari. Investi in questi componenti per soddisfare la domanda crescente.",
-                            confidence: 79
-                        });
-                    }
                 }
                 
                 // Client growth prediction
@@ -210,287 +164,564 @@
                 
                 // Business expansion prediction
                 const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-                if (totalRevenue > 2000 || orders.length > 5) {
+                if (totalRevenue > 2000) {
                     predictions.push({
                         title: "🚀 Espansione Business",
-                        description: "Ricavi robusti e ordini crescenti suggeriscono potenziale per diversificazione: considera console retro aggiuntive (Nintendo, Sega) o servizi premium.",
+                        description: "Ricavi robusti suggeriscono potenziale per diversificazione: considera console retro aggiuntive (Nintendo, Sega) o servizi premium.",
                         confidence: 76
                     });
                 }
                 
                 return predictions;
             }
-        };        const debouncedFilterInventory = debounce(() => {
-            const searchTerm = document.getElementById('inventorySearch')?.value.toLowerCase() || '';
-            const rows = document.querySelectorAll('#inventoryContainer tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }, 300);
+        };
         
-        // ===== ORDERS FUNCTIONS =====
-        function loadOrders() {
-            const container = document.getElementById('ordersContainer');
-            if (!container) return;
-            
-            if (appData.orders.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
-                        <h3>Nessun ordine</h3>
-                        <p>Inizia aggiungendo il tuo primo ordine personalizzato!</p>
+        function runAIAnalysis() {
+            try {
+                const analysis = SpiderAI.analyze(appData);
+                const aiDiv = document.getElementById('aiSuggestions');
+                if (aiDiv && analysis.length > 0) {
+                    aiDiv.innerHTML = analysis.map(suggestion => `<p>• ${suggestion}</p>`).join('');
+                }
+                showMessage('🧠 Analisi AI completata!');
+            } catch (error) {
+                console.error('AI Analysis error:', error);
+                showMessage('Errore nell\'analisi AI', 'error');
+            }
+        }
+        
+        function generatePredictions() {
+            try {
+                const predictions = SpiderAI.generatePredictions(appData);
+                const content = `
+                    <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">🔮 Predizioni AI Spider-System</h3>
+                    <div style="margin: var(--space-6) 0;">
+                        ${predictions.map(pred => `
+                            <div style="margin: var(--space-4) 0; padding: var(--space-4); background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-lg); border: 1px solid var(--primary); position: relative; overflow: hidden;">
+                                <!-- Confidence bar -->
+                                <div style="position: absolute; bottom: 0; left: 0; height: 3px; width: ${pred.confidence}%; background: var(--accent); transition: width 1s ease;"></div>
+                                
+                                <h4 style="color: var(--primary); margin-bottom: var(--space-2); display: flex; align-items: center; justify-content: space-between;">
+                                    ${pred.title}
+                                    <span style="font-size: 0.75rem; color: var(--accent); font-weight: 600;">
+                                        ${pred.confidence}% confidence
+                                    </span>
+                                </h4>
+                                <p style="margin-bottom: var(--space-2); line-height: 1.6;">${pred.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); padding: var(--space-4); border-radius: var(--radius-lg); margin: var(--space-4) 0; border: 1px solid var(--accent);">
+                        <p style="font-size: 0.875rem; color: var(--text-muted);">
+                            <strong>💡 Nota:</strong> Le predizioni sono basate sui tuoi dati storici e algoritmi di machine learning. 
+                            Usa questi insights come supporto alle decisioni business.
+                        </p>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            <span>✅</span> Chiudi
+                        </button>
                     </div>
                 `;
+                openModal(content);
+            } catch (error) {
+                console.error('Predictions error:', error);
+                showMessage('Errore nella generazione predizioni', 'error');
+            }
+        }
+        
+        // ===== QUICK ACTIONS =====
+        function openQuickSale() {
+            addTransaction('revenue');
+        }
+        
+        function openQuickClient() {
+            addClient();
+        }
+        
+        function openQuickInventory() {
+            addInventoryItem();
+        }
+        
+        function openQuickOrder() {
+            addOrder();
+        }
+        
+        function exportBackup() {
+            try {
+                const backup = {
+                    version: appData.version,
+                    timestamp: new Date().toISOString(),
+                    data: appData,
+                    meta: {
+                        totalTransactions: appData.transactions.length,
+                        totalClients: appData.clients.length,
+                        totalInventoryItems: appData.inventory.length,
+                        totalOrders: appData.orders.length,
+                        exportedBy: 'RetroAvia Spider-System'
+                    }
+                };
+                
+                const dataStr = JSON.stringify(backup, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `retroavia_backup_${formatDate().replace(/-/g, '')}_${Date.now()}.json`;
+                link.click();
+                
+                // Clean up
+                setTimeout(() => URL.revokeObjectURL(link.href), 100);
+                
+                showMessage('📦 Backup esportato con successo!');
+                console.log('Backup exported successfully');
+            } catch (error) {
+                console.error('Export error:', error);
+                showMessage('Errore nell\'esportazione backup', 'error');
+            }
+        }
+        
+        // ===== MODAL FUNCTIONS =====
+        function openModal(content) {
+            try {
+                const modal = document.getElementById('modal');
+                const modalContent = document.getElementById('modalContent');
+                
+                if (modal && modalContent) {
+                    if (content) {
+                        modalContent.innerHTML = content;
+                    }
+                    modal.classList.add('active');
+                    
+                    // Focus management for accessibility
+                    const firstInput = modal.querySelector('input, select, textarea, button');
+                    if (firstInput) {
+                        setTimeout(() => firstInput.focus(), 100);
+                    }
+                    
+                    // Close modal on Escape key
+                    document.addEventListener('keydown', handleModalEscape);
+                    
+                    // Prevent body scroll when modal is open
+                    document.body.style.overflow = 'hidden';
+                }
+            } catch (error) {
+                console.error('Modal error:', error);
+                showMessage('Errore nell\'apertura modal', 'error');
+            }
+        }
+        
+        function closeModal() {
+            try {
+                const modal = document.getElementById('modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    
+                    // Clean up editing state
+                    appData.editingId = null;
+                    
+                    // Remove escape key listener
+                    document.removeEventListener('keydown', handleModalEscape);
+                    
+                    // Restore body scroll
+                    document.body.style.overflow = '';
+                }
+            } catch (error) {
+                console.error('Close modal error:', error);
+            }
+        }
+        
+        function handleModalEscape(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('modal');
+            const confirmDialog = document.getElementById('confirmDialog');
+            
+            if (event.target === modal) {
+                closeModal();
+            }
+            
+            if (event.target === confirmDialog) {
+                confirmDialog.classList.remove('active');
+            }
+        });
+        
+        // ===== DATA MANAGEMENT =====
+        function updateClientTotalSpent() {
+            // Update client total spent based on transactions
+            appData.clients.forEach(client => {
+                const clientTransactions = appData.transactions.filter(t => 
+                    t.type === 'revenue' && t.client === client.name
+                );
+                client.totalSpent = clientTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+            });
+        }
+        
+        // ===== SEARCH FUNCTIONALITY =====
+        function setupSearchListeners() {
+            const transactionSearch = document.getElementById('transactionSearch');
+            const clientSearch = document.getElementById('clientSearch');
+            const inventorySearch = document.getElementById('inventorySearch');
+            const orderSearch = document.getElementById('orderSearch');
+            
+            if (transactionSearch) {
+                transactionSearch.removeEventListener('input', debouncedFilterTransactions);
+                transactionSearch.addEventListener('input', debouncedFilterTransactions);
+            }
+            
+            if (clientSearch) {
+                clientSearch.removeEventListener('input', debouncedFilterClients);
+                clientSearch.addEventListener('input', debouncedFilterClients);
+            }
+            
+            if (inventorySearch) {
+                inventorySearch.removeEventListener('input', debouncedFilterInventory);
+                inventorySearch.addEventListener('input', debouncedFilterInventory);
+            }
+            
+            if (orderSearch) {
+                orderSearch.removeEventListener('input', debouncedFilterOrders);
+                orderSearch.addEventListener('input', debouncedFilterOrders);
+            }
+        }
+        
+        // ===== DATA PERSISTENCE =====
+        function saveDataToLocalStorage() {
+            try {
+                const dataToSave = {
+                    ...appData,
+                    lastSaved: new Date().toISOString()
+                };
+                localStorage.setItem('retroaviaData', JSON.stringify(dataToSave));
+                console.log('Data saved to localStorage');
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                showMessage('Errore nel salvataggio automatico', 'error');
+            }
+        }
+        
+        function loadDataFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('retroaviaData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    // Merge with default data to ensure all properties exist
+                    appData = {
+                        ...appData,
+                        ...parsedData,
+                        // Ensure arrays exist
+                        transactions: parsedData.transactions || appData.transactions,
+                        clients: parsedData.clients || appData.clients,
+                        inventory: parsedData.inventory || appData.inventory,
+                        orders: parsedData.orders || appData.orders || []
+                    };
+                    console.log('Data loaded from localStorage');
+                    if (parsedData.lastSaved) {
+                        console.log('Last saved:', new Date(parsedData.lastSaved).toLocaleString('it-IT'));
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                showMessage('Errore nel caricamento dati salvati', 'error');
+            }
+            return false;
+        }
+        
+        // Auto-save data when changes are made
+        const autoSave = debounce(() => {
+            saveDataToLocalStorage();
+        }, 1000);
+        
+        // ===== INITIALIZATION =====
+        function initializeApp() {
+            try {
+                console.log('🕷️ RetroAvia 3.1 Spider-System Initializing...');
+                
+                // Load saved data if available
+                const dataLoaded = loadDataFromLocalStorage();
+                if (dataLoaded) {
+                    showMessage('💾 Dati precedenti caricati con successo!');
+                }
+                
+                // Update client spending
+                updateClientTotalSpent();
+                
+                // Load current page
+                showPage(appData.currentPage);
+                
+                // Initialize dashboard
+                updateDashboard();
+                
+                // Setup search listeners after DOM is ready
+                setTimeout(() => {
+                    setupSearchListeners();
+                }, 100);
+                
+                // Show version info
+                console.log(`✅ RetroAvia ${appData.version} Ready!`);
+                console.log(`📊 Dati caricati: ${appData.transactions.length} transazioni, ${appData.clients.length} clienti, ${appData.inventory.length} componenti, ${appData.orders.length} ordini`);
+                
+                showMessage('🕷️ RetroAvia 3.1 Spider-System Attivato!');
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showMessage('Errore nell\'inizializzazione sistema', 'error');
+            }
+        }
+        
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(event) {
+            // Skip if modal or confirm dialog is open or user is typing in an input
+            if (document.getElementById('modal').classList.contains('active') || 
+                document.getElementById('confirmDialog').classList.contains('active') ||
+                event.target.tagName === 'INPUT' || 
+                event.target.tagName === 'TEXTAREA' || 
+                event.target.tagName === 'SELECT') {
                 return;
             }
             
-            // Sort orders by priority and date (newest first)
-            const sortedOrders = [...appData.orders].sort((a, b) => {
-                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-                const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-                if (priorityDiff !== 0) return priorityDiff;
-                return new Date(b.createdDate) - new Date(a.createdDate);
-            });
+            // Handle shortcuts with Ctrl key for safety
+            if (event.ctrlKey) {
+                switch(event.key.toLowerCase()) {
+                    case 's':
+                        event.preventDefault();
+                        saveDataToLocalStorage();
+                        showMessage('💾 Dati salvati manualmente!');
+                        break;
+                    case 'b':
+                        event.preventDefault();
+                        exportBackup();
+                        break;
+                }
+                return;
+            }
             
-            const cardsHTML = sortedOrders.map(order => {
-                const statusConfig = {
-                    'pending': { color: 'var(--warning)', icon: '⏳', text: 'In Attesa' },
-                    'in-progress': { color: 'var(--primary)', icon: '🔧', text: 'In Lavorazione' },
-                    'completed': { color: 'var(--success)', icon: '✅', text: 'Completato' }
-                };
-                
-                const priorityConfig = {
-                    'high': { color: 'var(--error)', icon: '🔥', text: 'Alta' },
-                    'medium': { color: 'var(--warning)', icon: '⚡', text: 'Media' },
-                    'low': { color: 'var(--success)', icon: '🌱', text: 'Bassa' }
-                };
-                
-                const status = statusConfig[order.status] || statusConfig['pending'];
-                const priority = priorityConfig[order.priority] || priorityConfig['medium'];
-                
-                const daysUntilCompletion = Math.ceil((new Date(order.estimatedCompletion) - new Date()) / (1000 * 60 * 60 * 24));
-                const isOverdue = daysUntilCompletion < 0;
-                const isUrgent = daysUntilCompletion <= 3 && daysUntilCompletion > 0;
-                
-                return `
-                    <div class="card order-card" data-status="${order.status}" data-id="${order.id}" style="
-                        border-left: 4px solid ${status.color};
-                        ${isOverdue ? 'background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));' : ''}
-                        ${isUrgent ? 'background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));' : ''}
-                    ">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4);">
-                            <div>
-                                <h4 style="color: var(--accent); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: var(--space-2);">
-                                    📋 Ordine ${order.id.replace('order', '#')}
-                                </h4>
-                                <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2);">
-                                    <span style="color: ${status.color}; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                        ${status.icon} ${status.text}
-                                    </span>
-                                    <span style="color: ${priority.color}; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                        ${priority.icon} Priorità ${priority.text}
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: var(--space-2);">
-                                <button class="btn btn-secondary" onclick="viewOrderDetails('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                                    👁️ Dettagli
-                                </button>
-                                <button class="btn btn-secondary" onclick="editOrder('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                                    ✏️ Modifica
-                                </button>
-                                <button class="btn btn-error" onclick="confirmDeleteOrder('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                                    🗑️ Elimina
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Cliente</div>
-                                <div style="font-weight: 600; color: var(--text-primary);">${order.clientName}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Modello</div>
-                                <div style="font-weight: 600; color: var(--accent);">${order.specifications.modello}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Data Creazione</div>
-                                <div style="font-weight: 600;">${new Date(order.createdDate).toLocaleDateString('it-IT')}</div>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Consegna Stimata</div>
-                                <div style="font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
-                                    ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}
-                                    ${isOverdue ? ' (SCADUTO)' : isUrgent ? ' (URGENTE)' : ''}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-3); border-radius: var(--radius-lg); margin-bottom: var(--space-3);">
-                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Specifiche Principali</div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-2); font-size: 0.875rem;">
-                                <div><strong>Scocca:</strong> ${order.specifications.scocca}</div>
-                                <div><strong>Display:</strong> ${order.specifications.display}</div>
-                                <div><strong>Audio:</strong> ${order.specifications.audio}</div>
-                                <div><strong>Batteria:</strong> ${order.specifications.batteria}</div>
-                            </div>
-                        </div>
-                        
-                        ${order.specifications.note ? `
-                            <div style="background: rgba(245, 158, 11, 0.1); padding: var(--space-3); border-radius: var(--radius-lg); border: 1px solid var(--accent);">
-                                <div style="font-size: 0.875rem; color: var(--accent); margin-bottom: 0.5rem; font-weight: 600;">📝 Note</div>
-                                <div style="font-size: 0.875rem; line-height: 1.5;">${order.specifications.note}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+            switch(event.key) {
+                case '1':
+                    showPage('dashboard');
+                    break;
+                case '2':
+                    showPage('transactions');
+                    break;
+                case '3':
+                    showPage('clients');
+                    break;
+                case '4':
+                    showPage('inventory');
+                    break;
+                case '5':
+                    showPage('orders');
+                    break;
+                case '6':
+                    showPage('analytics');
+                    break;
+                case 'n':
+                case 'N':
+                    if (appData.currentPage === 'transactions') {
+                        event.preventDefault();
+                        addTransaction('revenue');
+                    } else if (appData.currentPage === 'clients') {
+                        event.preventDefault();
+                        addClient();
+                    } else if (appData.currentPage === 'inventory') {
+                        event.preventDefault();
+                        addInventoryItem();
+                    } else if (appData.currentPage === 'orders') {
+                        event.preventDefault();
+                        addOrder();
+                    }
+                    break;
+                case 'a':
+                case 'A':
+                    if (appData.currentPage === 'dashboard') {
+                        event.preventDefault();
+                        runAIAnalysis();
+                    }
+                    break;
+            }
+        });
+        
+        // ===== ERROR HANDLING =====
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            showMessage('Si è verificato un errore inaspettato', 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showMessage('Errore nella comunicazione', 'error');
+        });
+        
+        // ===== APP LIFECYCLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+        
+        // Save data before page unload
+        window.addEventListener('beforeunload', function() {
+            saveDataToLocalStorage();
+        });
+        
+        // Auto-save every 5 minutes
+        setInterval(() => {
+            saveDataToLocalStorage();
+        }, 5 * 60 * 1000);
+        
+        // ===== RESPONSIVE HELPERS =====
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
             
-            container.innerHTML = cardsHTML;
-            console.log('Orders loaded:', appData.orders.length);
+            // Adjust modal size on mobile
+            const modal = document.getElementById('modal');
+            if (modal && isMobile) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.style.width = '95%';
+                    modalContent.style.maxHeight = '90vh';
+                }
+            }
         }
         
+        window.addEventListener('resize', debounce(handleResize, 250));
+        
+        // ===== ACCESSIBILITY ENHANCEMENTS =====
+        
+        // Skip to main content link
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Tab' && !event.shiftKey) {
+                const focusedElement = document.activeElement;
+                if (focusedElement === document.body) {
+                    const firstPage = document.querySelector('.page.active');
+                    if (firstPage) {
+                        firstPage.setAttribute('tabindex', '-1');
+                        firstPage.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+        
+        // ===== PERFORMANCE MONITORING =====
+        function logPerformance(operation, startTime) {
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+            if (duration > 100) { // Log slow operations (>100ms)
+                console.warn(`Slow operation detected: ${operation} took ${duration.toFixed(2)}ms`);
+            }
+        }
+        
+        // ===== FINAL SETUP =====
+        console.log('🕷️ RetroAvia 3.1 Spider-System Loaded Successfully!');
+        console.log('📋 Miglioramenti Versione 3.1:');
+        console.log('  ✅ Analytics con dati reali delle transazioni');
+        console.log('  ✅ Debounce per le ricerche (performance migliorata)');
+        console.log('  ✅ Validazione input avanzata');
+        console.log('  ✅ Loading states e feedback utente');
+        console.log('  ✅ Gestione errori migliorata');
+        console.log('  ✅ Auto-salvataggio ogni 5 minuti');
+        console.log('  ✅ Backup con metadata');
+        console.log('  ✅ KPI dashboard completo');
+        console.log('  ✅ Sistema ordini completo');
+        console.log('');
+        console.log('📋 Keyboard Shortcuts:');
+        console.log('  1-6: Navigate pages');
+        console.log('  N: New item (context-dependent)');
+        console.log('  A: AI Analysis (on dashboard)');
+        console.log('  Ctrl+S: Manual save');
+        console.log('  Ctrl+B: Export backup');
+        console.log('  ESC: Close modal');
+        
+    </script>
+</body>
+</html>        
         function addOrder() {
             const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📋 Nuovo Ordine Personalizzato</h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4);">
-                    <!-- Info Generali -->
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--primary); margin-bottom: var(--space-4);">ℹ️ Informazioni Generali</h4>
-                        
-                        <div class="form-group">
-                            <label for="orderClient">Cliente</label>
-                            <select id="orderClient" required>
-                                <option value="">Seleziona cliente...</option>
-                                ${appData.clients.map(client => `
-                                    <option value="${client.name}">${client.name}</option>
-                                `).join('')}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="orderPriority">Priorità</label>
-                            <select id="orderPriority" required>
-                                <option value="low">🌱 Bassa</option>
-                                <option value="medium" selected>⚡ Media</option>
-                                <option value="high">🔥 Alta</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="orderStatus">Stato</label>
-                            <select id="orderStatus" required>
-                                <option value="pending" selected>⏳ In Attesa</option>
-                                <option value="in-progress">🔧 In Lavorazione</option>
-                                <option value="completed">✅ Completato</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="orderCreatedDate">Data Creazione</label>
-                            <input type="date" id="orderCreatedDate" value="${formatDate()}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="orderEstimatedCompletion">Consegna Stimata</label>
-                            <input type="date" id="orderEstimatedCompletion" required>
-                        </div>
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📋 Nuovo Ordine</h3>
+                <div style="max-height: 60vh; overflow-y: auto; padding-right: var(--space-2);">
+                    <div class="form-group">
+                        <label for="orderCliente">Cliente</label>
+                        <select id="orderCliente" required>
+                            <option value="">Seleziona cliente...</option>
+                            ${appData.clients.map(client => `
+                                <option value="${client.name}">${client.name}</option>
+                            `).join('')}
+                        </select>
                     </div>
-                    
-                    <!-- Specifiche Tecniche -->
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--accent); margin-bottom: var(--space-4);">🔧 Specifiche Tecniche</h4>
-                        
-                        <div class="form-group">
-                            <label for="specModello">Modello Game Boy</label>
-                            <input type="text" id="specModello" placeholder="es. Game Boy Color, GBA, GB Pocket..." required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specScocca">Scocca</label>
-                            <input type="text" id="specScocca" placeholder="Colore, materiale, trasparenza...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specPulsanti">Pulsanti</label>
-                            <input type="text" id="specPulsanti" placeholder="Colore, tipo, retroilluminazione...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specEtichetta">Etichetta</label>
-                            <input type="text" id="specEtichetta" placeholder="Personalizzata, originale, custom...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specBatteria">Batteria</label>
-                            <input type="text" id="specBatteria" placeholder="Li-ion, AA, ricaricabile, capacità...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specAudio">Audio</label>
-                            <input type="text" id="specAudio" placeholder="Speaker potenziato, jack cuffie, audio mod...">
-                        </div>
+                    <div class="form-group">
+                        <label for="orderData">Data Ordine</label>
+                        <input type="date" id="orderData" value="${formatDate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderStato">Stato</label>
+                        <select id="orderStato" required>
+                            <option value="attesa_componenti">⏳ Attesa Componenti</option>
+                            <option value="in_lavorazione" selected>🔧 In Lavorazione</option>
+                            <option value="completato">✅ Completato</option>
+                            <option value="consegnato">📦 Consegnato</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderModello">Modello Game Boy</label>
+                        <input type="text" id="orderModello" placeholder="es. Game Boy Color, Game Boy Advance..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderScocca">Scocca</label>
+                        <input type="text" id="orderScocca" placeholder="es. Trasparente Verde, Nera Opaca...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderPulsanti">Pulsanti</label>
+                        <input type="text" id="orderPulsanti" placeholder="es. Rossi/Gialli, Stock Originali...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderEtichetta">Etichetta</label>
+                        <input type="text" id="orderEtichetta" placeholder="es. Personalizzata Pokemon, Standard...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderBatteria">Batteria</label>
+                        <input type="text" id="orderBatteria" placeholder="es. Mod USB-C, Mod batteria ricaricabile...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderAudio">Audio</label>
+                        <input type="text" id="orderAudio" placeholder="es. Speaker Pro Enhanced, Standard...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderDisplay">Display</label>
+                        <input type="text" id="orderDisplay" placeholder="es. IPS V2 Funny Playing, LCD Standard...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderKitLed">Kit Led</label>
+                        <input type="text" id="orderKitLed" placeholder="es. RGB Multicolore, Nessuno...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderBox">Box</label>
+                        <input type="text" id="orderBox" placeholder="es. Box Custom Pokemon, Box Originale...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderCover">Cover</label>
+                        <input type="text" id="orderCover" placeholder="es. Screen Protector Vetro, Nessuna...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderGameBoyCliente">Game Boy Cliente</label>
+                        <input type="text" id="orderGameBoyCliente" placeholder="es. Fornito dal cliente, Non fornito...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderAltro">Altro</label>
+                        <input type="text" id="orderAltro" placeholder="es. Pulsante power custom, Pulizia completa...">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderNote">Note</label>
+                        <textarea id="orderNote" rows="3" placeholder="Note aggiuntive per l'ordine..."></textarea>
                     </div>
                 </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-top: var(--space-4);">
-                    <!-- Componenti Aggiuntivi -->
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--success); margin-bottom: var(--space-4);">✨ Componenti Aggiuntivi</h4>
-                        
-                        <div class="form-group">
-                            <label for="specDisplay">Display</label>
-                            <input type="text" id="specDisplay" placeholder="IPS, backlit, risoluzione, luminosità...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specKitLed">Kit LED</label>
-                            <input type="text" id="specKitLed" placeholder="RGB, colore fisso, posizione, effetti...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specBox">Box</label>
-                            <input type="text" id="specBox" placeholder="Originale, aftermarket, custom, stato...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specCover">Cover</label>
-                            <input type="text" id="specCover" placeholder="Pellicola, vetro temperato, protezione...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specGameBoyCliente">Game Boy Cliente</label>
-                            <select id="specGameBoyCliente">
-                                <option value="No - nuovo dispositivo">No - nuovo dispositivo</option>
-                                <option value="Sì - riparazione dispositivo esistente">Sì - riparazione dispositivo esistente</option>
-                                <option value="Sì - modifica dispositivo esistente">Sì - modifica dispositivo esistente</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Note e Altro -->
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--warning); margin-bottom: var(--space-4);">📝 Note e Personalizzazioni</h4>
-                        
-                        <div class="form-group">
-                            <label for="specAltro">Altro</label>
-                            <textarea id="specAltro" rows="3" placeholder="Modifiche speciali, port aggiuntivi, caratteristiche custom..."></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="specNote">Note</label>
-                            <textarea id="specNote" rows="4" placeholder="Richieste particolari del cliente, scadenze, istruzioni speciali..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="quick-actions" style="margin-top: var(--space-6);">
+                <div class="quick-actions">
                     <button type="button" class="btn btn-success" onclick="saveOrderFromForm()" id="saveOrderBtn">
-                        <span>💾</span> Salva Ordine
+                        <span>💾</span> Salva
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">
                         <span>❌</span> Annulla
@@ -503,57 +734,40 @@
         function saveOrderFromForm() {
             try {
                 const saveBtn = document.getElementById('saveOrderBtn');
-                const originalText = '<span>💾</span> Salva Ordine';
+                const originalText = '<span>💾</span> Salva';
                 
                 showLoading(saveBtn, 'Salvando...');
                 
-                const clientName = document.getElementById('orderClient')?.value;
-                const priority = document.getElementById('orderPriority')?.value;
-                const status = document.getElementById('orderStatus')?.value;
-                const createdDate = document.getElementById('orderCreatedDate')?.value;
-                const estimatedCompletion = document.getElementById('orderEstimatedCompletion')?.value;
+                const cliente = document.getElementById('orderCliente')?.value;
+                const data = document.getElementById('orderData')?.value;
+                const stato = document.getElementById('orderStato')?.value;
+                const modello = document.getElementById('orderModello')?.value;
                 
-                // Specifications
-                const modello = document.getElementById('specModello')?.value;
-                
-                if (!clientName || !modello || !createdDate || !estimatedCompletion) {
+                if (!cliente || !data || !stato || !modello) {
                     hideLoading(saveBtn, originalText);
-                    showMessage('Compila almeno Cliente, Modello, Data Creazione e Consegna Stimata', 'error');
-                    return;
-                }
-                
-                // Validate dates
-                const created = new Date(createdDate);
-                const completion = new Date(estimatedCompletion);
-                if (completion <= created) {
-                    hideLoading(saveBtn, originalText);
-                    showMessage('La data di consegna deve essere successiva alla data di creazione', 'error');
+                    showMessage('Compila tutti i campi obbligatori (Cliente, Data, Stato, Modello)', 'error');
                     return;
                 }
                 
                 setTimeout(() => {
                     const formData = {
-                        id: appData.editingId || generateId().replace('id_', 'order'),
-                        clientName: clientName,
-                        status: status,
-                        priority: priority,
-                        createdDate: createdDate,
-                        estimatedCompletion: estimatedCompletion,
-                        specifications: {
-                            modello: modello,
-                            scocca: document.getElementById('specScocca')?.value || '',
-                            pulsanti: document.getElementById('specPulsanti')?.value || '',
-                            etichetta: document.getElementById('specEtichetta')?.value || '',
-                            batteria: document.getElementById('specBatteria')?.value || '',
-                            audio: document.getElementById('specAudio')?.value || '',
-                            display: document.getElementById('specDisplay')?.value || '',
-                            kitLed: document.getElementById('specKitLed')?.value || '',
-                            box: document.getElementById('specBox')?.value || '',
-                            cover: document.getElementById('specCover')?.value || '',
-                            gameBoyCliente: document.getElementById('specGameBoyCliente')?.value || '',
-                            altro: document.getElementById('specAltro')?.value || '',
-                            note: document.getElementById('specNote')?.value || ''
-                        }
+                        id: appData.editingId || generateId(),
+                        cliente: cliente,
+                        data: data,
+                        stato: stato,
+                        modello: modello,
+                        scocca: document.getElementById('orderScocca')?.value || '',
+                        pulsanti: document.getElementById('orderPulsanti')?.value || '',
+                        etichetta: document.getElementById('orderEtichetta')?.value || '',
+                        batteria: document.getElementById('orderBatteria')?.value || '',
+                        audio: document.getElementById('orderAudio')?.value || '',
+                        display: document.getElementById('orderDisplay')?.value || '',
+                        kitLed: document.getElementById('orderKitLed')?.value || '',
+                        box: document.getElementById('orderBox')?.value || '',
+                        cover: document.getElementById('orderCover')?.value || '',
+                        gameBoyCliente: document.getElementById('orderGameBoyCliente')?.value || '',
+                        altro: document.getElementById('orderAltro')?.value || '',
+                        note: document.getElementById('orderNote')?.value || ''
                     };
                     
                     if (appData.editingId) {
@@ -583,6 +797,1729 @@
             }
         }
         
+        function viewOrder(id) {
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            const stateLabels = {
+                'attesa_componenti': '⏳ Attesa Componenti',
+                'in_lavorazione': '🔧 In Lavorazione',
+                'completato': '✅ Completato',
+                'consegnato': '📦 Consegnato'
+            };
+            
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">👁️ Dettagli Ordine</h3>
+                <div style="max-height: 60vh; overflow-y: auto;">
+                    <div style="display: grid; gap: var(--space-4);">
+                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📋 Informazioni Generali</h4>
+                            <p><strong>Cliente:</strong> ${order.cliente}</p>
+                            <p><strong>Data:</strong> ${new Date(order.data).toLocaleDateString('it-IT')}</p>
+                            <p><strong>Stato:</strong> <span style="color: var(--accent);">${stateLabels[order.stato] || order.stato}</span></p>
+                                
+        // ===== TRANSACTIONS FUNCTIONS =====
+        function loadTransactions() {
+            const container = document.getElementById('transactionsContainer');
+            if (!container) return;
+            
+            if (appData.transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💰</div>
+                        <h3>Nessuna transazione</h3>
+                        <p>Inizia aggiungendo la tua prima transazione!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort transactions by date (newest first)
+            const sortedTransactions = [...appData.transactions].sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+            
+            const tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Importo</th>
+                            <th>Descrizione</th>
+                            <th>Cliente</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedTransactions.map(transaction => `
+                            <tr data-id="${transaction.id}">
+                                <td>${new Date(transaction.date).toLocaleDateString('it-IT')}</td>
+                                <td>
+                                    <span style="color: ${transaction.type === 'revenue' ? 'var(--success)' : 'var(--error)'}">
+                                        ${transaction.type === 'revenue' ? '💰 Entrata' : '💸 Spesa'}
+                                    </span>
+                                </td>
+                                <td style="color: ${transaction.type === 'revenue' ? 'var(--success)' : 'var(--error)'}">
+                                    ${formatCurrency(transaction.amount)}
+                                </td>
+                                <td>${transaction.description}</td>
+                                <td>${transaction.client || '-'}</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="editTransaction('${transaction.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                        ✏️ Modifica
+                                    </button>
+                                    <button class="btn btn-error" onclick="confirmDeleteTransaction('${transaction.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                        🗑️ Elimina
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            console.log('Transactions loaded:', appData.transactions.length);
+        }
+        
+        function addTransaction(type) {
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
+                    ${type === 'revenue' ? '💰 Nuova Entrata' : '💸 Nuova Spesa'}
+                </h3>
+                <div class="form-group">
+                    <label for="amount">Importo (€)</label>
+                    <input type="number" id="amount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descrizione</label>
+                    <input type="text" id="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Data</label>
+                    <input type="date" id="date" value="${formatDate()}" required>
+                </div>
+                <div class="form-group">
+                    <label for="client">Cliente (opzionale)</label>
+                    <select id="client">
+                        <option value="">Seleziona cliente...</option>
+                        ${appData.clients.map(client => `
+                            <option value="${client.name}">${client.name}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-success" onclick="saveTransactionFromForm('${type}')" id="saveTransactionBtn">
+                        <span>💾</span> Salva
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+        
+        function saveTransactionFromForm(type) {
+            try {
+                const saveBtn = document.getElementById('saveTransactionBtn');
+                const originalText = '<span>💾</span> Salva';
+                
+                showLoading(saveBtn, 'Salvando...');
+                
+                const amount = document.getElementById('amount')?.value;
+                const description = document.getElementById('description')?.value;
+                const date = document.getElementById('date')?.value;
+                const client = document.getElementById('client')?.value;
+                
+                if (!amount || !description || !date) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Compila tutti i campi obbligatori', 'error');
+                    return;
+                }
+                
+                // Validate date
+                const selectedDate = new Date(date);
+                const today = new Date();
+                if (selectedDate > today) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('La data non può essere nel futuro', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const formData = {
+                        id: appData.editingId || generateId(),
+                        type: type,
+                        amount: parseFloat(amount),
+                        description: description,
+                        date: date,
+                        client: client
+                    };
+                    
+                    if (appData.editingId) {
+                        const index = appData.transactions.findIndex(t => t.id === appData.editingId);
+                        if (index !== -1) {
+                            appData.transactions[index] = formData;
+                            showMessage('Transazione aggiornata con successo!');
+                            console.log('Transaction updated:', formData);
+                        }
+                        appData.editingId = null;
+                    } else {
+                        appData.transactions.push(formData);
+                        showMessage('Transazione aggiunta con successo!');
+                        console.log('Transaction added:', formData);
+                    }
+                    
+                    hideLoading(saveBtn, originalText);
+                    closeModal();
+                    loadTransactions();
+                    updateDashboard();
+                    updateClientTotalSpent();
+                    autoSave();
+                }, 500); // Simulate processing time
+                
+            } catch (error) {
+                console.error('Save transaction error:', error);
+                showMessage('Errore nel salvataggio transazione', 'error');
+            }
+        }
+        
+        function editTransaction(id) {
+            console.log('Editing transaction with ID:', id);
+            const transaction = appData.transactions.find(t => t.id === id);
+            if (!transaction) {
+                showMessage('Transazione non trovata', 'error');
+                console.error('Transaction not found:', id);
+                return;
+            }
+            
+            appData.editingId = id;
+            addTransaction(transaction.type);
+            
+            // Populate form with existing data
+            setTimeout(() => {
+                const amountEl = document.getElementById('amount');
+                const descEl = document.getElementById('description');
+                const dateEl = document.getElementById('date');
+                const clientEl = document.getElementById('client');
+                
+                if (amountEl) amountEl.value = transaction.amount;
+                if (descEl) descEl.value = transaction.description;
+                if (dateEl) dateEl.value = transaction.date;
+                if (clientEl) clientEl.value = transaction.client || '';
+            }, 100);
+        }
+        
+        function confirmDeleteTransaction(id) {
+            console.log('Confirming delete for transaction:', id);
+            const transaction = appData.transactions.find(t => t.id === id);
+            if (!transaction) {
+                showMessage('Transazione non trovata', 'error');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Elimina Transazione',
+                `Sei sicuro di voler eliminare la transazione "${transaction.description}"? Questa azione non può essere annullata.`,
+                () => deleteTransaction(id)
+            );
+        }
+        
+        function deleteTransaction(id) {
+            console.log('Deleting transaction with ID:', id);
+            console.log('Transactions before delete:', appData.transactions.length);
+            
+            const initialLength = appData.transactions.length;
+            appData.transactions = appData.transactions.filter(t => t.id !== id);
+            
+            if (appData.transactions.length < initialLength) {
+                console.log('Transaction deleted successfully. New count:', appData.transactions.length);
+                showMessage('Transazione eliminata con successo!');
+                loadTransactions();
+                updateDashboard();
+                updateClientTotalSpent();
+                autoSave();
+            } else {
+                console.error('Failed to delete transaction');
+                showMessage('Errore nell\'eliminazione della transazione', 'error');
+            }
+        }
+        
+        const debouncedFilterTransactions = debounce(() => {
+            const searchTerm = document.getElementById('transactionSearch')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('#transactionsContainer tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
+        
+        // ===== CLIENTS FUNCTIONS =====
+        function loadClients() {
+            const container = document.getElementById('clientsContainer');
+            if (!container) return;
+            
+            if (appData.clients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <h3>Nessun cliente</h3>
+                        <p>Inizia aggiungendo il tuo primo cliente!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort clients by total spent (highest first)
+            const sortedClients = [...appData.clients].sort((a, b) => 
+                (b.totalSpent || 0) - (a.totalSpent || 0)
+            );
+            
+            const tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefono</th>
+                            <th>Provenienza</th>
+                            <th>Speso Totale</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedClients.map(client => {
+                            const sourceEmoji = {
+                                'vinted': '👕',
+                                'wallapop': '🛒',
+                                'subito': '🇮🇹',
+                                'ebay': '🏪',
+                                'facebook': '👥',
+                                'instagram': '📷'
+                            };
+                            const sourceDisplay = sourceEmoji[client.source] || '❓';
+                            
+                            return `
+                                <tr data-id="${client.id}">
+                                    <td><strong>${client.name}</strong></td>
+                                    <td>${client.email}</td>
+                                    <td>${client.phone}</td>
+                                    <td>
+                                        <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                            ${sourceDisplay} ${client.source ? client.source.charAt(0).toUpperCase() + client.source.slice(1) : 'Non specificato'}
+                                        </span>
+                                    </td>
+                                    <td style="color: var(--success); font-weight: 600;">${formatCurrency(client.totalSpent || 0)}</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="editClient('${client.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            ✏️ Modifica
+                                        </button>
+                                        <button class="btn btn-error" onclick="confirmDeleteClient('${client.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            🗑️ Elimina
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            console.log('Clients loaded:', appData.clients.length);
+        }
+        
+        function addClient() {
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">👤 Nuovo Cliente</h3>
+                <div class="form-group">
+                    <label for="clientName">Nome</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">Email</label>
+                    <input type="email" id="clientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientPhone">Telefono</label>
+                    <input type="tel" id="clientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientSource">Provenienza</label>
+                    <select id="clientSource" required>
+                        <option value="">Seleziona provenienza...</option>
+                        <option value="vinted">👕 Vinted</option>
+                        <option value="wallapop">🛒 Wallapop</option>
+                        <option value="subito">🇮🇹 Subito</option>
+                        <option value="ebay">🏪 eBay</option>
+                        <option value="facebook">👥 Facebook</option>
+                        <option value="instagram">📷 Instagram</option>
+                    </select>
+                </div>
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-success" onclick="saveClientFromForm()" id="saveClientBtn">
+                        <span>💾</span> Salva
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+        
+        function saveClientFromForm() {
+            try {
+                const saveBtn = document.getElementById('saveClientBtn');
+                const originalText = '<span>💾</span> Salva';
+                
+                showLoading(saveBtn, 'Salvando...');
+                
+                const name = document.getElementById('clientName')?.value;
+                const email = document.getElementById('clientEmail')?.value;
+                const phone = document.getElementById('clientPhone')?.value;
+                const source = document.getElementById('clientSource')?.value;
+                
+                if (!name || !email || !phone || !source) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Compila tutti i campi obbligatori', 'error');
+                    return;
+                }
+                
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Formato email non valido', 'error');
+                    return;
+                }
+                
+                // Check for duplicate email (except when editing)
+                const existingClient = appData.clients.find(c => 
+                    c.email === email && c.id !== appData.editingId
+                );
+                if (existingClient) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Email già esistente per un altro cliente', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const formData = {
+                        id: appData.editingId || generateId(),
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        source: source,
+                        totalSpent: 0
+                    };
+                    
+                    if (appData.editingId) {
+                        const index = appData.clients.findIndex(c => c.id === appData.editingId);
+                        if (index !== -1) {
+                            // Preserve totalSpent when editing
+                            formData.totalSpent = appData.clients[index].totalSpent;
+                            appData.clients[index] = formData;
+                            showMessage('Cliente aggiornato con successo!');
+                            console.log('Client updated:', formData);
+                        }
+                        appData.editingId = null;
+                    } else {
+                        appData.clients.push(formData);
+                        showMessage('Cliente aggiunto con successo!');
+                        console.log('Client added:', formData);
+                    }
+                    
+                    hideLoading(saveBtn, originalText);
+                    closeModal();
+                    loadClients();
+                    updateClientTotalSpent();
+                    autoSave();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Save client error:', error);
+                showMessage('Errore nel salvataggio cliente', 'error');
+            }
+        }
+        
+        function editClient(id) {
+            console.log('Editing client with ID:', id);
+            const client = appData.clients.find(c => c.id === id);
+            if (!client) {
+                showMessage('Cliente non trovato', 'error');
+                console.error('Client not found:', id);
+                return;
+            }
+            
+            appData.editingId = id;
+            addClient();
+            
+            // Populate form with existing data
+            setTimeout(() => {
+                const nameEl = document.getElementById('clientName');
+                const emailEl = document.getElementById('clientEmail');
+                const phoneEl = document.getElementById('clientPhone');
+                const sourceEl = document.getElementById('clientSource');
+                
+                if (nameEl) nameEl.value = client.name;
+                if (emailEl) emailEl.value = client.email;
+                if (phoneEl) phoneEl.value = client.phone;
+                if (sourceEl) sourceEl.value = client.source || '';
+            }, 100);
+        }
+        
+        function confirmDeleteClient(id) {
+            console.log('Confirming delete for client:', id);
+            const client = appData.clients.find(c => c.id === id);
+            if (!client) {
+                showMessage('Cliente non trovato', 'error');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Elimina Cliente',
+                `Sei sicuro di voler eliminare il cliente "${client.name}"? Questa azione non può essere annullata.`,
+                () => deleteClient(id)
+            );
+        }
+        
+        function deleteClient(id) {
+            console.log('Deleting client with ID:', id);
+            console.log('Clients before delete:', appData.clients.length);
+            
+            const initialLength = appData.clients.length;
+            appData.clients = appData.clients.filter(c => c.id !== id);
+            
+            if (appData.clients.length < initialLength) {
+                console.log('Client deleted successfully. New count:', appData.clients.length);
+                showMessage('Cliente eliminato con successo!');
+                loadClients();
+                updateDashboard();
+                autoSave();
+            } else {
+                console.error('Failed to delete client');
+                showMessage('Errore nell\'eliminazione del cliente', 'error');
+            }
+        }
+        
+        const debouncedFilterClients = debounce(() => {
+            const searchTerm = document.getElementById('clientSearch')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('#clientsContainer tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
+        
+        // ===== INVENTORY FUNCTIONS =====
+        function loadInventory() {
+            const container = document.getElementById('inventoryContainer');
+            if (!container) return;
+            
+            if (appData.inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3>Nessun componente</h3>
+                        <p>Inizia aggiungendo il tuo primo componente!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort inventory by status (low stock first) then by name
+            const sortedInventory = [...appData.inventory].sort((a, b) => {
+                const aIsLow = a.quantity <= a.threshold;
+                const bIsLow = b.quantity <= b.threshold;
+                if (aIsLow && !bIsLow) return -1;
+                if (!aIsLow && bIsLow) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            
+            const tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Quantità</th>
+                            <th>Soglia</th>
+                            <th>Prezzo</th>
+                            <th>Fornitore</th>
+                            <th>Stato</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedInventory.map(item => {
+                            const isLowStock = item.quantity <= item.threshold;
+                            return `
+                                <tr data-id="${item.id}" ${isLowStock ? 'style="background: rgba(239, 68, 68, 0.1);"' : ''}>
+                                    <td><strong>${item.name}</strong></td>
+                                    <td style="color: ${isLowStock ? 'var(--error)' : 'var(--success)'}; font-weight: 600;">${item.quantity}</td>
+                                    <td>${item.threshold}</td>
+                                    <td>${formatCurrency(item.price)}</td>
+                                    <td>${item.supplier}</td>
+                                    <td>
+                                        <span style="color: ${isLowStock ? 'var(--error)' : 'var(--success)'}; font-weight: 600;">
+                                            ${isLowStock ? '⚠️ Scorte Basse' : '✅ OK'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="editInventoryItem('${item.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            ✏️ Modifica
+                                        </button>
+                                        <button class="btn btn-error" onclick="confirmDeleteInventoryItem('${item.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            🗑️ Elimina
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            console.log('Inventory loaded:', appData.inventory.length);
+        }
+        
+        function addInventoryItem() {
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📦 Nuovo Componente</h3>
+                <div class="form-group">
+                    <label for="itemName">Nome Componente</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemQuantity">Quantità</label>
+                    <input type="number" id="itemQuantity" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemThreshold">Soglia Minima</label>
+                    <input type="number" id="itemThreshold" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Prezzo (€)</label>
+                    <input type="number" id="itemPrice" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemSupplier">Fornitore</label>
+                    <input type="text" id="itemSupplier" required>
+                </div>
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-success" onclick="saveInventoryItemFromForm()" id="saveInventoryBtn">
+                        <span>💾</span> Salva
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+        
+        function saveInventoryItemFromForm() {
+            try {
+                const saveBtn = document.getElementById('saveInventoryBtn');
+                const originalText = '<span>💾</span> Salva';
+                
+                showLoading(saveBtn, 'Salvando...');
+                
+                const name = document.getElementById('itemName')?.value;
+                const quantity = document.getElementById('itemQuantity')?.value;
+                const threshold = document.getElementById('itemThreshold')?.value;
+                const price = document.getElementById('itemPrice')?.value;
+                const supplier = document.getElementById('itemSupplier')?.value;
+                
+                if (!name || !quantity || !threshold || !price || !supplier) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Compila tutti i campi obbligatori', 'error');
+                    return;
+                }
+                
+                // Validate quantities
+                if (parseInt(quantity) < 0 || parseInt(threshold) < 0 || parseFloat(price) < 0) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('I valori numerici non possono essere negativi', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const formData = {
+                        id: appData.editingId || generateId(),
+                        name: name,
+                        quantity: parseInt(quantity),
+                        threshold: parseInt(threshold),
+                        price: parseFloat(price),
+                        supplier: supplier
+                    };
+                    
+                    if (appData.editingId) {
+                        const index = appData.inventory.findIndex(i => i.id === appData.editingId);
+                        if (index !== -1) {
+                            appData.inventory[index] = formData;
+                            showMessage('Componente aggiornato con successo!');
+                            console.log('Inventory item updated:', formData);
+                        }
+                        appData.editingId = null;
+                    } else {
+                        appData.inventory.push(formData);
+                        showMessage('Componente aggiunto con successo!');
+                        console.log('Inventory item added:', formData);
+                    }
+                    
+                    hideLoading(saveBtn, originalText);
+                    closeModal();
+                    loadInventory();
+                    updateDashboard();
+                    autoSave();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Save inventory error:', error);
+                showMessage('Errore nel salvataggio componente', 'error');
+            }
+        }
+        
+        function editInventoryItem(id) {
+            console.log('Editing inventory item with ID:', id);
+            const item = appData.inventory.find(i => i.id === id);
+            if (!item) {
+                showMessage('Componente non trovato', 'error');
+                console.error('Inventory item not found:', id);
+                return;
+            }
+            
+            appData.editingId = id;
+            addInventoryItem();
+            
+            // Populate form with existing data
+            setTimeout(() => {
+                const nameEl = document.getElementById('itemName');
+                const quantityEl = document.getElementById('itemQuantity');
+                const thresholdEl = document.getElementById('itemThreshold');
+                const priceEl = document.getElementById('itemPrice');
+                const supplierEl = document.getElementById('itemSupplier');
+                
+                if (nameEl) nameEl.value = item.name;
+                if (quantityEl) quantityEl.value = item.quantity;
+                if (thresholdEl) thresholdEl.value = item.threshold;
+                if (priceEl) priceEl.value = item.price;
+                if (supplierEl) supplierEl.value = item.supplier;
+            }, 100);
+        }
+        
+        function confirmDeleteInventoryItem(id) {
+            console.log('Confirming delete for inventory item:', id);
+            const item = appData.inventory.find(i => i.id === id);
+            if (!item) {
+                showMessage('Componente non trovato', 'error');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Elimina Componente',
+                `Sei sicuro di voler eliminare il componente "${item.name}"? Questa azione non può essere annullata.`,
+                () => deleteInventoryItem(id)
+            );
+        }
+        
+        function deleteInventoryItem(id) {
+            console.log('Deleting inventory item with ID:', id);
+            console.log('Inventory before delete:', appData.inventory.length);
+            
+            const initialLength = appData.inventory.length;
+            appData.inventory = appData.inventory.filter(i => i.id !== id);
+            
+            if (appData.inventory.length < initialLength) {
+                console.log('Inventory item deleted successfully. New count:', appData.inventory.length);
+                showMessage('Componente eliminato con successo!');
+                loadInventory();
+                updateDashboard();
+                autoSave();
+            } else {
+                console.error('Failed to delete inventory item');
+                showMessage('Errore nell\'eliminazione del componente', 'error');
+            }
+        }
+        
+        const debouncedFilterInventory = debounce(() => {
+            const searchTerm = document.getElementById('inventorySearch')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('#inventoryContainer tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
+        
+        // ===== ORDERS FUNCTIONS =====
+        function loadOrders() {
+            const container = document.getElementById('ordersContainer');
+            if (!container) return;
+            
+            if (appData.orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>Nessun ordine</h3>
+                        <p>Inizia aggiungendo il tuo primo ordine!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort orders by date (newest first)
+            const sortedOrders = [...appData.orders].sort((a, b) => 
+                new Date(b.data) - new Date(a.data)
+            );
+            
+            const tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Modello</th>
+                            <th>Stato</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedOrders.map(order => {
+                            const stateColors = {
+                                'attesa_componenti': 'var(--warning)',
+                                'in_lavorazione': 'var(--primary)',
+                                'completato': 'var(--success)',
+                                'consegnato': 'var(--secondary)'
+                            };
+                            const stateLabels = {
+                                'attesa_componenti': '⏳ Attesa Componenti',
+                                'in_lavorazione': '🔧 In Lavorazione',
+                                'completato': '✅ Completato',
+                                'consegnato': '📦 Consegnato'
+                            };
+                            
+                            return `
+                                <tr data-id="${order.id}">
+                                    <td>${new Date(order.data).toLocaleDateString('it-IT')}</td>
+                                    <td><strong>${order.cliente}</strong></td>
+                                    <td>${order.modello}</td>
+                                    <td>
+                                        <span style="color: ${stateColors[order.stato] || 'var(--text-muted)'}; font-weight: 600;">
+                                            ${stateLabels[order.stato] || order.stato}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="viewOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            👁️ Visualizza
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="editOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            ✏️ Modifica
+                                        </button>
+                                        <button class="btn btn-error" onclick="confirmDeleteOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
+                                            🗑️ Elimina
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            console.log('Orders loaded:', appData.orders.length);
+        }<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroAvia 2025 - Game Boy Business Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1b3c;
+            --bg-tertiary: #252647;
+            --surface: #2d2f52;
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-card: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --space-2: 0.5rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.1) 0%, transparent 70%), var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-6);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+        
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-2);
+            animation: logoGlow 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            0% { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)); }
+            100% { filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8)); }
+        }
+        
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: var(--space-4);
+        }
+        
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-xl);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            margin: var(--space-8) 0;
+            padding: var(--space-6);
+            background: var(--gradient-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .nav-btn {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: var(--space-4) var(--space-6);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .nav-btn:hover, .nav-btn:focus {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            color: var(--text-primary);
+            outline: none;
+        }
+        
+        .nav-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .page {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            margin: var(--space-6) 0;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .card h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            margin-bottom: var(--space-6);
+            color: var(--accent);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .grid {
+            display: grid;
+            gap: var(--space-6);
+        }
+        
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+        
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
+        .stat-box {
+            background: var(--gradient-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-box:hover {
+            transform: scale(1.05) translateY(-4px);
+        }
+        
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .stat-box:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            margin-bottom: var(--space-2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            padding: var(--space-4) var(--space-6);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            margin: var(--space-2);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success { background: linear-gradient(135deg, var(--success), #059669); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .btn-error { background: linear-gradient(135deg, var(--error), #dc2626); }
+        .btn-secondary { background: var(--surface); color: var(--text-secondary); }
+        
+        .form-group {
+            margin: var(--space-6) 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            justify-content: center;
+        }
+        
+        .ai-panel {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 2px solid var(--accent);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            margin: var(--space-6) 0;
+            position: relative;
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.2);
+        }
+        
+        .ai-panel::before {
+            content: '🤖 SPIDER-AI NEURAL NETWORK';
+            position: absolute;
+            top: -15px;
+            left: var(--space-6);
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-lg);
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        
+        .ai-suggestions {
+            margin: var(--space-6) 0;
+            padding: var(--space-6);
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--accent);
+        }
+        
+        .ai-suggestions p {
+            margin: var(--space-2) 0;
+        }
+        
+        .message-box {
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            margin: var(--space-6) 0;
+            display: none;
+            font-weight: 500;
+            border: 1px solid;
+        }
+        
+        .error-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            color: #fecaca;
+            border-color: var(--error);
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            color: #a7f3d0;
+            border-color: var(--success);
+        }
+        
+        .message-box.show {
+            display: block;
+            animation: slideInRight 0.5s ease;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            position: absolute;
+            top: var(--space-4);
+            right: var(--space-4);
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--error);
+            transition: all 0.3s ease;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .close:hover, .close:focus {
+            color: white;
+            transform: rotate(90deg);
+            outline: none;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-6) 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: var(--space-4);
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-table th {
+            background: var(--surface);
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto var(--space-6);
+            padding: var(--space-4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--text-muted);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-4);
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Confirmation Dialog Styles */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .confirm-dialog.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: var(--gradient-card);
+            border: 2px solid var(--error);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.3);
+        }
+
+        .confirm-icon {
+            font-size: 4rem;
+            color: var(--error);
+            margin-bottom: var(--space-4);
+        }
+
+        .confirm-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--error);
+            margin-bottom: var(--space-4);
+        }
+
+        .confirm-message {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-8);
+            font-size: 1.1rem;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin: var(--space-4) 0;
+        }
+
+        .chart-bar {
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            transform: scaleY(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .chart-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: var(--space-2);
+        }
+
+        .chart-value {
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: var(--space-1);
+        }
+        
+        @media (max-width: 768px) {
+            .container { 
+                padding: var(--space-4); 
+            }
+            
+            .nav { 
+                flex-direction: column; 
+                gap: var(--space-2);
+            }
+            
+            .nav-btn { 
+                width: 100%; 
+                max-width: none;
+                justify-content: center;
+            }
+            
+            .grid-2, .grid-4 { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .card { 
+                padding: var(--space-6); 
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .quick-actions .btn {
+                width: 100%;
+                justify-content: center;
+                margin: var(--space-2) 0;
+            }
+            
+            .data-table {
+                font-size: 0.875rem;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: var(--space-2);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 95%;
+                padding: var(--space-6);
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .confirm-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">🕷️ RetroAvia</h1>
+            <p class="subtitle">Advanced Game Boy Business Manager</p>
+            <div class="version-badge">
+                <span>⚡</span>
+                Version 3.1 - 2025
+            </div>
+        </header>
+        
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <button class="nav-btn active" onclick="showPage('dashboard')" aria-label="Dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button class="nav-btn" onclick="showPage('transactions')" aria-label="Transazioni">
+                <span>💰</span> Transazioni
+            </button>
+            <button class="nav-btn" onclick="showPage('clients')" aria-label="Clienti">
+                <span>👤</span> Clienti
+            </button>
+            <button class="nav-btn" onclick="showPage('inventory')" aria-label="Inventario">
+                <span>📦</span> Inventario
+            </button>
+            <button class="nav-btn" onclick="showPage('orders')" aria-label="Ordini">
+                <span>📋</span> Ordini
+            </button>
+            <button class="nav-btn" onclick="showPage('analytics')" aria-label="Analytics">
+                <span>📈</span> Analytics
+            </button>
+        </nav>
+        
+        <div class="error-box message-box" id="errorBox" role="alert"></div>
+        <div class="success-box message-box" id="successBox" role="status"></div>
+        
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard" role="main">
+            <div class="grid grid-4">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalRevenue">€0</div>
+                    <div class="stat-label">Guadagni Totali</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="totalExpenses">€0</div>
+                    <div class="stat-label">Spese Totali</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="netProfit">€0</div>
+                    <div class="stat-label">Profitto Netto</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="totalOrders">0</div>
+                    <div class="stat-label">Ordini Totali</div>
+                </div>
+            </div>
+            
+            <div class="ai-panel">
+                <h3>🧠 Spider-AI Neural Analysis</h3>
+                <div class="ai-suggestions" id="aiSuggestions">
+                    <p>• Benvenuto in RetroAvia 3.1! Sistema AI pronto per l'analisi.</p>
+                    <p>• Inizia aggiungendo transazioni per insights intelligenti.</p>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn" onclick="runAIAnalysis()">
+                        <span>🧠</span> Analizza Ora
+                    </button>
+                    <button class="btn btn-secondary" onclick="generatePredictions()">
+                        <span>🔮</span> Predizioni AI
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><span>⚡</span> Azioni Rapide</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="openQuickSale()">
+                        <span>💰</span> Vendita Rapida
+                    </button>
+                    <button class="btn btn-warning" onclick="openQuickClient()">
+                        <span>👤</span> Cliente Rapido
+                    </button>
+                    <button class="btn" onclick="openQuickInventory()">
+                        <span>📦</span> Componente Rapido
+                    </button>
+                    <button class="btn btn-warning" onclick="openQuickOrder()">
+                        <span>📋</span> Ordine Rapido
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportBackup()">
+                        <span>💾</span> Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions Page -->
+        <div class="page" id="transactions" role="main">
+            <div class="card">
+                <h3><span>💰</span> Gestione Transazioni</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="addTransaction('revenue')">
+                        <span>💰</span> Nuova Entrata
+                    </button>
+                    <button class="btn btn-error" onclick="addTransaction('expense')">
+                        <span>💸</span> Nuova Spesa
+                    </button>
+                </div>
+                <input type="text" class="search-box" id="transactionSearch" placeholder="🔍 Cerca transazioni..." aria-label="Cerca transazioni">
+                <div id="transactionsContainer">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Clients Page -->
+        <div class="page" id="clients" role="main">
+            <div class="card">
+                <h3><span>👤</span> Gestione Clienti</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="addClient()">
+                        <span>👤</span> Nuovo Cliente
+                    </button>
+                </div>
+                <input type="text" class="search-box" id="clientSearch" placeholder="🔍 Cerca clienti..." aria-label="Cerca clienti">
+                <div id="clientsContainer">
+                    <!-- Clients will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory Page -->
+        <div class="page" id="inventory" role="main">
+            <div class="card">
+                <h3><span>📦</span> Gestione Inventario</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="addInventoryItem()">
+                        <span>📦</span> Nuovo Componente
+                    </button>
+                </div>
+                <input type="text" class="search-box" id="inventorySearch" placeholder="🔍 Cerca componenti..." aria-label="Cerca componenti">
+                <div id="inventoryContainer">
+                    <!-- Inventory will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Page -->
+        <div class="page" id="orders" role="main">
+            <div class="card">
+                <h3><span>📋</span> Gestione Ordini</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="addOrder()">
+                        <span>📋</span> Nuovo Ordine
+                    </button>
+                </div>
+                <input type="text" class="search-box" id="orderSearch" placeholder="🔍 Cerca ordini..." aria-label="Cerca ordini">
+                <div id="ordersContainer">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Page -->
+        <div class="page" id="analytics" role="main">
+            <div class="card">
+                <h3><span>📈</span> Analytics Avanzate</h3>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h4>📊 Trend Mensili (Ultimi 6 Mesi)</h4>
+                        <div id="monthlyTrends" class="chart-container">
+                            <!-- Monthly trends chart will be here -->
+                        </div>
+                        
+                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">🎮 Specifiche Game Boy</h4>
+                            <div style="display: grid; gap: var(--space-2);">
+                                <p><strong>Modello:</strong> ${order.modello || '-'}</p>
+                                <p><strong>Scocca:</strong> ${order.scocca || '-'}</p>
+                                <p><strong>Pulsanti:</strong> ${order.pulsanti || '-'}</p>
+                                <p><strong>Etichetta:</strong> ${order.etichetta || '-'}</p>
+                                <p><strong>Batteria:</strong> ${order.batteria || '-'}</p>
+                                <p><strong>Audio:</strong> ${order.audio || '-'}</p>
+                                <p><strong>Display:</strong> ${order.display || '-'}</p>
+                                <p><strong>Kit Led:</strong> ${order.kitLed || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📦 Accessori e Altro</h4>
+                            <div style="display: grid; gap: var(--space-2);">
+                                <p><strong>Box:</strong> ${order.box || '-'}</p>
+                                <p><strong>Cover:</strong> ${order.cover || '-'}</p>
+                                <p><strong>Game Boy Cliente:</strong> ${order.gameBoyCliente || '-'}</p>
+                                <p><strong>Altro:</strong> ${order.altro || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        ${order.note ? `
+                            <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📝 Note</h4>
+                                <p style="font-style: italic;">${order.note}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn" onclick="editOrder('${order.id}')">
+                        <span>✏️</span> Modifica
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Chiudi
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+        
         function editOrder(id) {
             console.log('Editing order with ID:', id);
             const order = appData.orders.find(o => o.id === id);
@@ -597,172 +2534,33 @@
             
             // Populate form with existing data
             setTimeout(() => {
-                // General info
-                const clientEl = document.getElementById('orderClient');
-                const priorityEl = document.getElementById('orderPriority');
-                const statusEl = document.getElementById('orderStatus');
-                const createdDateEl = document.getElementById('orderCreatedDate');
-                const completionEl = document.getElementById('orderEstimatedCompletion');
+                const fields = ['orderCliente', 'orderData', 'orderStato', 'orderModello', 'orderScocca', 'orderPulsanti', 'orderEtichetta', 'orderBatteria', 'orderAudio', 'orderDisplay', 'orderKitLed', 'orderBox', 'orderCover', 'orderGameBoyCliente', 'orderAltro', 'orderNote'];
+                const orderData = {
+                    orderCliente: order.cliente,
+                    orderData: order.data,
+                    orderStato: order.stato,
+                    orderModello: order.modello,
+                    orderScocca: order.scocca,
+                    orderPulsanti: order.pulsanti,
+                    orderEtichetta: order.etichetta,
+                    orderBatteria: order.batteria,
+                    orderAudio: order.audio,
+                    orderDisplay: order.display,
+                    orderKitLed: order.kitLed,
+                    orderBox: order.box,
+                    orderCover: order.cover,
+                    orderGameBoyCliente: order.gameBoyCliente,
+                    orderAltro: order.altro,
+                    orderNote: order.note
+                };
                 
-                if (clientEl) clientEl.value = order.clientName;
-                if (priorityEl) priorityEl.value = order.priority;
-                if (statusEl) statusEl.value = order.status;
-                if (createdDateEl) createdDateEl.value = order.createdDate;
-                if (completionEl) completionEl.value = order.estimatedCompletion;
-                
-                // Specifications
-                const specs = order.specifications;
-                const specFields = [
-                    'modello', 'scocca', 'pulsanti', 'etichetta', 'batteria', 
-                    'audio', 'display', 'kitLed', 'box', 'cover', 'gameBoyCliente', 'altro', 'note'
-                ];
-                
-                specFields.forEach(field => {
-                    const element = document.getElementById(`spec${field.charAt(0).toUpperCase() + field.slice(1)}`);
-                    if (element && specs[field]) {
-                        element.value = specs[field];
+                fields.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element && orderData[fieldId] !== undefined) {
+                        element.value = orderData[fieldId] || '';
                     }
                 });
             }, 100);
-        }
-        
-        function viewOrderDetails(id) {
-            const order = appData.orders.find(o => o.id === id);
-            if (!order) {
-                showMessage('Ordine non trovato', 'error');
-                return;
-            }
-            
-            const statusConfig = {
-                'pending': { color: 'var(--warning)', icon: '⏳', text: 'In Attesa' },
-                'in-progress': { color: 'var(--primary)', icon: '🔧', text: 'In Lavorazione' },
-                'completed': { color: 'var(--success)', icon: '✅', text: 'Completato' }
-            };
-            
-            const priorityConfig = {
-                'high': { color: 'var(--error)', icon: '🔥', text: 'Alta' },
-                'medium': { color: 'var(--warning)', icon: '⚡', text: 'Media' },
-                'low': { color: 'var(--success)', icon: '🌱', text: 'Bassa' }
-            };
-            
-            const status = statusConfig[order.status] || statusConfig['pending'];
-            const priority = priorityConfig[order.priority] || priorityConfig['medium'];
-            
-            const daysUntilCompletion = Math.ceil((new Date(order.estimatedCompletion) - new Date()) / (1000 * 60 * 60 * 24));
-            const isOverdue = daysUntilCompletion < 0;
-            const isUrgent = daysUntilCompletion <= 3 && daysUntilCompletion > 0;
-            
-            const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
-                    👁️ Dettagli Ordine ${order.id.replace('order', '#')}
-                </h3>
-                
-                <!-- Status Header -->
-                <div style="background: var(--gradient-card); padding: var(--space-4); border-radius: var(--radius-lg); margin-bottom: var(--space-6); border: 1px solid ${status.color};">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
-                        <div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Cliente</div>
-                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">${order.clientName}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Stato</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: ${status.color};">${status.icon} ${status.text}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Priorità</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: ${priority.color};">${priority.icon} ${priority.text}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Consegna</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
-                                ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}
-                                ${isOverdue ? ' 🚨' : isUrgent ? ' ⚠️' : ' ✅'}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Specifications -->
-                <div style="display: grid; gap: var(--space-4);">
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--primary); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
-                            🔧 Specifiche Tecniche
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-3);">
-                            ${Object.entries({
-                                'Modello Game Boy': order.specifications.modello,
-                                'Scocca': order.specifications.scocca,
-                                'Pulsanti': order.specifications.pulsanti,
-                                'Etichetta': order.specifications.etichetta,
-                                'Batteria': order.specifications.batteria,
-                                'Audio': order.specifications.audio,
-                                'Display': order.specifications.display,
-                                'Kit LED': order.specifications.kitLed,
-                                'Box': order.specifications.box,
-                                'Cover': order.specifications.cover,
-                                'Game Boy Cliente': order.specifications.gameBoyCliente
-                            }).filter(([key, value]) => value).map(([key, value]) => `
-                                <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: var(--space-2);">
-                                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">${key}</div>
-                                    <div style="font-weight: 600; color: var(--text-primary);">${value}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    ${order.specifications.altro ? `
-                        <div style="background: rgba(59, 130, 246, 0.1); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--primary);">
-                            <h4 style="color: var(--primary); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2);">
-                                ✨ Personalizzazioni Aggiuntive
-                            </h4>
-                            <div style="line-height: 1.6;">${order.specifications.altro}</div>
-                        </div>
-                    ` : ''}
-                    
-                    ${order.specifications.note ? `
-                        <div style="background: rgba(245, 158, 11, 0.1); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--accent);">
-                            <h4 style="color: var(--accent); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2);">
-                                📝 Note Importanti
-                            </h4>
-                            <div style="line-height: 1.6;">${order.specifications.note}</div>
-                        </div>
-                    ` : ''}
-                    
-                    <!-- Timeline -->
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
-                        <h4 style="color: var(--success); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
-                            📅 Timeline Progetto
-                        </h4>
-                        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-lg); border: 1px solid var(--success);">
-                                <span>📅 Data Creazione</span>
-                                <span style="font-weight: 600;">${new Date(order.createdDate).toLocaleDateString('it-IT')}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(${isOverdue ? '239, 68, 68' : isUrgent ? '245, 158, 11' : '16, 185, 129'}, 0.1); border-radius: var(--radius-lg); border: 1px solid ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
-                                <span>🎯 Consegna Stimata</span>
-                                <span style="font-weight: 600;">${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-lg);">
-                                <span>⏱️ Giorni Rimanenti</span>
-                                <span style="font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
-                                    ${isOverdue ? `Scaduto da ${Math.abs(daysUntilCompletion)} giorni` : `${daysUntilCompletion} giorni`}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="quick-actions" style="margin-top: var(--space-6);">
-                    <button type="button" class="btn btn-warning" onclick="closeModal(); editOrder('${order.id}')">
-                        <span>✏️</span> Modifica Ordine
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> Chiudi
-                    </button>
-                </div>
-            `;
-            
-            openModal(content);
         }
         
         function confirmDeleteOrder(id) {
@@ -775,7 +2573,7 @@
             
             showConfirmDialog(
                 'Elimina Ordine',
-                `Sei sicuro di voler eliminare l'ordine per "${order.clientName}" (${order.specifications.modello})? Questa azione non può essere annullata.`,
+                `Sei sicuro di voler eliminare l'ordine di "${order.cliente}" per ${order.modello}? Questa azione non può essere annullata.`,
                 () => deleteOrder(id)
             );
         }
@@ -799,90 +2597,691 @@
             }
         }
         
-        function filterOrdersByStatus(status) {
-            // Update active filter button
-            document.querySelectorAll('.order-filter').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-status="${status}"]`).classList.add('active');
-            
-            // Filter order cards
-            const orderCards = document.querySelectorAll('.order-card');
-            orderCards.forEach(card => {
-                if (status === 'all' || card.dataset.status === status) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        function markOrderCompleted() {
-            const pendingOrders = appData.orders.filter(o => o.status !== 'completed');
-            
-            if (pendingOrders.length === 0) {
-                showMessage('Nessun ordine da completare', 'error');
-                return;
-            }
-            
-            const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">✅ Segna Ordine Completato</h3>
-                
-                <div class="form-group">
-                    <label for="completeOrderSelect">Seleziona Ordine da Completare</label>
-                    <select id="completeOrderSelect" required>
-                        <option value="">Scegli ordine...</option>
-                        ${pendingOrders.map(order => `
-                            <option value="${order.id}">${order.id.replace('order', '#')} - ${order.clientName} (${order.specifications.modello})</option>
-                        `).join('')}
-                    </select>
-                </div>
-                
-                <div class="quick-actions">
-                    <button type="button" class="btn btn-success" onclick="completeSelectedOrder()">
-                        <span>✅</span> Segna Completato
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> Annulla
-                    </button>
-                </div>
-            `;
-            
-            openModal(content);
-        }
-        
-        function completeSelectedOrder() {
-            const selectedOrderId = document.getElementById('completeOrderSelect')?.value;
-            if (!selectedOrderId) {
-                showMessage('Seleziona un ordine da completare', 'error');
-                return;
-            }
-            
-            const orderIndex = appData.orders.findIndex(o => o.id === selectedOrderId);
-            if (orderIndex !== -1) {
-                appData.orders[orderIndex].status = 'completed';
-                showMessage('Ordine segnato come completato!');
-                closeModal();
-                loadOrders();
-                autoSave();
-            } else {
-                showMessage('Errore nel completamento ordine', 'error');
-            }
-        }
-        
         const debouncedFilterOrders = debounce(() => {
             const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
-            const orderCards = document.querySelectorAll('.order-card');
+            const rows = document.querySelectorAll('#ordersContainer tbody tr');
             
-            orderCards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                const isVisible = text.includes(searchTerm);
-                card.style.display = isVisible ? 'block' : 'none';
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         }, 300);
-                            <button class="nav-btn" onclick="showPage('orders')" aria-label="Ordini">
-                <span>📋</span> Ordini
-            </button>
-            <button class="nav-btn" onclick="showPage('analytics')" aria-label="Analytics">
-                <span>📈</span> Analytics
-            </button>
+        
+        // ===== ANALYTICS FUNCTIONS =====
+        function loadAnalytics() {
+            loadMonthlyTrends();
+            loadTopClients();
+            loadMonthlyPerformance();
+            loadKPIDashboard();
+        }
+        
+        function loadMonthlyTrends() {
+            const container = document.getElementById('monthlyTrends');
+            if (!container) return;
+            
+            const months = getLastSixMonths();
+            const monthlyData = getTransactionsByMonth();
+            
+            // Fill in missing months with zero data
+            const chartData = months.map(month => ({
+                ...month,
+                revenue: monthlyData[month.key]?.revenue || 0,
+                expenses: monthlyData[month.key]?.expenses || 0,
+                profit: (monthlyData[month.key]?.revenue || 0) - (monthlyData[month.key]?.expenses || 0)
+            }));
+            
+            const maxValue = Math.max(...chartData.map(d => Math.max(d.revenue, d.expenses))) || 100;
+            
+            container.innerHTML = `
+                <div style="margin-bottom: var(--space-4);">
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                        📊 Trend basati sui dati reali delle tue transazioni
+                    </p>
+                </div>
+                <div style="display: flex; align-items: end; gap: 1rem; height: 200px; padding: 1rem;">
+                    ${chartData.map(data => `
+                        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%; height: 150px; justify-content: end;">
+                                <!-- Revenue Bar -->
+                                <div class="chart-bar" style="
+                                    height: ${maxValue > 0 ? (data.revenue / maxValue) * 70 : 0}px;
+                                    background: linear-gradient(135deg, var(--success), #059669);
+                                    display: flex;
+                                    align-items: end;
+                                    justify-content: center;
+                                    font-size: 0.7rem;
+                                    color: white;
+                                    font-weight: 600;
+                                    padding: 0.125rem;
+                                " title="Entrate: ${formatCurrency(data.revenue)}">
+                                    ${data.revenue > 0 ? formatCurrency(data.revenue) : ''}
+                                </div>
+                                <!-- Expenses Bar -->
+                                <div class="chart-bar" style="
+                                    height: ${maxValue > 0 ? (data.expenses / maxValue) * 70 : 0}px;
+                                    background: linear-gradient(135deg, var(--error), #dc2626);
+                                    display: flex;
+                                    align-items: end;
+                                    justify-content: center;
+                                    font-size: 0.7rem;
+                                    color: white;
+                                    font-weight: 600;
+                                    padding: 0.125rem;
+                                " title="Spese: ${formatCurrency(data.expenses)}">
+                                    ${data.expenses > 0 ? formatCurrency(data.expenses) : ''}
+                                </div>
+                            </div>
+                            <div style="margin-top: var(--space-2);">
+                                <div style="font-size: 0.875rem; color: var(--text-muted); text-align: center;">
+                                    ${data.monthName.substring(0, 3)}
+                                </div>
+                                <div style="font-size: 0.75rem; color: ${data.profit >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600; text-align: center;">
+                                    ${formatCurrency(data.profit)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: center; gap: var(--space-4); margin-top: var(--space-4); font-size: 0.875rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--success), #059669); border-radius: 0.25rem;"></div>
+                        <span>Entrate</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--error), #dc2626); border-radius: 0.25rem;"></div>
+                        <span>Spese</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadTopClients() {
+            const container = document.getElementById('topClients');
+            if (!container) return;
+            
+            // Calculate client spending from transactions
+            const clientSpending = {};
+            appData.transactions.filter(t => t.type === 'revenue' && t.client).forEach(transaction => {
+                clientSpending[transaction.client] = (clientSpending[transaction.client] || 0) + parseFloat(transaction.amount);
+            });
+            
+            const topClients = Object.entries(clientSpending)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            if (topClients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <p>Nessun dato cliente disponibile</p>
+                        <p style="font-size: 0.875rem; margin-top: var(--space-2);">Aggiungi clienti alle transazioni per vedere le statistiche</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const maxSpending = Math.max(...topClients.map(([, amount]) => amount));
+            
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    ${topClients.map(([client, amount], index) => {
+                        const percentage = maxSpending > 0 ? (amount / maxSpending) * 100 : 0;
+                        return `
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 1rem;
+                                background: var(--surface);
+                                border-radius: var(--radius-lg);
+                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                position: relative;
+                                overflow: hidden;
+                            ">
+                                <!-- Progress Background -->
+                                <div style="
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    height: 100%;
+                                    width: ${percentage}%;
+                                    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1));
+                                    transition: width 1s ease;
+                                "></div>
+                                
+                                <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
+                                    <span style="
+                                        background: var(--gradient-primary);
+                                        color: white;
+                                        width: 2rem;
+                                        height: 2rem;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-weight: 700;
+                                        font-size: 0.875rem;
+                                    ">${index + 1}</span>
+                                    <div>
+                                        <div style="font-weight: 600; margin-bottom: 0.25rem;">${client}</div>
+                                        <div style="font-size: 0.875rem; color: var(--text-muted);">
+                                            ${appData.transactions.filter(t => t.client === client && t.type === 'revenue').length} transazioni
+                                        </div>
+                                    </div>
+                                </div>
+                                <span style="color: var(--success); font-weight: 700; font-size: 1.1rem; position: relative; z-index: 1;">
+                                    ${formatCurrency(amount)}
+                                </span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function loadMonthlyPerformance() {
+            const container = document.getElementById('monthlyPerformance');
+            if (!container) return;
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const previousMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+            
+            const monthlyData = getTransactionsByMonth();
+            const currentData = monthlyData[currentMonthKey] || { revenue: 0, expenses: 0, count: 0 };
+            const previousData = monthlyData[previousMonthKey] || { revenue: 0, expenses: 0, count: 0 };
+            
+            const revenueChange = previousData.revenue > 0 ? 
+                ((currentData.revenue - previousData.revenue) / previousData.revenue * 100) : 0;
+            const expenseChange = previousData.expenses > 0 ? 
+                ((currentData.expenses - previousData.expenses) / previousData.expenses * 100) : 0;
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Entrate Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${formatCurrency(currentData.revenue)}</div>
+                            </div>
+                            <div style="color: ${revenueChange >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
+                                ${revenueChange >= 0 ? '↗️' : '↘️'} ${Math.abs(revenueChange).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Spese Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--error);">${formatCurrency(currentData.expenses)}</div>
+                            </div>
+                            <div style="color: ${expenseChange <= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
+                                ${expenseChange <= 0 ? '↘️' : '↗️'} ${Math.abs(expenseChange).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Profitto Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: ${(currentData.revenue - currentData.expenses) >= 0 ? 'var(--success)' : 'var(--error)'};">
+                                    ${formatCurrency(currentData.revenue - currentData.expenses)}
+                                </div>
+                            </div>
+                            <div style="color: var(--accent); font-weight: 600;">
+                                📊 ${currentData.count} transazioni
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadKPIDashboard() {
+            const container = document.getElementById('kpiDashboard');
+            if (!container) return;
+            
+            const revenues = appData.transactions.filter(t => t.type === 'revenue');
+            const expenses = appData.transactions.filter(t => t.type === 'expense');
+            
+            const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const avgOrderValue = revenues.length > 0 ? totalRevenue / revenues.length : 0;
+            const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0;
+            
+            // Low stock items
+            const lowStockItems = appData.inventory.filter(item => item.quantity <= item.threshold);
+            
+            // Active clients (clients with transactions)
+            const activeClients = new Set(appData.transactions.filter(t => t.client).map(t => t.client)).size;
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Valore Medio Ordine</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${formatCurrency(avgOrderValue)}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">💰</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Margine di Profitto</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: ${profitMargin >= 0 ? 'var(--success)' : 'var(--error)'};">${profitMargin.toFixed(1)}%</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">📈</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Clienti Attivi</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);">${activeClients}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">👥</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Scorte Basse</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: ${lowStockItems.length > 0 ? 'var(--error)' : 'var(--success)'};">${lowStockItems.length}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">${lowStockItems.length > 0 ? '⚠️' : '✅'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+                    </div>
+                    <div class="card">
+                        <h4>🏆 Top Clienti</h4>
+                        <div id="topClients">
+                            <!-- Top clients will be here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h4>📈 Performance Mensile</h4>
+                        <div id="monthlyPerformance">
+                            <!-- Monthly performance metrics -->
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4>🎯 KPI Dashboard</h4>
+                        <div id="kpiDashboard">
+                            <!-- Key performance indicators -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Modal -->
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="close" onclick="closeModal()" aria-label="Chiudi finestra">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="confirm-dialog" id="confirmDialog">
+        <div class="confirm-content">
+            <div class="confirm-icon">⚠️</div>
+            <h3 class="confirm-title" id="confirmTitle">Conferma Eliminazione</h3>
+            <p class="confirm-message" id="confirmMessage">Sei sicuro di voler procedere?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-error" id="confirmYes">
+                    <span>🗑️</span> Elimina
+                </button>
+                <button class="btn btn-secondary" id="confirmNo">
+                    <span>❌</span> Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ===== GLOBAL STATE =====
+        let appData = {
+            transactions: [
+                { id: 'demo1', type: 'revenue', amount: 250, description: 'Vendita Game Boy Color ricondizionato', date: '2025-01-15', client: 'Mario Rossi' },
+                { id: 'demo2', type: 'expense', amount: 50, description: 'Componenti sostituzione schermo', date: '2025-01-14', client: '' },
+                { id: 'demo3', type: 'revenue', amount: 180, description: 'Riparazione Game Boy Advance', date: '2025-01-12', client: 'Giulia Bianchi' },
+                { id: 'demo4', type: 'revenue', amount: 320, description: 'Vendita Game Boy Pocket modificato', date: '2024-12-28', client: 'Luca Verdi' },
+                { id: 'demo5', type: 'expense', amount: 75, description: 'Batterie e accessori', date: '2024-12-20', client: '' },
+                { id: 'demo6', type: 'revenue', amount: 150, description: 'Riparazione schermo Game Boy', date: '2024-11-15', client: 'Anna Neri' },
+                { id: 'demo7', type: 'revenue', amount: 280, description: 'Vendita Game Boy Color Pikachu', date: '2024-10-22', client: 'Marco Bianchi' }
+            ],
+            clients: [
+                { id: 'client1', name: 'Mario Rossi', email: 'mario.rossi@email.com', phone: '333-123-4567', source: 'vinted', totalSpent: 250 },
+                { id: 'client2', name: 'Giulia Bianchi', email: 'giulia.bianchi@email.com', phone: '339-987-6543', source: 'facebook', totalSpent: 180 },
+                { id: 'client3', name: 'Luca Verdi', email: 'luca.verdi@email.com', phone: '340-555-7890', source: 'wallapop', totalSpent: 320 },
+                { id: 'client4', name: 'Anna Neri', email: 'anna.neri@email.com', phone: '338-444-3333', source: 'instagram', totalSpent: 150 },
+                { id: 'client5', name: 'Marco Bianchi', email: 'marco.bianchi@email.com', phone: '347-222-1111', source: 'ebay', totalSpent: 280 }
+            ],
+            inventory: [
+                { id: 'inv1', name: 'Schermo Game Boy Classic', quantity: 5, threshold: 3, price: 25, supplier: 'RetroTech' },
+                { id: 'inv2', name: 'Batterie AA Ricaricabili', quantity: 20, threshold: 10, price: 8, supplier: 'PowerPlus' },
+                { id: 'inv3', name: 'Custodie Protettive', quantity: 2, threshold: 5, price: 15, supplier: 'CaseMaster' }
+            ],
+            orders: [
+                {
+                    id: 'order1',
+                    cliente: 'Mario Rossi',
+                    data: '2025-01-20',
+                    stato: 'in_lavorazione',
+                    modello: 'Game Boy Color',
+                    scocca: 'Trasparente Verde',
+                    pulsanti: 'Rossi/Gialli',
+                    etichetta: 'Personalizzata Pokemon',
+                    batteria: 'Mod USB-C',
+                    audio: 'Speaker Pro Enhanced',
+                    display: 'IPS V2 Funny Playing',
+                    kitLed: 'RGB Multicolore',
+                    box: 'Box Custom Pokemon',
+                    cover: 'Screen Protector Vetro',
+                    gameBoyCliente: 'Non fornito',
+                    altro: 'Pulsante power custom',
+                    note: 'Cliente vuole RGB sincronizzato con la musica'
+                },
+                {
+                    id: 'order2',
+                    cliente: 'Giulia Bianchi',
+                    data: '2025-01-18',
+                    stato: 'attesa_componenti',
+                    modello: 'Game Boy Advance',
+                    scocca: 'Nera Opaca',
+                    pulsanti: 'Stock Originali',
+                    etichetta: 'Standard',
+                    batteria: 'Mod batteria ricaricabile',
+                    audio: 'Standard',
+                    display: 'IPS V2',
+                    kitLed: 'Nessuno',
+                    box: 'Box Originale',
+                    cover: 'Nessuna',
+                    gameBoyCliente: 'Fornito dal cliente',
+                    altro: 'Pulizia completa',
+                    note: 'GBA del cliente ha alcuni graffi sulla scocca'
+                }
+            ],
+            editingId: null,
+            currentPage: 'dashboard',
+            version: '3.1'
+        };
+        
+        // ===== UTILITY FUNCTIONS =====
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('it-IT', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(parseFloat(amount || 0));
+        }
+        
+        function generateId() {
+            return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function formatDate(date = new Date()) {
+            if (date instanceof Date) {
+                return date.toISOString().split('T')[0];
+            }
+            return date;
+        }
+        
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById(type === 'error' ? 'errorBox' : 'successBox');
+            if (!box) return;
+            
+            box.textContent = message;
+            box.classList.add('show');
+            
+            setTimeout(() => {
+                box.classList.remove('show');
+            }, type === 'error' ? 6000 : 4000);
+        }
+
+        // ===== IMPROVED DEBOUNCE FUNCTION =====
+        function debounce(func, wait, immediate) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    timeout = null;
+                    if (!immediate) func(...args);
+                };
+                const callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func(...args);
+            };
+        }
+
+        // ===== LOADING STATE MANAGEMENT =====
+        function showLoading(buttonElement, originalText) {
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<span class="loading"></span> ${originalText}`;
+            }
+        }
+
+        function hideLoading(buttonElement, originalText) {
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = originalText;
+            }
+        }
+
+        // ===== DATE UTILITY FUNCTIONS =====
+        function getMonthName(monthIndex) {
+            const months = [
+                'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+                'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+            ];
+            return months[monthIndex];
+        }
+
+        function getLastSixMonths() {
+            const months = [];
+            const now = new Date();
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                months.push({
+                    year: date.getFullYear(),
+                    month: date.getMonth(),
+                    monthName: getMonthName(date.getMonth()),
+                    key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+                });
+            }
+            return months;
+        }
+
+        function getTransactionsByMonth() {
+            const monthlyData = {};
+            
+            appData.transactions.forEach(transaction => {
+                const date = new Date(transaction.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[key]) {
+                    monthlyData[key] = {
+                        revenue: 0,
+                        expenses: 0,
+                        count: 0
+                    };
+                }
+                
+                if (transaction.type === 'revenue') {
+                    monthlyData[key].revenue += parseFloat(transaction.amount || 0);
+                } else if (transaction.type === 'expense') {
+                    monthlyData[key].expenses += parseFloat(transaction.amount || 0);
+                }
+                monthlyData[key].count++;
+            });
+            
+            return monthlyData;
+        }
+
+        // ===== CONFIRMATION DIALOG =====
+        function showConfirmDialog(title, message, onConfirm) {
+            const dialog = document.getElementById('confirmDialog');
+            const titleEl = document.getElementById('confirmTitle');
+            const messageEl = document.getElementById('confirmMessage');
+            const yesBtn = document.getElementById('confirmYes');
+            const noBtn = document.getElementById('confirmNo');
+
+            if (!dialog || !titleEl || !messageEl || !yesBtn || !noBtn) {
+                console.error('Confirmation dialog elements not found');
+                return;
+            }
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            // Remove any existing event listeners
+            const newYesBtn = yesBtn.cloneNode(true);
+            const newNoBtn = noBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+            noBtn.parentNode.replaceChild(newNoBtn, noBtn);
+
+            // Add new event listeners
+            newYesBtn.addEventListener('click', () => {
+                dialog.classList.remove('active');
+                if (typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+            });
+
+            newNoBtn.addEventListener('click', () => {
+                dialog.classList.remove('active');
+            });
+
+            dialog.classList.add('active');
+
+            // Focus on the "No" button by default for safety
+            setTimeout(() => newNoBtn.focus(), 100);
+        }
+        
+        // ===== NAVIGATION =====
+        function showPage(pageId) {
+            try {
+                // Remove active class from all pages and buttons
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to target page and button
+                const targetPage = document.getElementById(pageId);
+                const targetButton = document.querySelector(`[onclick="showPage('${pageId}')"]`);
+                
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+                
+                appData.currentPage = pageId;
+                
+                // Load page data
+                switch(pageId) {
+                    case 'dashboard':
+                        updateDashboard();
+                        break;
+                    case 'transactions':
+                        loadTransactions();
+                        setTimeout(setupSearchListeners, 100);
+                        break;
+                    case 'clients':
+                        loadClients();
+                        setTimeout(setupSearchListeners, 100);
+                        break;
+                    case 'inventory':
+                        loadInventory();
+                        setTimeout(setupSearchListeners, 100);
+                        break;
+                    case 'orders':
+                        loadOrders();
+                        setTimeout(setupSearchListeners, 100);
+                        break;
+                    case 'analytics':
+                        loadAnalytics();
+                        break;
+                }
+                
+                console.log(`Navigated to ${pageId}`);
+                
+            } catch (error) {
+                console.error('Navigation error:', error);
+                showMessage('Errore nella navigazione', 'error');
+            }
+        }
+        
+        // ===== DASHBOARD FUNCTIONS =====
+        function updateDashboard() {
+            try {
+                const revenues = appData.transactions.filter(t => t.type === 'revenue');
+                const expenses = appData.transactions.filter(t => t.type === 'expense');
+                
+                const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                const netProfit = totalRevenue - totalExpenses;
+                const totalOrders = revenues.length;
+                
+                // Update stat boxes with animation
+                const elements = {
+                    totalRevenue: formatCurrency(totalRevenue),
+                    totalExpenses: formatCurrency(totalExpenses),
+                    netProfit: formatCurrency(netProfit),
+                    totalOrders: totalOrders
+                };
+                
+                Object.entries(elements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        // Add subtle animation
+                        element.style.transform = 'scale(1.05)';
+                        setTimeout(() => {
+                            element.textContent = value;
+                            element.style.transform = 'scale(1)';
+                        }, 150);
+                    }
+                });
+                
+                // Update profit color
+                const profitElement = document.getElementById('netProfit');
+                if (profitElement && profitElement.parentElement) {
+                    const profitBox = profitElement.parentElement;
+                    if (netProfit >= 0) {
+                        profitBox.style.background = 'linear-gradient(135deg, var(--success), #059669)';
+                    } else {
+                        profitBox.style.background = 'linear-gradient(135deg, var(--error), #dc2626)';
+                    }
+                }
+                
+                // Update AI suggestions
+                runAIAnalysis();
+                
+                console.log('Dashboard updated successfully');
+                
+            } catch (error) {
+                console.error('Dashboard update error:', error);
+                showMessage('Errore aggiornamento dashboard', 'error');
+            }
+        }
