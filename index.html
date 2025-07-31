@@ -1,0 +1,888 @@
+// ===== SPIDER AI =====
+        const SpiderAI = {
+            analyze: function(data) {
+                const suggestions = [];
+                const { transactions = [], clients = [], inventory = [], orders = [] } = data;
+                
+                try {
+                    const revenues = transactions.filter(t => t.type === 'revenue');
+                    const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                    
+                    if (transactions.length === 0 && orders.length === 0) {
+                        suggestions.push('🕷️ Spider-AI inizializzato! Aggiungi transazioni e ordini per analisi avanzate.');
+                        suggestions.push('🚀 Sistema pronto per machine learning sui tuoi dati business.');
+                        return suggestions;
+                    }
+                    
+                    // Orders analysis
+                    if (orders.length > 0) {
+                        const pendingOrders = orders.filter(o => o.status === 'pending').length;
+                        const inProgressOrders = orders.filter(o => o.status === 'in-progress').length;
+                        const completedOrders = orders.filter(o => o.status === 'completed').length;
+                        const highPriorityOrders = orders.filter(o => o.priority === 'high').length;
+                        
+                        suggestions.push(`📋 Gestione Ordini: ${orders.length} totali (${pendingOrders} in attesa, ${inProgressOrders} in corso, ${completedOrders} completati)`);
+                        
+                        if (highPriorityOrders > 0) {
+                            suggestions.push(`🔥 PRIORITÀ ALTA: ${highPriorityOrders} ordini urgenti richiedono attenzione!`);
+                        }
+                        
+                        // Check overdue orders
+                        const now = new Date();
+                        const overdueOrders = orders.filter(o => {
+                            const completion = new Date(o.estimatedCompletion);
+                            return completion < now && o.status !== 'completed';
+                        });
+                        
+                        if (overdueOrders.length > 0) {
+                            suggestions.push(`⚠️ SPIDER-ALERT: ${overdueOrders.length} ordini in ritardo! Azione immediata richiesta.`);
+                        }
+                        
+                        // Popular models analysis
+                        const modelCounts = {};
+                        orders.forEach(o => {
+                            const model = o.specifications.modello;
+                            modelCounts[model] = (modelCounts[model] || 0) + 1;
+                        });
+                        const topModel = Object.entries(modelCounts).sort(([,a], [,b]) => b - a)[0];
+                        if (topModel) {
+                            suggestions.push(`🎮 Modello più richiesto: ${topModel[0]} (${topModel[1]} ordini)`);
+                        }
+                    }
+                    
+                    if (totalRevenue > 0) {
+                        suggestions.push(`🕷️ Ottimo lavoro! Ricavi totali: ${formatCurrency(totalRevenue)}`);
+                        if (totalRevenue > 1000) {
+                            suggestions.push('💎 Milestone 1K raggiunta! AI suggerisce espansione strategica.');
+                        }
+                        if (totalRevenue > 5000) {
+                            suggestions.push('🚀 Business in crescita! Considera diversificazione prodotti.');
+                        }
+                    }
+                    
+                    // Client analysis
+                    if (clients.length > 0) {
+                        const avgClientValue = totalRevenue / clients.length;
+                        suggestions.push(`👤 Base clienti: ${clients.length} - Valore medio: ${formatCurrency(avgClientValue)}`);
+                        
+                        if (avgClientValue > 200) {
+                            suggestions.push('🎯 Alto valore cliente! Implementa programma fedeltà.');
+                        }
+                    }
+                    
+                    // Inventory analysis
+                    const lowStock = inventory.filter(item => (item.quantity || 0) <= (item.threshold || 5));
+                    if (lowStock.length > 0) {
+                        suggestions.push(`📦 SPIDER-SENSE ALERT: ${lowStock.length} componenti sotto soglia!`);
+                    }
+                    
+                    // Performance analysis
+                    const expenses = transactions.filter(t => t.type === 'expense');
+                    const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                    const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0;
+                    
+                    if (profitMargin > 50) {
+                        suggestions.push('💰 Margine di profitto eccellente! Business sostenibile.');
+                    } else if (profitMargin < 20 && profitMargin > 0) {
+                        suggestions.push('⚠️ Margine basso. Rivedi struttura costi o prezzi.');
+                    }
+                    
+                    // Order efficiency analysis
+                    if (orders.length > 3) {
+                        const avgCompletionTime = orders.filter(o => o.status === 'completed').length;
+                        if (avgCompletionTime / orders.length > 0.7) {
+                            suggestions.push('⚡ Efficienza ordini elevata! Workflow ottimizzato.');
+                        }
+                    }
+                    
+                    // Trend analysis
+                    const recentTransactions = transactions.slice(-5);
+                    const recentRevenue = recentTransactions.filter(t => t.type === 'revenue').length;
+                    const recentExpenses = recentTransactions.filter(t => t.type === 'expense').length;
+                    
+                    if (recentRevenue > recentExpenses) {
+                        suggestions.push('📈 Trend positivo: più entrate che spese nelle ultime transazioni!');
+                    } else if (recentExpenses > recentRevenue) {
+                        suggestions.push('⚠️ Attenzione: molte spese recenti. Monitora il cash flow.');
+                    }
+                    
+                    // Seasonal insights
+                    const currentMonth = new Date().getMonth();
+                    if (currentMonth >= 10 || currentMonth <= 1) {
+                        suggestions.push('🎄 Stagione favorevole! Periodo natalizio ideale per retro gaming.');
+                    }
+                    
+                } catch (error) {
+                    console.error('AI Analysis error:', error);
+                    suggestions.push('🤖 Spider-AI in manutenzione - Riprova tra poco!');
+                }
+                
+                return suggestions.length > 0 ? suggestions : ['🕷️ Spider-AI Neural Network attivo!'];
+            },
+            
+            generatePredictions: function(data) {
+                const { transactions = [], clients = [], inventory = [], orders = [] } = data;
+                
+                if (transactions.length < 3 && orders.length < 2) {
+                    return [{
+                        title: "🔮 Raccolta Dati in Corso",
+                        description: "Il neural network necessita di più dati per generare predizioni accurate.",
+                        confidence: 85
+                    }];
+                }
+                
+                const predictions = [];
+                
+                // Revenue prediction based on historical data
+                const revenues = transactions.filter(t => t.type === 'revenue');
+                if (revenues.length > 0) {
+                    const avgRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0) / revenues.length;
+                    const trendMultiplier = revenues.length > 5 ? 1.15 : 1.08;
+                    
+                    predictions.push({
+                        title: "📈 Proiezione Ricavi",
+                        description: `Basandomi sui pattern recenti, prevedo ricavi medi di ${formatCurrency(avgRevenue * trendMultiplier)} per i prossimi ordini (+${Math.round((trendMultiplier - 1) * 100)}%).`,
+                        confidence: Math.min(78 + revenues.length * 2, 95)
+                    });
+                }
+                
+                // Orders workflow prediction
+                if (orders.length > 2) {
+                    const avgOrdersPerMonth = orders.length; // Simplified for demo
+                    const pendingOrders = orders.filter(o => o.status !== 'completed').length;
+                    
+                    predictions.push({
+                        title: "📋 Gestione Workload",
+                        description: `Con ${pendingOrders} ordini attivi, prevedo completamento entro ${Math.ceil(pendingOrders / 2)} settimane mantenendo il ritmo attuale. Considera prioritizzazione per ottimizzare delivery.`,
+                        confidence: 84
+                    });
+                }
+                
+                // Popular customizations prediction
+                if (orders.length > 1) {
+                    const customizations = orders.map(o => o.specifications.display).filter(Boolean);
+                    if (customizations.length > 0) {
+                        predictions.push({
+                            title: "🎮 Trend Personalizzazioni",
+                            description: "Display IPS e modifiche audio sono le richieste più popolari. Investi in questi componenti per soddisfare la domanda crescente.",
+                            confidence: 79
+                        });
+                    }
+                }
+                
+                // Client growth prediction
+                if (clients.length > 2) {
+                    const recentTransactions = transactions.slice(-10);
+                    const uniqueRecentClients = new Set(recentTransactions.filter(t => t.client).map(t => t.client)).size;
+                    
+                    predictions.push({
+                        title: "👥 Crescita Base Clienti",
+                        description: `${uniqueRecentClients} clienti attivi negli ultimi ordini. Prevedo crescita del 20-30% nei prossimi 3 mesi con strategie di retention.`,
+                        confidence: 82
+                    });
+                }
+                
+                // Inventory optimization
+                const lowStockItems = inventory.filter(item => item.quantity <= item.threshold);
+                if (lowStockItems.length > 0) {
+                    predictions.push({
+                        title: "📦 Ottimizzazione Scorte",
+                        description: `${lowStockItems.length} componenti necessitano riordino. Costo stimato: ${formatCurrency(lowStockItems.reduce((sum, item) => sum + (item.price * item.threshold), 0))}.`,
+                        confidence: 91
+                    });
+                }
+                
+                // Market trends
+                const currentMonth = new Date().getMonth();
+                if (currentMonth >= 10 || currentMonth <= 1) {
+                    predictions.push({
+                        title: "🎄 Trend Stagionale",
+                        description: "Periodo natalizio favorevole per prodotti retro. Aspettati incremento domanda del 25-40% e possibili aumenti di prezzo.",
+                        confidence: 74
+                    });
+                } else if (currentMonth >= 5 && currentMonth <= 7) {
+                    predictions.push({
+                        title: "☀️ Stagione Estiva",
+                        description: "Periodo estivo: domanda stabile ma minori picchi. Momento ideale per manutenzione inventory e nuove acquisizioni.",
+                        confidence: 68
+                    });
+                }
+                
+                // Business expansion prediction
+                const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                if (totalRevenue > 2000 || orders.length > 5) {
+                    predictions.push({
+                        title: "🚀 Espansione Business",
+                        description: "Ricavi robusti e ordini crescenti suggeriscono potenziale per diversificazione: considera console retro aggiuntive (Nintendo, Sega) o servizi premium.",
+                        confidence: 76
+                    });
+                }
+                
+                return predictions;
+            }
+        };        const debouncedFilterInventory = debounce(() => {
+            const searchTerm = document.getElementById('inventorySearch')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('#inventoryContainer tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
+        
+        // ===== ORDERS FUNCTIONS =====
+        function loadOrders() {
+            const container = document.getElementById('ordersContainer');
+            if (!container) return;
+            
+            if (appData.orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>Nessun ordine</h3>
+                        <p>Inizia aggiungendo il tuo primo ordine personalizzato!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort orders by priority and date (newest first)
+            const sortedOrders = [...appData.orders].sort((a, b) => {
+                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+                if (priorityDiff !== 0) return priorityDiff;
+                return new Date(b.createdDate) - new Date(a.createdDate);
+            });
+            
+            const cardsHTML = sortedOrders.map(order => {
+                const statusConfig = {
+                    'pending': { color: 'var(--warning)', icon: '⏳', text: 'In Attesa' },
+                    'in-progress': { color: 'var(--primary)', icon: '🔧', text: 'In Lavorazione' },
+                    'completed': { color: 'var(--success)', icon: '✅', text: 'Completato' }
+                };
+                
+                const priorityConfig = {
+                    'high': { color: 'var(--error)', icon: '🔥', text: 'Alta' },
+                    'medium': { color: 'var(--warning)', icon: '⚡', text: 'Media' },
+                    'low': { color: 'var(--success)', icon: '🌱', text: 'Bassa' }
+                };
+                
+                const status = statusConfig[order.status] || statusConfig['pending'];
+                const priority = priorityConfig[order.priority] || priorityConfig['medium'];
+                
+                const daysUntilCompletion = Math.ceil((new Date(order.estimatedCompletion) - new Date()) / (1000 * 60 * 60 * 24));
+                const isOverdue = daysUntilCompletion < 0;
+                const isUrgent = daysUntilCompletion <= 3 && daysUntilCompletion > 0;
+                
+                return `
+                    <div class="card order-card" data-status="${order.status}" data-id="${order.id}" style="
+                        border-left: 4px solid ${status.color};
+                        ${isOverdue ? 'background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));' : ''}
+                        ${isUrgent ? 'background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));' : ''}
+                    ">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4);">
+                            <div>
+                                <h4 style="color: var(--accent); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: var(--space-2);">
+                                    📋 Ordine ${order.id.replace('order', '#')}
+                                </h4>
+                                <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2);">
+                                    <span style="color: ${status.color}; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                        ${status.icon} ${status.text}
+                                    </span>
+                                    <span style="color: ${priority.color}; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                        ${priority.icon} Priorità ${priority.text}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: var(--space-2);">
+                                <button class="btn btn-secondary" onclick="viewOrderDetails('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                    👁️ Dettagli
+                                </button>
+                                <button class="btn btn-secondary" onclick="editOrder('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                    ✏️ Modifica
+                                </button>
+                                <button class="btn btn-error" onclick="confirmDeleteOrder('${order.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                    🗑️ Elimina
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Cliente</div>
+                                <div style="font-weight: 600; color: var(--text-primary);">${order.clientName}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Modello</div>
+                                <div style="font-weight: 600; color: var(--accent);">${order.specifications.modello}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Data Creazione</div>
+                                <div style="font-weight: 600;">${new Date(order.createdDate).toLocaleDateString('it-IT')}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Consegna Stimata</div>
+                                <div style="font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
+                                    ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}
+                                    ${isOverdue ? ' (SCADUTO)' : isUrgent ? ' (URGENTE)' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-3); border-radius: var(--radius-lg); margin-bottom: var(--space-3);">
+                            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Specifiche Principali</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-2); font-size: 0.875rem;">
+                                <div><strong>Scocca:</strong> ${order.specifications.scocca}</div>
+                                <div><strong>Display:</strong> ${order.specifications.display}</div>
+                                <div><strong>Audio:</strong> ${order.specifications.audio}</div>
+                                <div><strong>Batteria:</strong> ${order.specifications.batteria}</div>
+                            </div>
+                        </div>
+                        
+                        ${order.specifications.note ? `
+                            <div style="background: rgba(245, 158, 11, 0.1); padding: var(--space-3); border-radius: var(--radius-lg); border: 1px solid var(--accent);">
+                                <div style="font-size: 0.875rem; color: var(--accent); margin-bottom: 0.5rem; font-weight: 600;">📝 Note</div>
+                                <div style="font-size: 0.875rem; line-height: 1.5;">${order.specifications.note}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = cardsHTML;
+            console.log('Orders loaded:', appData.orders.length);
+        }
+        
+        function addOrder() {
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📋 Nuovo Ordine Personalizzato</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4);">
+                    <!-- Info Generali -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--primary); margin-bottom: var(--space-4);">ℹ️ Informazioni Generali</h4>
+                        
+                        <div class="form-group">
+                            <label for="orderClient">Cliente</label>
+                            <select id="orderClient" required>
+                                <option value="">Seleziona cliente...</option>
+                                ${appData.clients.map(client => `
+                                    <option value="${client.name}">${client.name}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="orderPriority">Priorità</label>
+                            <select id="orderPriority" required>
+                                <option value="low">🌱 Bassa</option>
+                                <option value="medium" selected>⚡ Media</option>
+                                <option value="high">🔥 Alta</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="orderStatus">Stato</label>
+                            <select id="orderStatus" required>
+                                <option value="pending" selected>⏳ In Attesa</option>
+                                <option value="in-progress">🔧 In Lavorazione</option>
+                                <option value="completed">✅ Completato</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="orderCreatedDate">Data Creazione</label>
+                            <input type="date" id="orderCreatedDate" value="${formatDate()}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="orderEstimatedCompletion">Consegna Stimata</label>
+                            <input type="date" id="orderEstimatedCompletion" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Specifiche Tecniche -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--accent); margin-bottom: var(--space-4);">🔧 Specifiche Tecniche</h4>
+                        
+                        <div class="form-group">
+                            <label for="specModello">Modello Game Boy</label>
+                            <input type="text" id="specModello" placeholder="es. Game Boy Color, GBA, GB Pocket..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specScocca">Scocca</label>
+                            <input type="text" id="specScocca" placeholder="Colore, materiale, trasparenza...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specPulsanti">Pulsanti</label>
+                            <input type="text" id="specPulsanti" placeholder="Colore, tipo, retroilluminazione...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specEtichetta">Etichetta</label>
+                            <input type="text" id="specEtichetta" placeholder="Personalizzata, originale, custom...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specBatteria">Batteria</label>
+                            <input type="text" id="specBatteria" placeholder="Li-ion, AA, ricaricabile, capacità...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specAudio">Audio</label>
+                            <input type="text" id="specAudio" placeholder="Speaker potenziato, jack cuffie, audio mod...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-top: var(--space-4);">
+                    <!-- Componenti Aggiuntivi -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--success); margin-bottom: var(--space-4);">✨ Componenti Aggiuntivi</h4>
+                        
+                        <div class="form-group">
+                            <label for="specDisplay">Display</label>
+                            <input type="text" id="specDisplay" placeholder="IPS, backlit, risoluzione, luminosità...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specKitLed">Kit LED</label>
+                            <input type="text" id="specKitLed" placeholder="RGB, colore fisso, posizione, effetti...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specBox">Box</label>
+                            <input type="text" id="specBox" placeholder="Originale, aftermarket, custom, stato...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specCover">Cover</label>
+                            <input type="text" id="specCover" placeholder="Pellicola, vetro temperato, protezione...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specGameBoyCliente">Game Boy Cliente</label>
+                            <select id="specGameBoyCliente">
+                                <option value="No - nuovo dispositivo">No - nuovo dispositivo</option>
+                                <option value="Sì - riparazione dispositivo esistente">Sì - riparazione dispositivo esistente</option>
+                                <option value="Sì - modifica dispositivo esistente">Sì - modifica dispositivo esistente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Note e Altro -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--warning); margin-bottom: var(--space-4);">📝 Note e Personalizzazioni</h4>
+                        
+                        <div class="form-group">
+                            <label for="specAltro">Altro</label>
+                            <textarea id="specAltro" rows="3" placeholder="Modifiche speciali, port aggiuntivi, caratteristiche custom..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specNote">Note</label>
+                            <textarea id="specNote" rows="4" placeholder="Richieste particolari del cliente, scadenze, istruzioni speciali..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions" style="margin-top: var(--space-6);">
+                    <button type="button" class="btn btn-success" onclick="saveOrderFromForm()" id="saveOrderBtn">
+                        <span>💾</span> Salva Ordine
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+        
+        function saveOrderFromForm() {
+            try {
+                const saveBtn = document.getElementById('saveOrderBtn');
+                const originalText = '<span>💾</span> Salva Ordine';
+                
+                showLoading(saveBtn, 'Salvando...');
+                
+                const clientName = document.getElementById('orderClient')?.value;
+                const priority = document.getElementById('orderPriority')?.value;
+                const status = document.getElementById('orderStatus')?.value;
+                const createdDate = document.getElementById('orderCreatedDate')?.value;
+                const estimatedCompletion = document.getElementById('orderEstimatedCompletion')?.value;
+                
+                // Specifications
+                const modello = document.getElementById('specModello')?.value;
+                
+                if (!clientName || !modello || !createdDate || !estimatedCompletion) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Compila almeno Cliente, Modello, Data Creazione e Consegna Stimata', 'error');
+                    return;
+                }
+                
+                // Validate dates
+                const created = new Date(createdDate);
+                const completion = new Date(estimatedCompletion);
+                if (completion <= created) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('La data di consegna deve essere successiva alla data di creazione', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const formData = {
+                        id: appData.editingId || generateId().replace('id_', 'order'),
+                        clientName: clientName,
+                        status: status,
+                        priority: priority,
+                        createdDate: createdDate,
+                        estimatedCompletion: estimatedCompletion,
+                        specifications: {
+                            modello: modello,
+                            scocca: document.getElementById('specScocca')?.value || '',
+                            pulsanti: document.getElementById('specPulsanti')?.value || '',
+                            etichetta: document.getElementById('specEtichetta')?.value || '',
+                            batteria: document.getElementById('specBatteria')?.value || '',
+                            audio: document.getElementById('specAudio')?.value || '',
+                            display: document.getElementById('specDisplay')?.value || '',
+                            kitLed: document.getElementById('specKitLed')?.value || '',
+                            box: document.getElementById('specBox')?.value || '',
+                            cover: document.getElementById('specCover')?.value || '',
+                            gameBoyCliente: document.getElementById('specGameBoyCliente')?.value || '',
+                            altro: document.getElementById('specAltro')?.value || '',
+                            note: document.getElementById('specNote')?.value || ''
+                        }
+                    };
+                    
+                    if (appData.editingId) {
+                        const index = appData.orders.findIndex(o => o.id === appData.editingId);
+                        if (index !== -1) {
+                            appData.orders[index] = formData;
+                            showMessage('Ordine aggiornato con successo!');
+                            console.log('Order updated:', formData);
+                        }
+                        appData.editingId = null;
+                    } else {
+                        appData.orders.push(formData);
+                        showMessage('Ordine aggiunto con successo!');
+                        console.log('Order added:', formData);
+                    }
+                    
+                    hideLoading(saveBtn, originalText);
+                    closeModal();
+                    loadOrders();
+                    updateDashboard();
+                    autoSave();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Save order error:', error);
+                showMessage('Errore nel salvataggio ordine', 'error');
+            }
+        }
+        
+        function editOrder(id) {
+            console.log('Editing order with ID:', id);
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                console.error('Order not found:', id);
+                return;
+            }
+            
+            appData.editingId = id;
+            addOrder();
+            
+            // Populate form with existing data
+            setTimeout(() => {
+                // General info
+                const clientEl = document.getElementById('orderClient');
+                const priorityEl = document.getElementById('orderPriority');
+                const statusEl = document.getElementById('orderStatus');
+                const createdDateEl = document.getElementById('orderCreatedDate');
+                const completionEl = document.getElementById('orderEstimatedCompletion');
+                
+                if (clientEl) clientEl.value = order.clientName;
+                if (priorityEl) priorityEl.value = order.priority;
+                if (statusEl) statusEl.value = order.status;
+                if (createdDateEl) createdDateEl.value = order.createdDate;
+                if (completionEl) completionEl.value = order.estimatedCompletion;
+                
+                // Specifications
+                const specs = order.specifications;
+                const specFields = [
+                    'modello', 'scocca', 'pulsanti', 'etichetta', 'batteria', 
+                    'audio', 'display', 'kitLed', 'box', 'cover', 'gameBoyCliente', 'altro', 'note'
+                ];
+                
+                specFields.forEach(field => {
+                    const element = document.getElementById(`spec${field.charAt(0).toUpperCase() + field.slice(1)}`);
+                    if (element && specs[field]) {
+                        element.value = specs[field];
+                    }
+                });
+            }, 100);
+        }
+        
+        function viewOrderDetails(id) {
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            const statusConfig = {
+                'pending': { color: 'var(--warning)', icon: '⏳', text: 'In Attesa' },
+                'in-progress': { color: 'var(--primary)', icon: '🔧', text: 'In Lavorazione' },
+                'completed': { color: 'var(--success)', icon: '✅', text: 'Completato' }
+            };
+            
+            const priorityConfig = {
+                'high': { color: 'var(--error)', icon: '🔥', text: 'Alta' },
+                'medium': { color: 'var(--warning)', icon: '⚡', text: 'Media' },
+                'low': { color: 'var(--success)', icon: '🌱', text: 'Bassa' }
+            };
+            
+            const status = statusConfig[order.status] || statusConfig['pending'];
+            const priority = priorityConfig[order.priority] || priorityConfig['medium'];
+            
+            const daysUntilCompletion = Math.ceil((new Date(order.estimatedCompletion) - new Date()) / (1000 * 60 * 60 * 24));
+            const isOverdue = daysUntilCompletion < 0;
+            const isUrgent = daysUntilCompletion <= 3 && daysUntilCompletion > 0;
+            
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
+                    👁️ Dettagli Ordine ${order.id.replace('order', '#')}
+                </h3>
+                
+                <!-- Status Header -->
+                <div style="background: var(--gradient-card); padding: var(--space-4); border-radius: var(--radius-lg); margin-bottom: var(--space-6); border: 1px solid ${status.color};">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Cliente</div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">${order.clientName}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Stato</div>
+                            <div style="font-size: 1.1rem; font-weight: 600; color: ${status.color};">${status.icon} ${status.text}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Priorità</div>
+                            <div style="font-size: 1.1rem; font-weight: 600; color: ${priority.color};">${priority.icon} ${priority.text}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Consegna</div>
+                            <div style="font-size: 1.1rem; font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
+                                ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}
+                                ${isOverdue ? ' 🚨' : isUrgent ? ' ⚠️' : ' ✅'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Specifications -->
+                <div style="display: grid; gap: var(--space-4);">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--primary); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+                            🔧 Specifiche Tecniche
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-3);">
+                            ${Object.entries({
+                                'Modello Game Boy': order.specifications.modello,
+                                'Scocca': order.specifications.scocca,
+                                'Pulsanti': order.specifications.pulsanti,
+                                'Etichetta': order.specifications.etichetta,
+                                'Batteria': order.specifications.batteria,
+                                'Audio': order.specifications.audio,
+                                'Display': order.specifications.display,
+                                'Kit LED': order.specifications.kitLed,
+                                'Box': order.specifications.box,
+                                'Cover': order.specifications.cover,
+                                'Game Boy Cliente': order.specifications.gameBoyCliente
+                            }).filter(([key, value]) => value).map(([key, value]) => `
+                                <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: var(--space-2);">
+                                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">${key}</div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    ${order.specifications.altro ? `
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--primary);">
+                            <h4 style="color: var(--primary); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2);">
+                                ✨ Personalizzazioni Aggiuntive
+                            </h4>
+                            <div style="line-height: 1.6;">${order.specifications.altro}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${order.specifications.note ? `
+                        <div style="background: rgba(245, 158, 11, 0.1); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid var(--accent);">
+                            <h4 style="color: var(--accent); margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2);">
+                                📝 Note Importanti
+                            </h4>
+                            <div style="line-height: 1.6;">${order.specifications.note}</div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Timeline -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-4); border-radius: var(--radius-lg);">
+                        <h4 style="color: var(--success); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+                            📅 Timeline Progetto
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-lg); border: 1px solid var(--success);">
+                                <span>📅 Data Creazione</span>
+                                <span style="font-weight: 600;">${new Date(order.createdDate).toLocaleDateString('it-IT')}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(${isOverdue ? '239, 68, 68' : isUrgent ? '245, 158, 11' : '16, 185, 129'}, 0.1); border-radius: var(--radius-lg); border: 1px solid ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
+                                <span>🎯 Consegna Stimata</span>
+                                <span style="font-weight: 600;">${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: var(--space-2); background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-lg);">
+                                <span>⏱️ Giorni Rimanenti</span>
+                                <span style="font-weight: 600; color: ${isOverdue ? 'var(--error)' : isUrgent ? 'var(--warning)' : 'var(--success)'};">
+                                    ${isOverdue ? `Scaduto da ${Math.abs(daysUntilCompletion)} giorni` : `${daysUntilCompletion} giorni`}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions" style="margin-top: var(--space-6);">
+                    <button type="button" class="btn btn-warning" onclick="closeModal(); editOrder('${order.id}')">
+                        <span>✏️</span> Modifica Ordine
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Chiudi
+                    </button>
+                </div>
+            `;
+            
+            openModal(content);
+        }
+        
+        function confirmDeleteOrder(id) {
+            console.log('Confirming delete for order:', id);
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Elimina Ordine',
+                `Sei sicuro di voler eliminare l'ordine per "${order.clientName}" (${order.specifications.modello})? Questa azione non può essere annullata.`,
+                () => deleteOrder(id)
+            );
+        }
+        
+        function deleteOrder(id) {
+            console.log('Deleting order with ID:', id);
+            console.log('Orders before delete:', appData.orders.length);
+            
+            const initialLength = appData.orders.length;
+            appData.orders = appData.orders.filter(o => o.id !== id);
+            
+            if (appData.orders.length < initialLength) {
+                console.log('Order deleted successfully. New count:', appData.orders.length);
+                showMessage('Ordine eliminato con successo!');
+                loadOrders();
+                updateDashboard();
+                autoSave();
+            } else {
+                console.error('Failed to delete order');
+                showMessage('Errore nell\'eliminazione dell\'ordine', 'error');
+            }
+        }
+        
+        function filterOrdersByStatus(status) {
+            // Update active filter button
+            document.querySelectorAll('.order-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-status="${status}"]`).classList.add('active');
+            
+            // Filter order cards
+            const orderCards = document.querySelectorAll('.order-card');
+            orderCards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function markOrderCompleted() {
+            const pendingOrders = appData.orders.filter(o => o.status !== 'completed');
+            
+            if (pendingOrders.length === 0) {
+                showMessage('Nessun ordine da completare', 'error');
+                return;
+            }
+            
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">✅ Segna Ordine Completato</h3>
+                
+                <div class="form-group">
+                    <label for="completeOrderSelect">Seleziona Ordine da Completare</label>
+                    <select id="completeOrderSelect" required>
+                        <option value="">Scegli ordine...</option>
+                        ${pendingOrders.map(order => `
+                            <option value="${order.id}">${order.id.replace('order', '#')} - ${order.clientName} (${order.specifications.modello})</option>
+                        `).join('')}
+                    </select>
+                </div>
+                
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-success" onclick="completeSelectedOrder()">
+                        <span>✅</span> Segna Completato
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            
+            openModal(content);
+        }
+        
+        function completeSelectedOrder() {
+            const selectedOrderId = document.getElementById('completeOrderSelect')?.value;
+            if (!selectedOrderId) {
+                showMessage('Seleziona un ordine da completare', 'error');
+                return;
+            }
+            
+            const orderIndex = appData.orders.findIndex(o => o.id === selectedOrderId);
+            if (orderIndex !== -1) {
+                appData.orders[orderIndex].status = 'completed';
+                showMessage('Ordine segnato come completato!');
+                closeModal();
+                loadOrders();
+                autoSave();
+            } else {
+                showMessage('Errore nel completamento ordine', 'error');
+            }
+        }
+        
+        const debouncedFilterOrders = debounce(() => {
+            const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
+            const orderCards = document.querySelectorAll('.order-card');
+            
+            orderCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const isVisible = text.includes(searchTerm);
+                card.style.display = isVisible ? 'block' : 'none';
+            });
+        }, 300);
+                            <button class="nav-btn" onclick="showPage('orders')" aria-label="Ordini">
+                <span>📋</span> Ordini
+            </button>
+            <button class="nav-btn" onclick="showPage('analytics')" aria-label="Analytics">
+                <span>📈</span> Analytics
+            </button>
