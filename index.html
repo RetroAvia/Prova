@@ -1,4 +1,652 @@
-// ===== SPIDER AI =====
+// ===== MODAL FUNCTIONS =====
+        function openModal(content) {
+            try {
+                const modal = document.getElementById('modal');
+                const modalContent = document.getElementById('modalContent');
+                
+                if (modal && modalContent) {
+                    if (content) {
+                        modalContent.innerHTML = content;
+                    }
+                    modal.classList.add('active');
+                    
+                    // Focus management for accessibility
+                    const firstInput = modal.querySelector('input, select, textarea, button');
+                    if (firstInput) {
+                        setTimeout(() => firstInput.focus(), 100);
+                    }
+                    
+                    // Close modal on Escape key
+                    document.addEventListener('keydown', handleModalEscape);
+                    
+                    // Prevent body scroll when modal is open
+                    document.body.style.overflow = 'hidden';
+                }
+            } catch (error) {
+                console.error('Modal error:', error);
+                showMessage('Errore nell\'apertura modal', 'error');
+            }
+        }
+        
+        function closeModal() {
+            try {
+                const modal = document.getElementById('modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    
+                    // Clean up editing state
+                    appData.editingId = null;
+                    
+                    // Remove escape key listener
+                    document.removeEventListener('keydown', handleModalEscape);
+                    
+                    // Restore body scroll
+                    document.body.style.overflow = '';
+                }
+            } catch (error) {
+                console.error('Close modal error:', error);
+            }
+        }
+        
+        function handleModalEscape(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('modal');
+            const confirmDialog = document.getElementById('confirmDialog');
+            
+            if (event.target === modal) {
+                closeModal();
+            }
+            
+            if (event.target === confirmDialog) {
+                confirmDialog.classList.remove('active');
+            }
+        });
+        
+        // ===== DATA MANAGEMENT =====
+        function updateClientTotalSpent() {
+            // Update client total spent based on transactions
+            appData.clients.forEach(client => {
+                const clientTransactions = appData.transactions.filter(t => 
+                    t.type === 'revenue' && t.client === client.name
+                );
+                client.totalSpent = clientTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+            });
+        }
+        
+        // ===== SEARCH FUNCTIONALITY =====
+        function setupSearchListeners() {
+            const orderSearch = document.getElementById('orderSearch');
+            const transactionSearch = document.getElementById('transactionSearch');
+            const clientSearch = document.getElementById('clientSearch');
+            const inventorySearch = document.getElementById('inventorySearch');
+            
+            if (orderSearch) {
+                orderSearch.removeEventListener('input', debouncedFilterOrders);
+                orderSearch.addEventListener('input', debouncedFilterOrders);
+            }
+            
+            if (transactionSearch) {
+                transactionSearch.removeEventListener('input', debouncedFilterTransactions);
+                transactionSearch.addEventListener('input', debouncedFilterTransactions);
+            }
+            
+            if (clientSearch) {
+                clientSearch.removeEventListener('input', debouncedFilterClients);
+                clientSearch.addEventListener('input', debouncedFilterClients);
+            }
+            
+            if (inventorySearch) {
+                inventorySearch.removeEventListener('input', debouncedFilterInventory);
+                inventorySearch.addEventListener('input', debouncedFilterInventory);
+            }
+        }
+        
+        // ===== DATA PERSISTENCE =====
+        function saveDataToLocalStorage() {
+            try {
+                const dataToSave = {
+                    ...appData,
+                    lastSaved: new Date().toISOString()
+                };
+                localStorage.setItem('retroaviaData', JSON.stringify(dataToSave));
+                console.log('Data saved to localStorage');
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                showMessage('Errore nel salvataggio automatico', 'error');
+            }
+        }
+        
+        function loadDataFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('retroaviaData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    // Merge with default data to ensure all properties exist
+                    appData = {
+                        ...appData,
+                        ...parsedData,
+                        // Ensure arrays exist
+                        transactions: parsedData.transactions || appData.transactions,
+                        clients: parsedData.clients || appData.clients,
+                        inventory: parsedData.inventory || appData.inventory,
+                        orders: parsedData.orders || appData.orders
+                    };
+                    console.log('Data loaded from localStorage');
+                    if (parsedData.lastSaved) {
+                        console.log('Last saved:', new Date(parsedData.lastSaved).toLocaleString('it-IT'));
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                showMessage('Errore nel caricamento dati salvati', 'error');
+            }
+            return false;
+        }
+        
+        // Auto-save data when changes are made
+        const autoSave = debounce(() => {
+            saveDataToLocalStorage();
+        }, 1000);
+        
+        // ===== INITIALIZATION =====
+        function initializeApp() {
+            try {
+                console.log('🕷️ RetroAvia 3.1 Spider-System Initializing...');
+                
+                // Load saved data if available
+                const dataLoaded = loadDataFromLocalStorage();
+                if (dataLoaded) {
+                    showMessage('💾 Dati precedenti caricati con successo!');
+                }
+                
+                // Update client spending
+                updateClientTotalSpent();
+                
+                // Load current page
+                showPage(appData.currentPage);
+                
+                // Initialize dashboard
+                updateDashboard();
+                
+                // Setup search listeners after DOM is ready
+                setTimeout(() => {
+                    setupSearchListeners();
+                }, 100);
+                
+                // Show version info
+                console.log(`✅ RetroAvia ${appData.version} Ready!`);
+                console.log(`📊 Dati caricati: ${appData.transactions.length} transazioni, ${appData.clients.length} clienti, ${appData.inventory.length} componenti, ${appData.orders.length} ordini`);
+                
+                showMessage('🕷️ RetroAvia 3.1 con Gestione Ordini Attivato!');
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showMessage('Errore nell\'inizializzazione sistema', 'error');
+            }
+        }
+        
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(event) {
+            // Skip if modal or confirm dialog is open or user is typing in an input
+            if (document.getElementById('modal').classList.contains('active') || 
+                document.getElementById('confirmDialog').classList.contains('active') ||
+                event.target.tagName === 'INPUT' || 
+                event.target.tagName === 'TEXTAREA' || 
+                event.target.tagName === 'SELECT') {
+                return;
+            }
+            
+            // Handle shortcuts with Ctrl key for safety
+            if (event.ctrlKey) {
+                switch(event.key.toLowerCase()) {
+                    case 's':
+                        event.preventDefault();
+                        saveDataToLocalStorage();
+                        showMessage('💾 Dati salvati manualmente!');
+                        break;
+                    case 'b':
+                        event.preventDefault();
+                        exportBackup();
+                        break;
+                }
+                return;
+            }
+            
+            switch(event.key) {
+                case '1':
+                    showPage('dashboard');
+                    break;
+                case '2':
+                    showPage('orders');
+                    break;
+                case '3':
+                    showPage('transactions');
+                    break;
+                case '4':
+                    showPage('clients');
+                    break;
+                case '5':
+                    showPage('inventory');
+                    break;
+                case '6':
+                    showPage('analytics');
+                    break;
+                case 'n':
+                case 'N':
+                    if (appData.currentPage === 'orders') {
+                        event.preventDefault();
+                        addOrder();
+                    } else if (appData.currentPage === 'transactions') {
+                        event.preventDefault();
+                        addTransaction('revenue');
+                    } else if (appData.currentPage === 'clients') {
+                        event.preventDefault();
+                        addClient();
+                    } else if (appData.currentPage === 'inventory') {
+                        event.preventDefault();
+                        addInventoryItem();
+                    }
+                    break;
+                case 'a':
+                case 'A':
+                    if (appData.currentPage === 'dashboard') {
+                        event.preventDefault();
+                        runAIAnalysis();
+                    }
+                    break;
+            }
+        });
+        
+        // ===== ERROR HANDLING =====
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            showMessage('Si è verificato un errore inaspettato', 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showMessage('Errore nella comunicazione', 'error');
+        });
+        
+        // ===== APP LIFECYCLE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+        
+        // Save data before page unload
+        window.addEventListener('beforeunload', function() {
+            saveDataToLocalStorage();
+        });
+        
+        // Auto-save every 5 minutes
+        setInterval(() => {
+            saveDataToLocalStorage();
+        }, 5 * 60 * 1000);
+        
+        // ===== RESPONSIVE HELPERS =====
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            
+            // Adjust modal size on mobile
+            const modal = document.getElementById('modal');
+            if (modal && isMobile) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.style.width = '95%';
+                    modalContent.style.maxHeight = '90vh';
+                }
+            }
+        }
+        
+        window.addEventListener('resize', debounce(handleResize, 250));
+        
+        // ===== ACCESSIBILITY ENHANCEMENTS =====
+        
+        // Skip to main content link
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Tab' && !event.shiftKey) {
+                const focusedElement = document.activeElement;
+                if (focusedElement === document.body) {
+                    const firstPage = document.querySelector('.page.active');
+                    if (firstPage) {
+                        firstPage.setAttribute('tabindex', '-1');
+                        firstPage.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+        });
+        
+        // ===== PERFORMANCE MONITORING =====
+        function logPerformance(operation, startTime) {
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+            if (duration > 100) { // Log slow operations (>100ms)
+                console.warn(`Slow operation detected: ${operation} took ${duration.toFixed(2)}ms`);
+            }
+        }
+        
+        // ===== FINAL SETUP =====
+        console.log('🕷️ RetroAvia 3.1 Spider-System con Gestione Ordini Caricato!');
+        console.log('📋 Nuove Funzionalità Versione 3.1:');
+        console.log('  ✅ Gestione Ordini Personalizzati completa');
+        console.log('  ✅ Form multi-sezione per specifiche Game Boy');
+        console.log('  ✅ Stati ordine (Pending, In Progress, Completed, Cancelled)');
+        console.log('  ✅ Vista dettagliata ordini con tutte le caratteristiche');
+        console.log('  ✅ Ricerca e filtri per ordini');
+        console.log('  ✅ Integrazione AI per analisi ordini');
+        console.log('  ✅ Backup include anche gli ordini');
+        console.log('  ✅ Keyboard shortcuts aggiornati');
+        console.log('');
+        console.log('📋 Keyboard Shortcuts Aggiornati:');
+        console.log('  1: Dashboard | 2: Ordini | 3: Transazioni | 4: Clienti | 5: Inventario | 6: Analytics');
+        console.log('  N: Nuovo item (context-dependent)');
+        console.log('  A: AI Analysis (on dashboard)');
+        console.log('  Ctrl+S: Manual save');
+        console.log('  Ctrl+B: Export backup');
+        console.log('  ESC: Close modal');
+        console.log('');
+        console.log('📋 Caratteristiche Ordini Gestite:');
+        console.log('  🎮 Modello Game Boy, Scocca, Pulsanti, Etichetta');
+        console.log('  🔋 Batteria, Audio, Display, Kit LED');
+        console.log('  📦 Box, Cover, Game Boy Cliente, Altro, Note');
+        
+    </script>
+</body>
+</html>        
+        // ===== ANALYTICS FUNCTIONS =====
+        function loadAnalytics() {
+            loadMonthlyTrends();
+            loadTopClients();
+            loadMonthlyPerformance();
+            loadKPIDashboard();
+        }
+        
+        function loadMonthlyTrends() {
+            const container = document.getElementById('monthlyTrends');
+            if (!container) return;
+            
+            const months = getLastSixMonths();
+            const monthlyData = getTransactionsByMonth();
+            
+            // Fill in missing months with zero data
+            const chartData = months.map(month => ({
+                ...month,
+                revenue: monthlyData[month.key]?.revenue || 0,
+                expenses: monthlyData[month.key]?.expenses || 0,
+                profit: (monthlyData[month.key]?.revenue || 0) - (monthlyData[month.key]?.expenses || 0)
+            }));
+            
+            const maxValue = Math.max(...chartData.map(d => Math.max(d.revenue, d.expenses))) || 100;
+            
+            container.innerHTML = `
+                <div style="margin-bottom: var(--space-4);">
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                        📊 Trend basati sui dati reali delle tue transazioni
+                    </p>
+                </div>
+                <div style="display: flex; align-items: end; gap: 1rem; height: 200px; padding: 1rem;">
+                    ${chartData.map(data => `
+                        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%; height: 150px; justify-content: end;">
+                                <!-- Revenue Bar -->
+                                <div class="chart-bar" style="
+                                    height: ${maxValue > 0 ? (data.revenue / maxValue) * 70 : 0}px;
+                                    background: linear-gradient(135deg, var(--success), #059669);
+                                    display: flex;
+                                    align-items: end;
+                                    justify-content: center;
+                                    font-size: 0.7rem;
+                                    color: white;
+                                    font-weight: 600;
+                                    padding: 0.125rem;
+                                " title="Entrate: ${formatCurrency(data.revenue)}">
+                                    ${data.revenue > 0 ? formatCurrency(data.revenue) : ''}
+                                </div>
+                                <!-- Expenses Bar -->
+                                <div class="chart-bar" style="
+                                    height: ${maxValue > 0 ? (data.expenses / maxValue) * 70 : 0}px;
+                                    background: linear-gradient(135deg, var(--error), #dc2626);
+                                    display: flex;
+                                    align-items: end;
+                                    justify-content: center;
+                                    font-size: 0.7rem;
+                                    color: white;
+                                    font-weight: 600;
+                                    padding: 0.125rem;
+                                " title="Spese: ${formatCurrency(data.expenses)}">
+                                    ${data.expenses > 0 ? formatCurrency(data.expenses) : ''}
+                                </div>
+                            </div>
+                            <div style="margin-top: var(--space-2);">
+                                <div style="font-size: 0.875rem; color: var(--text-muted); text-align: center;">
+                                    ${data.monthName.substring(0, 3)}
+                                </div>
+                                <div style="font-size: 0.75rem; color: ${data.profit >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600; text-align: center;">
+                                    ${formatCurrency(data.profit)}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: center; gap: var(--space-4); margin-top: var(--space-4); font-size: 0.875rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--success), #059669); border-radius: 0.25rem;"></div>
+                        <span>Entrate</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--error), #dc2626); border-radius: 0.25rem;"></div>
+                        <span>Spese</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadTopClients() {
+            const container = document.getElementById('topClients');
+            if (!container) return;
+            
+            // Calculate client spending from transactions
+            const clientSpending = {};
+            appData.transactions.filter(t => t.type === 'revenue' && t.client).forEach(transaction => {
+                clientSpending[transaction.client] = (clientSpending[transaction.client] || 0) + parseFloat(transaction.amount);
+            });
+            
+            const topClients = Object.entries(clientSpending)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            if (topClients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <p>Nessun dato cliente disponibile</p>
+                        <p style="font-size: 0.875rem; margin-top: var(--space-2);">Aggiungi clienti alle transazioni per vedere le statistiche</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const maxSpending = Math.max(...topClients.map(([, amount]) => amount));
+            
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    ${topClients.map(([client, amount], index) => {
+                        const percentage = maxSpending > 0 ? (amount / maxSpending) * 100 : 0;
+                        return `
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 1rem;
+                                background: var(--surface);
+                                border-radius: var(--radius-lg);
+                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                position: relative;
+                                overflow: hidden;
+                            ">
+                                <!-- Progress Background -->
+                                <div style="
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    height: 100%;
+                                    width: ${percentage}%;
+                                    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1));
+                                    transition: width 1s ease;
+                                "></div>
+                                
+                                <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
+                                    <span style="
+                                        background: var(--gradient-primary);
+                                        color: white;
+                                        width: 2rem;
+                                        height: 2rem;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-weight: 700;
+                                        font-size: 0.875rem;
+                                    ">${index + 1}</span>
+                                    <div>
+                                        <div style="font-weight: 600; margin-bottom: 0.25rem;">${client}</div>
+                                        <div style="font-size: 0.875rem; color: var(--text-muted);">
+                                            ${appData.transactions.filter(t => t.client === client && t.type === 'revenue').length} transazioni
+                                        </div>
+                                    </div>
+                                </div>
+                                <span style="color: var(--success); font-weight: 700; font-size: 1.1rem; position: relative; z-index: 1;">
+                                    ${formatCurrency(amount)}
+                                </span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function loadMonthlyPerformance() {
+            const container = document.getElementById('monthlyPerformance');
+            if (!container) return;
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const previousMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+            
+            const monthlyData = getTransactionsByMonth();
+            const currentData = monthlyData[currentMonthKey] || { revenue: 0, expenses: 0, count: 0 };
+            const previousData = monthlyData[previousMonthKey] || { revenue: 0, expenses: 0, count: 0 };
+            
+            const revenueChange = previousData.revenue > 0 ? 
+                ((currentData.revenue - previousData.revenue) / previousData.revenue * 100) : 0;
+            const expenseChange = previousData.expenses > 0 ? 
+                ((currentData.expenses - previousData.expenses) / previousData.expenses * 100) : 0;
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Spese Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--error);">${formatCurrency(currentData.expenses)}</div>
+                            </div>
+                            <div style="color: ${expenseChange <= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
+                                ${expenseChange <= 0 ? '↘️' : '↗️'} ${Math.abs(expenseChange).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Profitto Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: ${(currentData.revenue - currentData.expenses) >= 0 ? 'var(--success)' : 'var(--error)'};">
+                                    ${formatCurrency(currentData.revenue - currentData.expenses)}
+                                </div>
+                            </div>
+                            <div style="color: var(--accent); font-weight: 600;">
+                                📊 ${currentData.count} transazioni
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadKPIDashboard() {
+            const container = document.getElementById('kpiDashboard');
+            if (!container) return;
+            
+            const revenues = appData.transactions.filter(t => t.type === 'revenue');
+            const expenses = appData.transactions.filter(t => t.type === 'expense');
+            
+            const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const avgOrderValue = revenues.length > 0 ? totalRevenue / revenues.length : 0;
+            const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0;
+            
+            // Low stock items
+            const lowStockItems = appData.inventory.filter(item => item.quantity <= item.threshold);
+            
+            // Active clients (clients with transactions)
+            const activeClients = new Set(appData.transactions.filter(t => t.client).map(t => t.client)).size;
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Valore Medio Ordine</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${formatCurrency(avgOrderValue)}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">💰</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Margine di Profitto</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: ${profitMargin >= 0 ? 'var(--success)' : 'var(--error)'};">${profitMargin.toFixed(1)}%</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">📈</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Clienti Attivi</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);">${activeClients}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">👥</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted);">Scorte Basse</div>
+                                <div style="font-size: 1.25rem; font-weight: 700; color: ${lowStockItems.length > 0 ? 'var(--error)' : 'var(--success)'};">${lowStockItems.length}</div>
+                            </div>
+                            <span style="font-size: 1.5rem;">${lowStockItems.length > 0 ? '⚠️' : '✅'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // ===== SPIDER AI =====
         const SpiderAI = {
             analyze: function(data) {
                 const suggestions = [];
@@ -26,14 +674,17 @@
                     
                     // Orders analysis
                     if (orders.length > 0) {
-                        const inProgress = orders.filter(o => o.stato === 'in_lavorazione').length;
-                        const pending = orders.filter(o => o.stato === 'attesa_componenti').length;
-                        if (inProgress > 0) {
-                            suggestions.push(`📋 ${inProgress} ordini in lavorazione - Buon workflow attivo!`);
+                        const pendingOrders = orders.filter(o => o.status === 'pending').length;
+                        const inProgressOrders = orders.filter(o => o.status === 'in-progress').length;
+                        
+                        if (pendingOrders > 0) {
+                            suggestions.push(`📋 ${pendingOrders} ordini in attesa - organizza il workflow!`);
                         }
-                        if (pending > 0) {
-                            suggestions.push(`⏳ ${pending} ordini in attesa componenti - Controlla forniture.`);
+                        if (inProgressOrders > 0) {
+                            suggestions.push(`🔧 ${inProgressOrders} ordini in lavorazione - ottimo ritmo!`);
                         }
+                        
+                        suggestions.push(`📊 Gestione ordini attiva: ${orders.length} ordini personalizzati registrati`);
                     }
                     
                     // Client analysis
@@ -112,16 +763,18 @@
                     confidence: Math.min(78 + revenues.length * 2, 95)
                 });
                 
-                // Orders analysis
+                // Orders prediction
                 if (orders.length > 0) {
-                    const completedOrders = orders.filter(o => o.stato === 'completato' || o.stato === 'consegnato').length;
-                    const completionRate = (completedOrders / orders.length) * 100;
+                    const pendingOrders = orders.filter(o => o.status === 'pending').length;
+                    const inProgressOrders = orders.filter(o => o.status === 'in-progress').length;
                     
-                    predictions.push({
-                        title: "📋 Gestione Ordini",
-                        description: `Tasso di completamento ordini: ${completionRate.toFixed(1)}%. ${orders.length - completedOrders} ordini attivi richiedono attenzione.`,
-                        confidence: 88
-                    });
+                    if (pendingOrders > 0 || inProgressOrders > 0) {
+                        predictions.push({
+                            title: "📋 Gestione Ordini",
+                            description: `${pendingOrders + inProgressOrders} ordini attivi. Tempo medio completamento stimato: 10-15 giorni. Pianifica risorse accordingly.`,
+                            confidence: 88
+                        });
+                    }
                 }
                 
                 // Client growth prediction
@@ -243,10 +896,6 @@
             addInventoryItem();
         }
         
-        function openQuickOrder() {
-            addOrder();
-        }
-        
         function exportBackup() {
             try {
                 const backup = {
@@ -279,787 +928,19 @@
                 console.error('Export error:', error);
                 showMessage('Errore nell\'esportazione backup', 'error');
             }
-        }
-        
-        // ===== MODAL FUNCTIONS =====
-        function openModal(content) {
-            try {
-                const modal = document.getElementById('modal');
-                const modalContent = document.getElementById('modalContent');
-                
-                if (modal && modalContent) {
-                    if (content) {
-                        modalContent.innerHTML = content;
-                    }
-                    modal.classList.add('active');
+        } center;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Entrate Questo Mese</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${formatCurrency(currentData.revenue)}</div>
+                            </div>
+                            <div style="color: ${revenueChange >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
+                                ${revenueChange >= 0 ? '↗️' : '↘️'} ${Math.abs(revenueChange).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
                     
-                    // Focus management for accessibility
-                    const firstInput = modal.querySelector('input, select, textarea, button');
-                    if (firstInput) {
-                        setTimeout(() => firstInput.focus(), 100);
-                    }
-                    
-                    // Close modal on Escape key
-                    document.addEventListener('keydown', handleModalEscape);
-                    
-                    // Prevent body scroll when modal is open
-                    document.body.style.overflow = 'hidden';
-                }
-            } catch (error) {
-                console.error('Modal error:', error);
-                showMessage('Errore nell\'apertura modal', 'error');
-            }
-        }
-        
-        function closeModal() {
-            try {
-                const modal = document.getElementById('modal');
-                if (modal) {
-                    modal.classList.remove('active');
-                    
-                    // Clean up editing state
-                    appData.editingId = null;
-                    
-                    // Remove escape key listener
-                    document.removeEventListener('keydown', handleModalEscape);
-                    
-                    // Restore body scroll
-                    document.body.style.overflow = '';
-                }
-            } catch (error) {
-                console.error('Close modal error:', error);
-            }
-        }
-        
-        function handleModalEscape(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
-        }
-        
-        // Close modal when clicking outside
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('modal');
-            const confirmDialog = document.getElementById('confirmDialog');
-            
-            if (event.target === modal) {
-                closeModal();
-            }
-            
-            if (event.target === confirmDialog) {
-                confirmDialog.classList.remove('active');
-            }
-        });
-        
-        // ===== DATA MANAGEMENT =====
-        function updateClientTotalSpent() {
-            // Update client total spent based on transactions
-            appData.clients.forEach(client => {
-                const clientTransactions = appData.transactions.filter(t => 
-                    t.type === 'revenue' && t.client === client.name
-                );
-                client.totalSpent = clientTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-            });
-        }
-        
-        // ===== SEARCH FUNCTIONALITY =====
-        function setupSearchListeners() {
-            const transactionSearch = document.getElementById('transactionSearch');
-            const clientSearch = document.getElementById('clientSearch');
-            const inventorySearch = document.getElementById('inventorySearch');
-            const orderSearch = document.getElementById('orderSearch');
-            
-            if (transactionSearch) {
-                transactionSearch.removeEventListener('input', debouncedFilterTransactions);
-                transactionSearch.addEventListener('input', debouncedFilterTransactions);
-            }
-            
-            if (clientSearch) {
-                clientSearch.removeEventListener('input', debouncedFilterClients);
-                clientSearch.addEventListener('input', debouncedFilterClients);
-            }
-            
-            if (inventorySearch) {
-                inventorySearch.removeEventListener('input', debouncedFilterInventory);
-                inventorySearch.addEventListener('input', debouncedFilterInventory);
-            }
-            
-            if (orderSearch) {
-                orderSearch.removeEventListener('input', debouncedFilterOrders);
-                orderSearch.addEventListener('input', debouncedFilterOrders);
-            }
-        }
-        
-        // ===== DATA PERSISTENCE =====
-        function saveDataToLocalStorage() {
-            try {
-                const dataToSave = {
-                    ...appData,
-                    lastSaved: new Date().toISOString()
-                };
-                localStorage.setItem('retroaviaData', JSON.stringify(dataToSave));
-                console.log('Data saved to localStorage');
-            } catch (error) {
-                console.error('Error saving to localStorage:', error);
-                showMessage('Errore nel salvataggio automatico', 'error');
-            }
-        }
-        
-        function loadDataFromLocalStorage() {
-            try {
-                const savedData = localStorage.getItem('retroaviaData');
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    // Merge with default data to ensure all properties exist
-                    appData = {
-                        ...appData,
-                        ...parsedData,
-                        // Ensure arrays exist
-                        transactions: parsedData.transactions || appData.transactions,
-                        clients: parsedData.clients || appData.clients,
-                        inventory: parsedData.inventory || appData.inventory,
-                        orders: parsedData.orders || appData.orders || []
-                    };
-                    console.log('Data loaded from localStorage');
-                    if (parsedData.lastSaved) {
-                        console.log('Last saved:', new Date(parsedData.lastSaved).toLocaleString('it-IT'));
-                    }
-                    return true;
-                }
-            } catch (error) {
-                console.error('Error loading from localStorage:', error);
-                showMessage('Errore nel caricamento dati salvati', 'error');
-            }
-            return false;
-        }
-        
-        // Auto-save data when changes are made
-        const autoSave = debounce(() => {
-            saveDataToLocalStorage();
-        }, 1000);
-        
-        // ===== INITIALIZATION =====
-        function initializeApp() {
-            try {
-                console.log('🕷️ RetroAvia 3.1 Spider-System Initializing...');
-                
-                // Load saved data if available
-                const dataLoaded = loadDataFromLocalStorage();
-                if (dataLoaded) {
-                    showMessage('💾 Dati precedenti caricati con successo!');
-                }
-                
-                // Update client spending
-                updateClientTotalSpent();
-                
-                // Load current page
-                showPage(appData.currentPage);
-                
-                // Initialize dashboard
-                updateDashboard();
-                
-                // Setup search listeners after DOM is ready
-                setTimeout(() => {
-                    setupSearchListeners();
-                }, 100);
-                
-                // Show version info
-                console.log(`✅ RetroAvia ${appData.version} Ready!`);
-                console.log(`📊 Dati caricati: ${appData.transactions.length} transazioni, ${appData.clients.length} clienti, ${appData.inventory.length} componenti, ${appData.orders.length} ordini`);
-                
-                showMessage('🕷️ RetroAvia 3.1 Spider-System Attivato!');
-                
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showMessage('Errore nell\'inizializzazione sistema', 'error');
-            }
-        }
-        
-        // ===== KEYBOARD SHORTCUTS =====
-        document.addEventListener('keydown', function(event) {
-            // Skip if modal or confirm dialog is open or user is typing in an input
-            if (document.getElementById('modal').classList.contains('active') || 
-                document.getElementById('confirmDialog').classList.contains('active') ||
-                event.target.tagName === 'INPUT' || 
-                event.target.tagName === 'TEXTAREA' || 
-                event.target.tagName === 'SELECT') {
-                return;
-            }
-            
-            // Handle shortcuts with Ctrl key for safety
-            if (event.ctrlKey) {
-                switch(event.key.toLowerCase()) {
-                    case 's':
-                        event.preventDefault();
-                        saveDataToLocalStorage();
-                        showMessage('💾 Dati salvati manualmente!');
-                        break;
-                    case 'b':
-                        event.preventDefault();
-                        exportBackup();
-                        break;
-                }
-                return;
-            }
-            
-            switch(event.key) {
-                case '1':
-                    showPage('dashboard');
-                    break;
-                case '2':
-                    showPage('transactions');
-                    break;
-                case '3':
-                    showPage('clients');
-                    break;
-                case '4':
-                    showPage('inventory');
-                    break;
-                case '5':
-                    showPage('orders');
-                    break;
-                case '6':
-                    showPage('analytics');
-                    break;
-                case 'n':
-                case 'N':
-                    if (appData.currentPage === 'transactions') {
-                        event.preventDefault();
-                        addTransaction('revenue');
-                    } else if (appData.currentPage === 'clients') {
-                        event.preventDefault();
-                        addClient();
-                    } else if (appData.currentPage === 'inventory') {
-                        event.preventDefault();
-                        addInventoryItem();
-                    } else if (appData.currentPage === 'orders') {
-                        event.preventDefault();
-                        addOrder();
-                    }
-                    break;
-                case 'a':
-                case 'A':
-                    if (appData.currentPage === 'dashboard') {
-                        event.preventDefault();
-                        runAIAnalysis();
-                    }
-                    break;
-            }
-        });
-        
-        // ===== ERROR HANDLING =====
-        window.addEventListener('error', function(event) {
-            console.error('Global error:', event.error);
-            showMessage('Si è verificato un errore inaspettato', 'error');
-        });
-        
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('Unhandled promise rejection:', event.reason);
-            showMessage('Errore nella comunicazione', 'error');
-        });
-        
-        // ===== APP LIFECYCLE =====
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-        
-        // Save data before page unload
-        window.addEventListener('beforeunload', function() {
-            saveDataToLocalStorage();
-        });
-        
-        // Auto-save every 5 minutes
-        setInterval(() => {
-            saveDataToLocalStorage();
-        }, 5 * 60 * 1000);
-        
-        // ===== RESPONSIVE HELPERS =====
-        function handleResize() {
-            const isMobile = window.innerWidth <= 768;
-            
-            // Adjust modal size on mobile
-            const modal = document.getElementById('modal');
-            if (modal && isMobile) {
-                const modalContent = modal.querySelector('.modal-content');
-                if (modalContent) {
-                    modalContent.style.width = '95%';
-                    modalContent.style.maxHeight = '90vh';
-                }
-            }
-        }
-        
-        window.addEventListener('resize', debounce(handleResize, 250));
-        
-        // ===== ACCESSIBILITY ENHANCEMENTS =====
-        
-        // Skip to main content link
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Tab' && !event.shiftKey) {
-                const focusedElement = document.activeElement;
-                if (focusedElement === document.body) {
-                    const firstPage = document.querySelector('.page.active');
-                    if (firstPage) {
-                        firstPage.setAttribute('tabindex', '-1');
-                        firstPage.focus();
-                        event.preventDefault();
-                    }
-                }
-            }
-        });
-        
-        // ===== PERFORMANCE MONITORING =====
-        function logPerformance(operation, startTime) {
-            const endTime = performance.now();
-            const duration = endTime - startTime;
-            if (duration > 100) { // Log slow operations (>100ms)
-                console.warn(`Slow operation detected: ${operation} took ${duration.toFixed(2)}ms`);
-            }
-        }
-        
-        // ===== FINAL SETUP =====
-        console.log('🕷️ RetroAvia 3.1 Spider-System Loaded Successfully!');
-        console.log('📋 Miglioramenti Versione 3.1:');
-        console.log('  ✅ Analytics con dati reali delle transazioni');
-        console.log('  ✅ Debounce per le ricerche (performance migliorata)');
-        console.log('  ✅ Validazione input avanzata');
-        console.log('  ✅ Loading states e feedback utente');
-        console.log('  ✅ Gestione errori migliorata');
-        console.log('  ✅ Auto-salvataggio ogni 5 minuti');
-        console.log('  ✅ Backup con metadata');
-        console.log('  ✅ KPI dashboard completo');
-        console.log('  ✅ Sistema ordini completo');
-        console.log('');
-        console.log('📋 Keyboard Shortcuts:');
-        console.log('  1-6: Navigate pages');
-        console.log('  N: New item (context-dependent)');
-        console.log('  A: AI Analysis (on dashboard)');
-        console.log('  Ctrl+S: Manual save');
-        console.log('  Ctrl+B: Export backup');
-        console.log('  ESC: Close modal');
-        
-    </script>
-</body>
-</html>        
-        function addOrder() {
-            const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📋 Nuovo Ordine</h3>
-                <div style="max-height: 60vh; overflow-y: auto; padding-right: var(--space-2);">
-                    <div class="form-group">
-                        <label for="orderCliente">Cliente</label>
-                        <select id="orderCliente" required>
-                            <option value="">Seleziona cliente...</option>
-                            ${appData.clients.map(client => `
-                                <option value="${client.name}">${client.name}</option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="orderData">Data Ordine</label>
-                        <input type="date" id="orderData" value="${formatDate()}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="orderStato">Stato</label>
-                        <select id="orderStato" required>
-                            <option value="attesa_componenti">⏳ Attesa Componenti</option>
-                            <option value="in_lavorazione" selected>🔧 In Lavorazione</option>
-                            <option value="completato">✅ Completato</option>
-                            <option value="consegnato">📦 Consegnato</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="orderModello">Modello Game Boy</label>
-                        <input type="text" id="orderModello" placeholder="es. Game Boy Color, Game Boy Advance..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="orderScocca">Scocca</label>
-                        <input type="text" id="orderScocca" placeholder="es. Trasparente Verde, Nera Opaca...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderPulsanti">Pulsanti</label>
-                        <input type="text" id="orderPulsanti" placeholder="es. Rossi/Gialli, Stock Originali...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderEtichetta">Etichetta</label>
-                        <input type="text" id="orderEtichetta" placeholder="es. Personalizzata Pokemon, Standard...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderBatteria">Batteria</label>
-                        <input type="text" id="orderBatteria" placeholder="es. Mod USB-C, Mod batteria ricaricabile...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderAudio">Audio</label>
-                        <input type="text" id="orderAudio" placeholder="es. Speaker Pro Enhanced, Standard...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderDisplay">Display</label>
-                        <input type="text" id="orderDisplay" placeholder="es. IPS V2 Funny Playing, LCD Standard...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderKitLed">Kit Led</label>
-                        <input type="text" id="orderKitLed" placeholder="es. RGB Multicolore, Nessuno...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderBox">Box</label>
-                        <input type="text" id="orderBox" placeholder="es. Box Custom Pokemon, Box Originale...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderCover">Cover</label>
-                        <input type="text" id="orderCover" placeholder="es. Screen Protector Vetro, Nessuna...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderGameBoyCliente">Game Boy Cliente</label>
-                        <input type="text" id="orderGameBoyCliente" placeholder="es. Fornito dal cliente, Non fornito...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderAltro">Altro</label>
-                        <input type="text" id="orderAltro" placeholder="es. Pulsante power custom, Pulizia completa...">
-                    </div>
-                    <div class="form-group">
-                        <label for="orderNote">Note</label>
-                        <textarea id="orderNote" rows="3" placeholder="Note aggiuntive per l'ordine..."></textarea>
-                    </div>
-                </div>
-                <div class="quick-actions">
-                    <button type="button" class="btn btn-success" onclick="saveOrderFromForm()" id="saveOrderBtn">
-                        <span>💾</span> Salva
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> Annulla
-                    </button>
-                </div>
-            `;
-            openModal(content);
-        }
-        
-        function saveOrderFromForm() {
-            try {
-                const saveBtn = document.getElementById('saveOrderBtn');
-                const originalText = '<span>💾</span> Salva';
-                
-                showLoading(saveBtn, 'Salvando...');
-                
-                const cliente = document.getElementById('orderCliente')?.value;
-                const data = document.getElementById('orderData')?.value;
-                const stato = document.getElementById('orderStato')?.value;
-                const modello = document.getElementById('orderModello')?.value;
-                
-                if (!cliente || !data || !stato || !modello) {
-                    hideLoading(saveBtn, originalText);
-                    showMessage('Compila tutti i campi obbligatori (Cliente, Data, Stato, Modello)', 'error');
-                    return;
-                }
-                
-                setTimeout(() => {
-                    const formData = {
-                        id: appData.editingId || generateId(),
-                        cliente: cliente,
-                        data: data,
-                        stato: stato,
-                        modello: modello,
-                        scocca: document.getElementById('orderScocca')?.value || '',
-                        pulsanti: document.getElementById('orderPulsanti')?.value || '',
-                        etichetta: document.getElementById('orderEtichetta')?.value || '',
-                        batteria: document.getElementById('orderBatteria')?.value || '',
-                        audio: document.getElementById('orderAudio')?.value || '',
-                        display: document.getElementById('orderDisplay')?.value || '',
-                        kitLed: document.getElementById('orderKitLed')?.value || '',
-                        box: document.getElementById('orderBox')?.value || '',
-                        cover: document.getElementById('orderCover')?.value || '',
-                        gameBoyCliente: document.getElementById('orderGameBoyCliente')?.value || '',
-                        altro: document.getElementById('orderAltro')?.value || '',
-                        note: document.getElementById('orderNote')?.value || ''
-                    };
-                    
-                    if (appData.editingId) {
-                        const index = appData.orders.findIndex(o => o.id === appData.editingId);
-                        if (index !== -1) {
-                            appData.orders[index] = formData;
-                            showMessage('Ordine aggiornato con successo!');
-                            console.log('Order updated:', formData);
-                        }
-                        appData.editingId = null;
-                    } else {
-                        appData.orders.push(formData);
-                        showMessage('Ordine aggiunto con successo!');
-                        console.log('Order added:', formData);
-                    }
-                    
-                    hideLoading(saveBtn, originalText);
-                    closeModal();
-                    loadOrders();
-                    updateDashboard();
-                    autoSave();
-                }, 500);
-                
-            } catch (error) {
-                console.error('Save order error:', error);
-                showMessage('Errore nel salvataggio ordine', 'error');
-            }
-        }
-        
-        function viewOrder(id) {
-            const order = appData.orders.find(o => o.id === id);
-            if (!order) {
-                showMessage('Ordine non trovato', 'error');
-                return;
-            }
-            
-            const stateLabels = {
-                'attesa_componenti': '⏳ Attesa Componenti',
-                'in_lavorazione': '🔧 In Lavorazione',
-                'completato': '✅ Completato',
-                'consegnato': '📦 Consegnato'
-            };
-            
-            const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">👁️ Dettagli Ordine</h3>
-                <div style="max-height: 60vh; overflow-y: auto;">
-                    <div style="display: grid; gap: var(--space-4);">
-                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📋 Informazioni Generali</h4>
-                            <p><strong>Cliente:</strong> ${order.cliente}</p>
-                            <p><strong>Data:</strong> ${new Date(order.data).toLocaleDateString('it-IT')}</p>
-                            <p><strong>Stato:</strong> <span style="color: var(--accent);">${stateLabels[order.stato] || order.stato}</span></p>
-                                
-        // ===== TRANSACTIONS FUNCTIONS =====
-        function loadTransactions() {
-            const container = document.getElementById('transactionsContainer');
-            if (!container) return;
-            
-            if (appData.transactions.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💰</div>
-                        <h3>Nessuna transazione</h3>
-                        <p>Inizia aggiungendo la tua prima transazione!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort transactions by date (newest first)
-            const sortedTransactions = [...appData.transactions].sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            );
-            
-            const tableHTML = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Tipo</th>
-                            <th>Importo</th>
-                            <th>Descrizione</th>
-                            <th>Cliente</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sortedTransactions.map(transaction => `
-                            <tr data-id="${transaction.id}">
-                                <td>${new Date(transaction.date).toLocaleDateString('it-IT')}</td>
-                                <td>
-                                    <span style="color: ${transaction.type === 'revenue' ? 'var(--success)' : 'var(--error)'}">
-                                        ${transaction.type === 'revenue' ? '💰 Entrata' : '💸 Spesa'}
-                                    </span>
-                                </td>
-                                <td style="color: ${transaction.type === 'revenue' ? 'var(--success)' : 'var(--error)'}">
-                                    ${formatCurrency(transaction.amount)}
-                                </td>
-                                <td>${transaction.description}</td>
-                                <td>${transaction.client || '-'}</td>
-                                <td>
-                                    <button class="btn btn-secondary" onclick="editTransaction('${transaction.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
-                                        ✏️ Modifica
-                                    </button>
-                                    <button class="btn btn-error" onclick="confirmDeleteTransaction('${transaction.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
-                                        🗑️ Elimina
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            
-            container.innerHTML = tableHTML;
-            console.log('Transactions loaded:', appData.transactions.length);
-        }
-        
-        function addTransaction(type) {
-            const content = `
-                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
-                    ${type === 'revenue' ? '💰 Nuova Entrata' : '💸 Nuova Spesa'}
-                </h3>
-                <div class="form-group">
-                    <label for="amount">Importo (€)</label>
-                    <input type="number" id="amount" step="0.01" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Descrizione</label>
-                    <input type="text" id="description" required>
-                </div>
-                <div class="form-group">
-                    <label for="date">Data</label>
-                    <input type="date" id="date" value="${formatDate()}" required>
-                </div>
-                <div class="form-group">
-                    <label for="client">Cliente (opzionale)</label>
-                    <select id="client">
-                        <option value="">Seleziona cliente...</option>
-                        ${appData.clients.map(client => `
-                            <option value="${client.name}">${client.name}</option>
-                        `).join('')}
-                    </select>
-                </div>
-                <div class="quick-actions">
-                    <button type="button" class="btn btn-success" onclick="saveTransactionFromForm('${type}')" id="saveTransactionBtn">
-                        <span>💾</span> Salva
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> Annulla
-                    </button>
-                </div>
-            `;
-            openModal(content);
-        }
-        
-        function saveTransactionFromForm(type) {
-            try {
-                const saveBtn = document.getElementById('saveTransactionBtn');
-                const originalText = '<span>💾</span> Salva';
-                
-                showLoading(saveBtn, 'Salvando...');
-                
-                const amount = document.getElementById('amount')?.value;
-                const description = document.getElementById('description')?.value;
-                const date = document.getElementById('date')?.value;
-                const client = document.getElementById('client')?.value;
-                
-                if (!amount || !description || !date) {
-                    hideLoading(saveBtn, originalText);
-                    showMessage('Compila tutti i campi obbligatori', 'error');
-                    return;
-                }
-                
-                // Validate date
-                const selectedDate = new Date(date);
-                const today = new Date();
-                if (selectedDate > today) {
-                    hideLoading(saveBtn, originalText);
-                    showMessage('La data non può essere nel futuro', 'error');
-                    return;
-                }
-                
-                setTimeout(() => {
-                    const formData = {
-                        id: appData.editingId || generateId(),
-                        type: type,
-                        amount: parseFloat(amount),
-                        description: description,
-                        date: date,
-                        client: client
-                    };
-                    
-                    if (appData.editingId) {
-                        const index = appData.transactions.findIndex(t => t.id === appData.editingId);
-                        if (index !== -1) {
-                            appData.transactions[index] = formData;
-                            showMessage('Transazione aggiornata con successo!');
-                            console.log('Transaction updated:', formData);
-                        }
-                        appData.editingId = null;
-                    } else {
-                        appData.transactions.push(formData);
-                        showMessage('Transazione aggiunta con successo!');
-                        console.log('Transaction added:', formData);
-                    }
-                    
-                    hideLoading(saveBtn, originalText);
-                    closeModal();
-                    loadTransactions();
-                    updateDashboard();
-                    updateClientTotalSpent();
-                    autoSave();
-                }, 500); // Simulate processing time
-                
-            } catch (error) {
-                console.error('Save transaction error:', error);
-                showMessage('Errore nel salvataggio transazione', 'error');
-            }
-        }
-        
-        function editTransaction(id) {
-            console.log('Editing transaction with ID:', id);
-            const transaction = appData.transactions.find(t => t.id === id);
-            if (!transaction) {
-                showMessage('Transazione non trovata', 'error');
-                console.error('Transaction not found:', id);
-                return;
-            }
-            
-            appData.editingId = id;
-            addTransaction(transaction.type);
-            
-            // Populate form with existing data
-            setTimeout(() => {
-                const amountEl = document.getElementById('amount');
-                const descEl = document.getElementById('description');
-                const dateEl = document.getElementById('date');
-                const clientEl = document.getElementById('client');
-                
-                if (amountEl) amountEl.value = transaction.amount;
-                if (descEl) descEl.value = transaction.description;
-                if (dateEl) dateEl.value = transaction.date;
-                if (clientEl) clientEl.value = transaction.client || '';
-            }, 100);
-        }
-        
-        function confirmDeleteTransaction(id) {
-            console.log('Confirming delete for transaction:', id);
-            const transaction = appData.transactions.find(t => t.id === id);
-            if (!transaction) {
-                showMessage('Transazione non trovata', 'error');
-                return;
-            }
-            
-            showConfirmDialog(
-                'Elimina Transazione',
-                `Sei sicuro di voler eliminare la transazione "${transaction.description}"? Questa azione non può essere annullata.`,
-                () => deleteTransaction(id)
-            );
-        }
-        
-        function deleteTransaction(id) {
-            console.log('Deleting transaction with ID:', id);
-            console.log('Transactions before delete:', appData.transactions.length);
-            
-            const initialLength = appData.transactions.length;
-            appData.transactions = appData.transactions.filter(t => t.id !== id);
-            
-            if (appData.transactions.length < initialLength) {
-                console.log('Transaction deleted successfully. New count:', appData.transactions.length);
-                showMessage('Transazione eliminata con successo!');
-                loadTransactions();
-                updateDashboard();
-                updateClientTotalSpent();
-                autoSave();
-            } else {
-                console.error('Failed to delete transaction');
-                showMessage('Errore nell\'eliminazione della transazione', 'error');
-            }
-        }
-        
-        const debouncedFilterTransactions = debounce(() => {
-            const searchTerm = document.getElementById('transactionSearch')?.value.toLowerCase() || '';
-            const rows = document.querySelectorAll('#transactionsContainer tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }, 300);
-        
+                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items:        
         // ===== CLIENTS FUNCTIONS =====
         function loadClients() {
             const container = document.getElementById('clientsContainer');
@@ -1559,86 +1440,7 @@
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
-        }, 300);
-        
-        // ===== ORDERS FUNCTIONS =====
-        function loadOrders() {
-            const container = document.getElementById('ordersContainer');
-            if (!container) return;
-            
-            if (appData.orders.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
-                        <h3>Nessun ordine</h3>
-                        <p>Inizia aggiungendo il tuo primo ordine!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort orders by date (newest first)
-            const sortedOrders = [...appData.orders].sort((a, b) => 
-                new Date(b.data) - new Date(a.data)
-            );
-            
-            const tableHTML = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Cliente</th>
-                            <th>Modello</th>
-                            <th>Stato</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sortedOrders.map(order => {
-                            const stateColors = {
-                                'attesa_componenti': 'var(--warning)',
-                                'in_lavorazione': 'var(--primary)',
-                                'completato': 'var(--success)',
-                                'consegnato': 'var(--secondary)'
-                            };
-                            const stateLabels = {
-                                'attesa_componenti': '⏳ Attesa Componenti',
-                                'in_lavorazione': '🔧 In Lavorazione',
-                                'completato': '✅ Completato',
-                                'consegnato': '📦 Consegnato'
-                            };
-                            
-                            return `
-                                <tr data-id="${order.id}">
-                                    <td>${new Date(order.data).toLocaleDateString('it-IT')}</td>
-                                    <td><strong>${order.cliente}</strong></td>
-                                    <td>${order.modello}</td>
-                                    <td>
-                                        <span style="color: ${stateColors[order.stato] || 'var(--text-muted)'}; font-weight: 600;">
-                                            ${stateLabels[order.stato] || order.stato}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-secondary" onclick="viewOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
-                                            👁️ Visualizza
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="editOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
-                                            ✏️ Modifica
-                                        </button>
-                                        <button class="btn btn-error" onclick="confirmDeleteOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin: 0.125rem;">
-                                            🗑️ Elimina
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
-            
-            container.innerHTML = tableHTML;
-            console.log('Orders loaded:', appData.orders.length);
-        }<!DOCTYPE html>
+        }, 300);<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -2052,7 +1854,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-xl);
             padding: var(--space-8);
-            max-width: 600px;
+            max-width: 900px;
             width: 90%;
             position: relative;
             max-height: 85vh;
@@ -2236,6 +2038,124 @@
             text-align: center;
             padding: var(--space-1);
         }
+
+        /* Order Status Styles */
+        .order-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .order-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .order-status.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .order-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .order-status.cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        /* Form Grid for Orders */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .form-section {
+            background: var(--surface);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-section h4 {
+            color: var(--accent);
+            margin-bottom: var(--space-4);
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .order-card {
+            background: var(--gradient-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin: var(--space-4) 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .order-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: var(--space-2);
+        }
+
+        .order-client {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .order-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin: var(--space-4) 0;
+        }
+
+        .order-spec {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            border: 1px solid var(--primary);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+        }
         
         @media (max-width: 768px) {
             .container { 
@@ -2280,6 +2200,14 @@
             .data-table td {
                 padding: var(--space-2);
             }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-actions {
+                flex-direction: column;
+            }
         }
         
         @media (max-width: 480px) {
@@ -2319,6 +2247,9 @@
             <button class="nav-btn active" onclick="showPage('dashboard')" aria-label="Dashboard">
                 <span>📊</span> Dashboard
             </button>
+            <button class="nav-btn" onclick="showPage('orders')" aria-label="Ordini">
+                <span>📋</span> Ordini
+            </button>
             <button class="nav-btn" onclick="showPage('transactions')" aria-label="Transazioni">
                 <span>💰</span> Transazioni
             </button>
@@ -2327,9 +2258,6 @@
             </button>
             <button class="nav-btn" onclick="showPage('inventory')" aria-label="Inventario">
                 <span>📦</span> Inventario
-            </button>
-            <button class="nav-btn" onclick="showPage('orders')" aria-label="Ordini">
-                <span>📋</span> Ordini
             </button>
             <button class="nav-btn" onclick="showPage('analytics')" aria-label="Analytics">
                 <span>📈</span> Analytics
@@ -2382,14 +2310,14 @@
                     <button class="btn btn-success" onclick="openQuickSale()">
                         <span>💰</span> Vendita Rapida
                     </button>
+                    <button class="btn btn-warning" onclick="addOrder()">
+                        <span>📋</span> Nuovo Ordine
+                    </button>
                     <button class="btn btn-warning" onclick="openQuickClient()">
                         <span>👤</span> Cliente Rapido
                     </button>
                     <button class="btn" onclick="openQuickInventory()">
                         <span>📦</span> Componente Rapido
-                    </button>
-                    <button class="btn btn-warning" onclick="openQuickOrder()">
-                        <span>📋</span> Ordine Rapido
                     </button>
                     <button class="btn btn-secondary" onclick="exportBackup()">
                         <span>💾</span> Backup
@@ -2397,6 +2325,22 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Orders Page -->
+        <div class="page" id="orders" role="main">
+            <div class="card">
+                <h3><span>📋</span> Gestione Ordini Personalizzati</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="addOrder()">
+                        <span>📋</span> Nuovo Ordine
+                    </button>
+                </div>
+                <input type="text" class="search-box" id="orderSearch" placeholder="🔍 Cerca ordini..." aria-label="Cerca ordini">
+                <div id="ordersContainer">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        <!--/div>
         
         <!-- Transactions Page -->
         <div class="page" id="transactions" role="main">
@@ -2449,22 +2393,6 @@
             </div>
         </div>
         
-        <!-- Orders Page -->
-        <div class="page" id="orders" role="main">
-            <div class="card">
-                <h3><span>📋</span> Gestione Ordini</h3>
-                <div class="quick-actions">
-                    <button class="btn btn-success" onclick="addOrder()">
-                        <span>📋</span> Nuovo Ordine
-                    </button>
-                </div>
-                <input type="text" class="search-box" id="orderSearch" placeholder="🔍 Cerca ordini..." aria-label="Cerca ordini">
-                <div id="ordersContainer">
-                    <!-- Orders will be loaded here -->
-                </div>
-            </div>
-        </div>
-        
         <!-- Analytics Page -->
         <div class="page" id="analytics" role="main">
             <div class="card">
@@ -2475,433 +2403,6 @@
                         <div id="monthlyTrends" class="chart-container">
                             <!-- Monthly trends chart will be here -->
                         </div>
-                        
-                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">🎮 Specifiche Game Boy</h4>
-                            <div style="display: grid; gap: var(--space-2);">
-                                <p><strong>Modello:</strong> ${order.modello || '-'}</p>
-                                <p><strong>Scocca:</strong> ${order.scocca || '-'}</p>
-                                <p><strong>Pulsanti:</strong> ${order.pulsanti || '-'}</p>
-                                <p><strong>Etichetta:</strong> ${order.etichetta || '-'}</p>
-                                <p><strong>Batteria:</strong> ${order.batteria || '-'}</p>
-                                <p><strong>Audio:</strong> ${order.audio || '-'}</p>
-                                <p><strong>Display:</strong> ${order.display || '-'}</p>
-                                <p><strong>Kit Led:</strong> ${order.kitLed || '-'}</p>
-                            </div>
-                        </div>
-                        
-                        <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📦 Accessori e Altro</h4>
-                            <div style="display: grid; gap: var(--space-2);">
-                                <p><strong>Box:</strong> ${order.box || '-'}</p>
-                                <p><strong>Cover:</strong> ${order.cover || '-'}</p>
-                                <p><strong>Game Boy Cliente:</strong> ${order.gameBoyCliente || '-'}</p>
-                                <p><strong>Altro:</strong> ${order.altro || '-'}</p>
-                            </div>
-                        </div>
-                        
-                        ${order.note ? `
-                            <div style="background: var(--surface); padding: var(--space-4); border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                                <h4 style="color: var(--primary); margin-bottom: var(--space-2);">📝 Note</h4>
-                                <p style="font-style: italic;">${order.note}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="quick-actions">
-                    <button class="btn" onclick="editOrder('${order.id}')">
-                        <span>✏️</span> Modifica
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> Chiudi
-                    </button>
-                </div>
-            `;
-            openModal(content);
-        }
-        
-        function editOrder(id) {
-            console.log('Editing order with ID:', id);
-            const order = appData.orders.find(o => o.id === id);
-            if (!order) {
-                showMessage('Ordine non trovato', 'error');
-                console.error('Order not found:', id);
-                return;
-            }
-            
-            appData.editingId = id;
-            addOrder();
-            
-            // Populate form with existing data
-            setTimeout(() => {
-                const fields = ['orderCliente', 'orderData', 'orderStato', 'orderModello', 'orderScocca', 'orderPulsanti', 'orderEtichetta', 'orderBatteria', 'orderAudio', 'orderDisplay', 'orderKitLed', 'orderBox', 'orderCover', 'orderGameBoyCliente', 'orderAltro', 'orderNote'];
-                const orderData = {
-                    orderCliente: order.cliente,
-                    orderData: order.data,
-                    orderStato: order.stato,
-                    orderModello: order.modello,
-                    orderScocca: order.scocca,
-                    orderPulsanti: order.pulsanti,
-                    orderEtichetta: order.etichetta,
-                    orderBatteria: order.batteria,
-                    orderAudio: order.audio,
-                    orderDisplay: order.display,
-                    orderKitLed: order.kitLed,
-                    orderBox: order.box,
-                    orderCover: order.cover,
-                    orderGameBoyCliente: order.gameBoyCliente,
-                    orderAltro: order.altro,
-                    orderNote: order.note
-                };
-                
-                fields.forEach(fieldId => {
-                    const element = document.getElementById(fieldId);
-                    if (element && orderData[fieldId] !== undefined) {
-                        element.value = orderData[fieldId] || '';
-                    }
-                });
-            }, 100);
-        }
-        
-        function confirmDeleteOrder(id) {
-            console.log('Confirming delete for order:', id);
-            const order = appData.orders.find(o => o.id === id);
-            if (!order) {
-                showMessage('Ordine non trovato', 'error');
-                return;
-            }
-            
-            showConfirmDialog(
-                'Elimina Ordine',
-                `Sei sicuro di voler eliminare l'ordine di "${order.cliente}" per ${order.modello}? Questa azione non può essere annullata.`,
-                () => deleteOrder(id)
-            );
-        }
-        
-        function deleteOrder(id) {
-            console.log('Deleting order with ID:', id);
-            console.log('Orders before delete:', appData.orders.length);
-            
-            const initialLength = appData.orders.length;
-            appData.orders = appData.orders.filter(o => o.id !== id);
-            
-            if (appData.orders.length < initialLength) {
-                console.log('Order deleted successfully. New count:', appData.orders.length);
-                showMessage('Ordine eliminato con successo!');
-                loadOrders();
-                updateDashboard();
-                autoSave();
-            } else {
-                console.error('Failed to delete order');
-                showMessage('Errore nell\'eliminazione dell\'ordine', 'error');
-            }
-        }
-        
-        const debouncedFilterOrders = debounce(() => {
-            const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
-            const rows = document.querySelectorAll('#ordersContainer tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }, 300);
-        
-        // ===== ANALYTICS FUNCTIONS =====
-        function loadAnalytics() {
-            loadMonthlyTrends();
-            loadTopClients();
-            loadMonthlyPerformance();
-            loadKPIDashboard();
-        }
-        
-        function loadMonthlyTrends() {
-            const container = document.getElementById('monthlyTrends');
-            if (!container) return;
-            
-            const months = getLastSixMonths();
-            const monthlyData = getTransactionsByMonth();
-            
-            // Fill in missing months with zero data
-            const chartData = months.map(month => ({
-                ...month,
-                revenue: monthlyData[month.key]?.revenue || 0,
-                expenses: monthlyData[month.key]?.expenses || 0,
-                profit: (monthlyData[month.key]?.revenue || 0) - (monthlyData[month.key]?.expenses || 0)
-            }));
-            
-            const maxValue = Math.max(...chartData.map(d => Math.max(d.revenue, d.expenses))) || 100;
-            
-            container.innerHTML = `
-                <div style="margin-bottom: var(--space-4);">
-                    <p style="color: var(--text-muted); font-size: 0.875rem;">
-                        📊 Trend basati sui dati reali delle tue transazioni
-                    </p>
-                </div>
-                <div style="display: flex; align-items: end; gap: 1rem; height: 200px; padding: 1rem;">
-                    ${chartData.map(data => `
-                        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                            <div style="display: flex; flex-direction: column; gap: 0.25rem; width: 100%; height: 150px; justify-content: end;">
-                                <!-- Revenue Bar -->
-                                <div class="chart-bar" style="
-                                    height: ${maxValue > 0 ? (data.revenue / maxValue) * 70 : 0}px;
-                                    background: linear-gradient(135deg, var(--success), #059669);
-                                    display: flex;
-                                    align-items: end;
-                                    justify-content: center;
-                                    font-size: 0.7rem;
-                                    color: white;
-                                    font-weight: 600;
-                                    padding: 0.125rem;
-                                " title="Entrate: ${formatCurrency(data.revenue)}">
-                                    ${data.revenue > 0 ? formatCurrency(data.revenue) : ''}
-                                </div>
-                                <!-- Expenses Bar -->
-                                <div class="chart-bar" style="
-                                    height: ${maxValue > 0 ? (data.expenses / maxValue) * 70 : 0}px;
-                                    background: linear-gradient(135deg, var(--error), #dc2626);
-                                    display: flex;
-                                    align-items: end;
-                                    justify-content: center;
-                                    font-size: 0.7rem;
-                                    color: white;
-                                    font-weight: 600;
-                                    padding: 0.125rem;
-                                " title="Spese: ${formatCurrency(data.expenses)}">
-                                    ${data.expenses > 0 ? formatCurrency(data.expenses) : ''}
-                                </div>
-                            </div>
-                            <div style="margin-top: var(--space-2);">
-                                <div style="font-size: 0.875rem; color: var(--text-muted); text-align: center;">
-                                    ${data.monthName.substring(0, 3)}
-                                </div>
-                                <div style="font-size: 0.75rem; color: ${data.profit >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600; text-align: center;">
-                                    ${formatCurrency(data.profit)}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div style="display: flex; justify-content: center; gap: var(--space-4); margin-top: var(--space-4); font-size: 0.875rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--success), #059669); border-radius: 0.25rem;"></div>
-                        <span>Entrate</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <div style="width: 1rem; height: 1rem; background: linear-gradient(135deg, var(--error), #dc2626); border-radius: 0.25rem;"></div>
-                        <span>Spese</span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function loadTopClients() {
-            const container = document.getElementById('topClients');
-            if (!container) return;
-            
-            // Calculate client spending from transactions
-            const clientSpending = {};
-            appData.transactions.filter(t => t.type === 'revenue' && t.client).forEach(transaction => {
-                clientSpending[transaction.client] = (clientSpending[transaction.client] || 0) + parseFloat(transaction.amount);
-            });
-            
-            const topClients = Object.entries(clientSpending)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5);
-            
-            if (topClients.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👤</div>
-                        <p>Nessun dato cliente disponibile</p>
-                        <p style="font-size: 0.875rem; margin-top: var(--space-2);">Aggiungi clienti alle transazioni per vedere le statistiche</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const maxSpending = Math.max(...topClients.map(([, amount]) => amount));
-            
-            container.innerHTML = `
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    ${topClients.map(([client, amount], index) => {
-                        const percentage = maxSpending > 0 ? (amount / maxSpending) * 100 : 0;
-                        return `
-                            <div style="
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                padding: 1rem;
-                                background: var(--surface);
-                                border-radius: var(--radius-lg);
-                                border: 1px solid rgba(255, 255, 255, 0.1);
-                                position: relative;
-                                overflow: hidden;
-                            ">
-                                <!-- Progress Background -->
-                                <div style="
-                                    position: absolute;
-                                    top: 0;
-                                    left: 0;
-                                    height: 100%;
-                                    width: ${percentage}%;
-                                    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1));
-                                    transition: width 1s ease;
-                                "></div>
-                                
-                                <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
-                                    <span style="
-                                        background: var(--gradient-primary);
-                                        color: white;
-                                        width: 2rem;
-                                        height: 2rem;
-                                        border-radius: 50%;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        font-weight: 700;
-                                        font-size: 0.875rem;
-                                    ">${index + 1}</span>
-                                    <div>
-                                        <div style="font-weight: 600; margin-bottom: 0.25rem;">${client}</div>
-                                        <div style="font-size: 0.875rem; color: var(--text-muted);">
-                                            ${appData.transactions.filter(t => t.client === client && t.type === 'revenue').length} transazioni
-                                        </div>
-                                    </div>
-                                </div>
-                                <span style="color: var(--success); font-weight: 700; font-size: 1.1rem; position: relative; z-index: 1;">
-                                    ${formatCurrency(amount)}
-                                </span>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        }
-        
-        function loadMonthlyPerformance() {
-            const container = document.getElementById('monthlyPerformance');
-            if (!container) return;
-            
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            const currentMonthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            const previousMonthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-            
-            const monthlyData = getTransactionsByMonth();
-            const currentData = monthlyData[currentMonthKey] || { revenue: 0, expenses: 0, count: 0 };
-            const previousData = monthlyData[previousMonthKey] || { revenue: 0, expenses: 0, count: 0 };
-            
-            const revenueChange = previousData.revenue > 0 ? 
-                ((currentData.revenue - previousData.revenue) / previousData.revenue * 100) : 0;
-            const expenseChange = previousData.expenses > 0 ? 
-                ((currentData.expenses - previousData.expenses) / previousData.expenses * 100) : 0;
-            
-            container.innerHTML = `
-                <div style="display: grid; gap: 1rem;">
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Entrate Questo Mese</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${formatCurrency(currentData.revenue)}</div>
-                            </div>
-                            <div style="color: ${revenueChange >= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
-                                ${revenueChange >= 0 ? '↗️' : '↘️'} ${Math.abs(revenueChange).toFixed(1)}%
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Spese Questo Mese</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--error);">${formatCurrency(currentData.expenses)}</div>
-                            </div>
-                            <div style="color: ${expenseChange <= 0 ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
-                                ${expenseChange <= 0 ? '↘️' : '↗️'} ${Math.abs(expenseChange).toFixed(1)}%
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Profitto Questo Mese</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: ${(currentData.revenue - currentData.expenses) >= 0 ? 'var(--success)' : 'var(--error)'};">
-                                    ${formatCurrency(currentData.revenue - currentData.expenses)}
-                                </div>
-                            </div>
-                            <div style="color: var(--accent); font-weight: 600;">
-                                📊 ${currentData.count} transazioni
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function loadKPIDashboard() {
-            const container = document.getElementById('kpiDashboard');
-            if (!container) return;
-            
-            const revenues = appData.transactions.filter(t => t.type === 'revenue');
-            const expenses = appData.transactions.filter(t => t.type === 'expense');
-            
-            const totalRevenue = revenues.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const avgOrderValue = revenues.length > 0 ? totalRevenue / revenues.length : 0;
-            const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0;
-            
-            // Low stock items
-            const lowStockItems = appData.inventory.filter(item => item.quantity <= item.threshold);
-            
-            // Active clients (clients with transactions)
-            const activeClients = new Set(appData.transactions.filter(t => t.client).map(t => t.client)).size;
-            
-            container.innerHTML = `
-                <div style="display: grid; gap: 1rem;">
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted);">Valore Medio Ordine</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">${formatCurrency(avgOrderValue)}</div>
-                            </div>
-                            <span style="font-size: 1.5rem;">💰</span>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted);">Margine di Profitto</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: ${profitMargin >= 0 ? 'var(--success)' : 'var(--error)'};">${profitMargin.toFixed(1)}%</div>
-                            </div>
-                            <span style="font-size: 1.5rem;">📈</span>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted);">Clienti Attivi</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent);">${activeClients}</div>
-                            </div>
-                            <span style="font-size: 1.5rem;">👥</span>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-size: 0.875rem; color: var(--text-muted);">Scorte Basse</div>
-                                <div style="font-size: 1.25rem; font-weight: 700; color: ${lowStockItems.length > 0 ? 'var(--error)' : 'var(--success)'};">${lowStockItems.length}</div>
-                            </div>
-                            <span style="font-size: 1.5rem;">${lowStockItems.length > 0 ? '⚠️' : '✅'}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
                     </div>
                     <div class="card">
                         <h4>🏆 Top Clienti</h4>
@@ -2981,41 +2482,47 @@
             orders: [
                 {
                     id: 'order1',
-                    cliente: 'Mario Rossi',
-                    data: '2025-01-20',
-                    stato: 'in_lavorazione',
-                    modello: 'Game Boy Color',
-                    scocca: 'Trasparente Verde',
-                    pulsanti: 'Rossi/Gialli',
-                    etichetta: 'Personalizzata Pokemon',
-                    batteria: 'Mod USB-C',
-                    audio: 'Speaker Pro Enhanced',
-                    display: 'IPS V2 Funny Playing',
-                    kitLed: 'RGB Multicolore',
-                    box: 'Box Custom Pokemon',
-                    cover: 'Screen Protector Vetro',
-                    gameBoyCliente: 'Non fornito',
-                    altro: 'Pulsante power custom',
-                    note: 'Cliente vuole RGB sincronizzato con la musica'
+                    client: 'Mario Rossi',
+                    status: 'in-progress',
+                    createdDate: '2025-01-20',
+                    estimatedCompletion: '2025-02-05',
+                    gameboy: {
+                        modello: 'Game Boy Color',
+                        scocca: 'Trasparente Blu',
+                        pulsanti: 'Bianchi custom',
+                        etichetta: 'Personalizzata con nome',
+                        batteria: 'Li-ion ricaricabile',
+                        audio: 'Speaker migliorato',
+                        display: 'IPS V2',
+                        kitLed: 'LED RGB programmabili',
+                        box: 'Box originale restaurata',
+                        cover: 'Custodia rigida custom',
+                        gameboyCliente: 'Game Boy Color difettoso fornito dal cliente',
+                        altro: 'Porta USB-C per ricarica',
+                        note: 'Cliente vuole colori che richiamano il mare. Particolare attenzione ai dettagli.'
+                    }
                 },
                 {
                     id: 'order2',
-                    cliente: 'Giulia Bianchi',
-                    data: '2025-01-18',
-                    stato: 'attesa_componenti',
-                    modello: 'Game Boy Advance',
-                    scocca: 'Nera Opaca',
-                    pulsanti: 'Stock Originali',
-                    etichetta: 'Standard',
-                    batteria: 'Mod batteria ricaricabile',
-                    audio: 'Standard',
-                    display: 'IPS V2',
-                    kitLed: 'Nessuno',
-                    box: 'Box Originale',
-                    cover: 'Nessuna',
-                    gameBoyCliente: 'Fornito dal cliente',
-                    altro: 'Pulizia completa',
-                    note: 'GBA del cliente ha alcuni graffi sulla scocca'
+                    client: 'Giulia Bianchi',
+                    status: 'pending',
+                    createdDate: '2025-01-22',
+                    estimatedCompletion: '2025-02-10',
+                    gameboy: {
+                        modello: 'Game Boy Advance',
+                        scocca: 'Rosa pastello',
+                        pulsanti: 'Rosa scuro',
+                        etichetta: 'Sticker kawaii personalizzato',
+                        batteria: 'Batterie AA ricaricabili',
+                        audio: 'Audio standard',
+                        display: 'IPS V3 luminoso',
+                        kitLed: 'Nessuno',
+                        box: 'Non richiesta',
+                        cover: 'Custodia morbida rosa',
+                        gameboyCliente: 'Nessuno - acquisto completo',
+                        altro: 'Adesivi extra kawaii',
+                        note: 'Regalo per compleanno figlia. Tema principesse e unicorni.'
+                    }
                 }
             ],
             editingId: null,
@@ -3204,6 +2711,10 @@
                     case 'dashboard':
                         updateDashboard();
                         break;
+                    case 'orders':
+                        loadOrders();
+                        setTimeout(setupSearchListeners, 100);
+                        break;
                     case 'transactions':
                         loadTransactions();
                         setTimeout(setupSearchListeners, 100);
@@ -3214,10 +2725,6 @@
                         break;
                     case 'inventory':
                         loadInventory();
-                        setTimeout(setupSearchListeners, 100);
-                        break;
-                    case 'orders':
-                        loadOrders();
                         setTimeout(setupSearchListeners, 100);
                         break;
                     case 'analytics':
@@ -3232,6 +2739,538 @@
                 showMessage('Errore nella navigazione', 'error');
             }
         }
+        
+        // ===== ORDERS FUNCTIONS =====
+        function loadOrders() {
+            const container = document.getElementById('ordersContainer');
+            if (!container) return;
+            
+            if (appData.orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>Nessun ordine</h3>
+                        <p>Inizia aggiungendo il tuo primo ordine personalizzato!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort orders by date (newest first)
+            const sortedOrders = [...appData.orders].sort((a, b) => 
+                new Date(b.createdDate) - new Date(a.createdDate)
+            );
+            
+            const ordersHTML = sortedOrders.map(order => {
+                const statusClass = order.status;
+                const statusText = {
+                    'pending': '⏳ In Attesa',
+                    'in-progress': '🔧 In Lavorazione',
+                    'completed': '✅ Completato',
+                    'cancelled': '❌ Annullato'
+                };
+                
+                // Create preview of main specs
+                const specs = [];
+                if (order.gameboy.modello) specs.push(order.gameboy.modello);
+                if (order.gameboy.scocca) specs.push(`Scocca: ${order.gameboy.scocca}`);
+                if (order.gameboy.display) specs.push(`Display: ${order.gameboy.display}`);
+                if (order.gameboy.kitLed && order.gameboy.kitLed !== 'Nessuno') specs.push('LED Kit');
+                
+                return `
+                    <div class="order-card" onclick="viewOrder('${order.id}')">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-title">Ordine #${order.id.slice(-6).toUpperCase()}</div>
+                                <div class="order-client">👤 ${order.client}</div>
+                            </div>
+                            <div class="order-status ${statusClass}">
+                                ${statusText[order.status]}
+                            </div>
+                        </div>
+                        
+                        <div class="order-preview">
+                            ${specs.slice(0, 4).map(spec => `<div class="order-spec">${spec}</div>`).join('')}
+                            ${specs.length > 4 ? `<div class="order-spec">+${specs.length - 4} altro...</div>` : ''}
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-4); font-size: 0.875rem; color: var(--text-muted);">
+                            <span>📅 Creato: ${new Date(order.createdDate).toLocaleDateString('it-IT')}</span>
+                            <span>🎯 Consegna: ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}</span>
+                        </div>
+                        
+                        <div class="order-actions" onclick="event.stopPropagation()">
+                            <button class="btn btn-secondary" onclick="editOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                ✏️ Modifica
+                            </button>
+                            <button class="btn btn-warning" onclick="changeOrderStatus('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                🔄 Stato
+                            </button>
+                            <button class="btn btn-error" onclick="confirmDeleteOrder('${order.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                🗑️ Elimina
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = ordersHTML;
+            console.log('Orders loaded:', appData.orders.length);
+        }
+
+        function addOrder() {
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">📋 Nuovo Ordine Personalizzato</h3>
+                
+                <div class="form-group">
+                    <label for="orderClient">Cliente</label>
+                    <select id="orderClient" required>
+                        <option value="">Seleziona cliente...</option>
+                        ${appData.clients.map(client => `
+                            <option value="${client.name}">${client.name}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="orderStatus">Stato Ordine</label>
+                    <select id="orderStatus" required>
+                        <option value="pending">⏳ In Attesa</option>
+                        <option value="in-progress">🔧 In Lavorazione</option>
+                        <option value="completed">✅ Completato</option>
+                        <option value="cancelled">❌ Annullato</option>
+                    </select>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="orderCreatedDate">Data Creazione</label>
+                        <input type="date" id="orderCreatedDate" value="${formatDate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderEstimatedCompletion">Data Consegna Prevista</label>
+                        <input type="date" id="orderEstimatedCompletion" required>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h4>🎮 Specifiche Game Boy</h4>
+                        
+                        <div class="form-group">
+                            <label for="gameboyModello">Modello Game Boy</label>
+                            <select id="gameboyModello">
+                                <option value="">Seleziona modello...</option>
+                                <option value="Game Boy Classic">Game Boy Classic</option>
+                                <option value="Game Boy Pocket">Game Boy Pocket</option>
+                                <option value="Game Boy Color">Game Boy Color</option>
+                                <option value="Game Boy Advance">Game Boy Advance</option>
+                                <option value="Game Boy Advance SP">Game Boy Advance SP</option>
+                                <option value="Game Boy Micro">Game Boy Micro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyScocca">Scocca</label>
+                            <input type="text" id="gameboyScocca" placeholder="Es: Trasparente blu, Rosa pastello...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyPulsanti">Pulsanti</label>
+                            <input type="text" id="gameboyPulsanti" placeholder="Es: Bianchi custom, Originali...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyEtichetta">Etichetta</label>
+                            <input type="text" id="gameboyEtichetta" placeholder="Es: Personalizzata, Originale...">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>🔋 Componenti Tecnici</h4>
+                        
+                        <div class="form-group">
+                            <label for="gameboyBatteria">Batteria</label>
+                            <input type="text" id="gameboyBatteria" placeholder="Es: Li-ion ricaricabile, AA standard...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyAudio">Audio</label>
+                            <input type="text" id="gameboyAudio" placeholder="Es: Speaker migliorato, Audio standard...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyDisplay">Display</label>
+                            <input type="text" id="gameboyDisplay" placeholder="Es: IPS V2, LCD originale...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyKitLed">Kit LED</label>
+                            <input type="text" id="gameboyKitLed" placeholder="Es: LED RGB programmabili, Nessuno...">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>📦 Accessori</h4>
+                        
+                        <div class="form-group">
+                            <label for="gameboyBox">Box</label>
+                            <input type="text" id="gameboyBox" placeholder="Es: Box originale restaurata, Non richiesta...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyCover">Cover</label>
+                            <input type="text" id="gameboyCover" placeholder="Es: Custodia rigida custom, Morbida...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyCliente">Game Boy Cliente</label>
+                            <input type="text" id="gameboyCliente" placeholder="Es: Game Boy difettoso fornito, Nessuno...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameboyAltro">Altro</label>
+                            <input type="text" id="gameboyAltro" placeholder="Es: Porta USB-C, Adesivi extra...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gameboyNote">Note</label>
+                    <textarea id="gameboyNote" placeholder="Note aggiuntive, richieste speciali del cliente..." rows="4"></textarea>
+                </div>
+                
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-success" onclick="saveOrderFromForm()" id="saveOrderBtn">
+                        <span>💾</span> Salva Ordine
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+
+        function saveOrderFromForm() {
+            try {
+                const saveBtn = document.getElementById('saveOrderBtn');
+                const originalText = '<span>💾</span> Salva Ordine';
+                
+                showLoading(saveBtn, 'Salvando...');
+                
+                // Get basic order info
+                const client = document.getElementById('orderClient')?.value;
+                const status = document.getElementById('orderStatus')?.value;
+                const createdDate = document.getElementById('orderCreatedDate')?.value;
+                const estimatedCompletion = document.getElementById('orderEstimatedCompletion')?.value;
+                
+                if (!client || !status || !createdDate || !estimatedCompletion) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('Compila tutti i campi obbligatori', 'error');
+                    return;
+                }
+                
+                // Validate dates
+                const created = new Date(createdDate);
+                const estimated = new Date(estimatedCompletion);
+                if (estimated < created) {
+                    hideLoading(saveBtn, originalText);
+                    showMessage('La data di consegna non può essere precedente alla data di creazione', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const formData = {
+                        id: appData.editingId || generateId(),
+                        client: client,
+                        status: status,
+                        createdDate: createdDate,
+                        estimatedCompletion: estimatedCompletion,
+                        gameboy: {
+                            modello: document.getElementById('gameboyModello')?.value || '',
+                            scocca: document.getElementById('gameboyScocca')?.value || '',
+                            pulsanti: document.getElementById('gameboyPulsanti')?.value || '',
+                            etichetta: document.getElementById('gameboyEtichetta')?.value || '',
+                            batteria: document.getElementById('gameboyBatteria')?.value || '',
+                            audio: document.getElementById('gameboyAudio')?.value || '',
+                            display: document.getElementById('gameboyDisplay')?.value || '',
+                            kitLed: document.getElementById('gameboyKitLed')?.value || '',
+                            box: document.getElementById('gameboyBox')?.value || '',
+                            cover: document.getElementById('gameboyCover')?.value || '',
+                            gameboyCliente: document.getElementById('gameboyCliente')?.value || '',
+                            altro: document.getElementById('gameboyAltro')?.value || '',
+                            note: document.getElementById('gameboyNote')?.value || ''
+                        }
+                    };
+                    
+                    if (appData.editingId) {
+                        const index = appData.orders.findIndex(o => o.id === appData.editingId);
+                        if (index !== -1) {
+                            appData.orders[index] = formData;
+                            showMessage('Ordine aggiornato con successo!');
+                            console.log('Order updated:', formData);
+                        }
+                        appData.editingId = null;
+                    } else {
+                        appData.orders.push(formData);
+                        showMessage('Ordine aggiunto con successo!');
+                        console.log('Order added:', formData);
+                    }
+                    
+                    hideLoading(saveBtn, originalText);
+                    closeModal();
+                    loadOrders();
+                    updateDashboard();
+                    autoSave();
+                }, 500);
+                
+            } catch (error) {
+                console.error('Save order error:', error);
+                showMessage('Errore nel salvataggio ordine', 'error');
+            }
+        }
+
+        function viewOrder(id) {
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            const statusText = {
+                'pending': '⏳ In Attesa',
+                'in-progress': '🔧 In Lavorazione',
+                'completed': '✅ Completato',
+                'cancelled': '❌ Annullato'
+            };
+            
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
+                    📋 Ordine #${order.id.slice(-6).toUpperCase()}
+                </h3>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); padding: var(--space-4); background: var(--surface); border-radius: var(--radius-lg);">
+                    <div>
+                        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: var(--space-2);">👤 ${order.client}</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">
+                            📅 Creato: ${new Date(order.createdDate).toLocaleDateString('it-IT')} | 
+                            🎯 Consegna: ${new Date(order.estimatedCompletion).toLocaleDateString('it-IT')}
+                        </div>
+                    </div>
+                    <div class="order-status ${order.status}" style="font-size: 1rem;">
+                        ${statusText[order.status]}
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h4>🎮 Specifiche Game Boy</h4>
+                        ${order.gameboy.modello ? `<p><strong>Modello:</strong> ${order.gameboy.modello}</p>` : ''}
+                        ${order.gameboy.scocca ? `<p><strong>Scocca:</strong> ${order.gameboy.scocca}</p>` : ''}
+                        ${order.gameboy.pulsanti ? `<p><strong>Pulsanti:</strong> ${order.gameboy.pulsanti}</p>` : ''}
+                        ${order.gameboy.etichetta ? `<p><strong>Etichetta:</strong> ${order.gameboy.etichetta}</p>` : ''}
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>🔋 Componenti Tecnici</h4>
+                        ${order.gameboy.batteria ? `<p><strong>Batteria:</strong> ${order.gameboy.batteria}</p>` : ''}
+                        ${order.gameboy.audio ? `<p><strong>Audio:</strong> ${order.gameboy.audio}</p>` : ''}
+                        ${order.gameboy.display ? `<p><strong>Display:</strong> ${order.gameboy.display}</p>` : ''}
+                        ${order.gameboy.kitLed ? `<p><strong>Kit LED:</strong> ${order.gameboy.kitLed}</p>` : ''}
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>📦 Accessori</h4>
+                        ${order.gameboy.box ? `<p><strong>Box:</strong> ${order.gameboy.box}</p>` : ''}
+                        ${order.gameboy.cover ? `<p><strong>Cover:</strong> ${order.gameboy.cover}</p>` : ''}
+                        ${order.gameboy.gameboyCliente ? `<p><strong>Game Boy Cliente:</strong> ${order.gameboy.gameboyCliente}</p>` : ''}
+                        ${order.gameboy.altro ? `<p><strong>Altro:</strong> ${order.gameboy.altro}</p>` : ''}
+                    </div>
+                </div>
+                
+                ${order.gameboy.note ? `
+                    <div class="form-section" style="margin-top: var(--space-6);">
+                        <h4>📝 Note</h4>
+                        <p style="line-height: 1.6; color: var(--text-secondary);">${order.gameboy.note}</p>
+                    </div>
+                ` : ''}
+                
+                <div class="quick-actions" style="margin-top: var(--space-8);">
+                    <button class="btn" onclick="editOrder('${order.id}')">
+                        <span>✏️</span> Modifica
+                    </button>
+                    <button class="btn btn-warning" onclick="changeOrderStatus('${order.id}')">
+                        <span>🔄</span> Cambia Stato
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <span>✅</span> Chiudi
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+
+        function editOrder(id) {
+            console.log('Editing order with ID:', id);
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                console.error('Order not found:', id);
+                return;
+            }
+            
+            appData.editingId = id;
+            addOrder();
+            
+            // Populate form with existing data
+            setTimeout(() => {
+                document.getElementById('orderClient').value = order.client || '';
+                document.getElementById('orderStatus').value = order.status || '';
+                document.getElementById('orderCreatedDate').value = order.createdDate || '';
+                document.getElementById('orderEstimatedCompletion').value = order.estimatedCompletion || '';
+                
+                // Populate gameboy specs
+                document.getElementById('gameboyModello').value = order.gameboy.modello || '';
+                document.getElementById('gameboyScocca').value = order.gameboy.scocca || '';
+                document.getElementById('gameboyPulsanti').value = order.gameboy.pulsanti || '';
+                document.getElementById('gameboyEtichetta').value = order.gameboy.etichetta || '';
+                document.getElementById('gameboyBatteria').value = order.gameboy.batteria || '';
+                document.getElementById('gameboyAudio').value = order.gameboy.audio || '';
+                document.getElementById('gameboyDisplay').value = order.gameboy.display || '';
+                document.getElementById('gameboyKitLed').value = order.gameboy.kitLed || '';
+                document.getElementById('gameboyBox').value = order.gameboy.box || '';
+                document.getElementById('gameboyCover').value = order.gameboy.cover || '';
+                document.getElementById('gameboyCliente').value = order.gameboy.gameboyCliente || '';
+                document.getElementById('gameboyAltro').value = order.gameboy.altro || '';
+                document.getElementById('gameboyNote').value = order.gameboy.note || '';
+            }, 100);
+        }
+
+        function changeOrderStatus(id) {
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            const content = `
+                <h3 id="modalTitle" style="color: var(--accent); margin-bottom: var(--space-6);">
+                    🔄 Cambia Stato Ordine #${order.id.slice(-6).toUpperCase()}
+                </h3>
+                
+                <div style="margin: var(--space-6) 0; padding: var(--space-4); background: var(--surface); border-radius: var(--radius-lg);">
+                    <p><strong>Cliente:</strong> ${order.client}</p>
+                    <p><strong>Stato Attuale:</strong> <span class="order-status ${order.status}">${{
+                        'pending': '⏳ In Attesa',
+                        'in-progress': '🔧 In Lavorazione', 
+                        'completed': '✅ Completato',
+                        'cancelled': '❌ Annullato'
+                    }[order.status]}</span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newOrderStatus">Nuovo Stato</label>
+                    <select id="newOrderStatus" required>
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ In Attesa</option>
+                        <option value="in-progress" ${order.status === 'in-progress' ? 'selected' : ''}>🔧 In Lavorazione</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>✅ Completato</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Annullato</option>
+                    </select>
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="btn btn-success" onclick="updateOrderStatus('${id}')" id="updateStatusBtn">
+                        <span>🔄</span> Aggiorna Stato
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <span>❌</span> Annulla
+                    </button>
+                </div>
+            `;
+            openModal(content);
+        }
+
+        function updateOrderStatus(id) {
+            try {
+                const updateBtn = document.getElementById('updateStatusBtn');
+                const originalText = '<span>🔄</span> Aggiorna Stato';
+                
+                showLoading(updateBtn, 'Aggiornando...');
+                
+                const newStatus = document.getElementById('newOrderStatus')?.value;
+                if (!newStatus) {
+                    hideLoading(updateBtn, originalText);
+                    showMessage('Seleziona un nuovo stato', 'error');
+                    return;
+                }
+                
+                setTimeout(() => {
+                    const orderIndex = appData.orders.findIndex(o => o.id === id);
+                    if (orderIndex !== -1) {
+                        appData.orders[orderIndex].status = newStatus;
+                        showMessage('Stato ordine aggiornato con successo!');
+                        console.log('Order status updated:', id, 'new status:', newStatus);
+                        
+                        hideLoading(updateBtn, originalText);
+                        closeModal();
+                        loadOrders();
+                        autoSave();
+                    } else {
+                        hideLoading(updateBtn, originalText);
+                        showMessage('Errore nell\'aggiornamento dello stato', 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                console.error('Update order status error:', error);
+                showMessage('Errore nell\'aggiornamento stato ordine', 'error');
+            }
+        }
+
+        function confirmDeleteOrder(id) {
+            console.log('Confirming delete for order:', id);
+            const order = appData.orders.find(o => o.id === id);
+            if (!order) {
+                showMessage('Ordine non trovato', 'error');
+                return;
+            }
+            
+            showConfirmDialog(
+                'Elimina Ordine',
+                `Sei sicuro di voler eliminare l'ordine #${order.id.slice(-6).toUpperCase()} del cliente "${order.client}"? Questa azione non può essere annullata.`,
+                () => deleteOrder(id)
+            );
+        }
+
+        function deleteOrder(id) {
+            console.log('Deleting order with ID:', id);
+            console.log('Orders before delete:', appData.orders.length);
+            
+            const initialLength = appData.orders.length;
+            appData.orders = appData.orders.filter(o => o.id !== id);
+            
+            if (appData.orders.length < initialLength) {
+                console.log('Order deleted successfully. New count:', appData.orders.length);
+                showMessage('Ordine eliminato con successo!');
+                loadOrders();
+                updateDashboard();
+                autoSave();
+            } else {
+                console.error('Failed to delete order');
+                showMessage('Errore nell\'eliminazione dell\'ordine', 'error');
+            }
+        }
+
+        const debouncedFilterOrders = debounce(() => {
+            const searchTerm = document.getElementById('orderSearch')?.value.toLowerCase() || '';
+            const orderCards = document.querySelectorAll('#ordersContainer .order-card');
+            
+            orderCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
         
         // ===== DASHBOARD FUNCTIONS =====
         function updateDashboard() {
