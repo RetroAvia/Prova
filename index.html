@@ -87,9 +87,10 @@
             visibility: hidden !important;
         }
 
-        /* RESPONSIVE DESIGN MIGLIORATO - Mobile First */
-        @media screen and (max-width: 768px) {
-            /* Fix per scroll nel menu principale */
+        /* SISTEMA RESPONSIVE COMPLETAMENTE RIPENSATO */
+        
+        /* Mobile First - Smartphone */
+        @media screen and (max-width: 767px) {
             body:not(.game-active) {
                 overflow-y: auto;
                 overflow-x: hidden;
@@ -97,7 +98,6 @@
                 min-height: 100vh;
             }
             
-            /* Gioco sempre fullscreen */
             body.game-active {
                 overflow: hidden;
                 height: 100vh;
@@ -110,180 +110,178 @@
                 height: 100dvh;
                 overflow: hidden;
                 position: relative;
+                transform: scale(0.85); /* Zoom out per vedere meglio */
+                transform-origin: center center;
             }
             
-            /* Fix viewport per mobile game - OTTIMIZZATO */
             .world {
-                width: 100vw; /* Larghezza ottimizzata per mobile */
+                width: 120vw; /* Mondo più piccolo per mobile */
                 height: 100vh;
                 height: 100dvh;
-                transform-origin: left top;
-                scale: 0.8; /* Zoom out per vedere meglio */
             }
             
-            /* Controlli mobile sempre visibili durante il gioco */
-            .mobile-controls { 
-                display: flex !important; 
-                bottom: 15px;
-                left: 15px;
-                right: 15px;
-                gap: 20px;
-                z-index: 300;
-            }
-            
-            .control-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 1.6rem;
-                border: 3px solid var(--neon-blue);
-                background: rgba(0, 212, 255, 0.15);
-                backdrop-filter: blur(10px);
-                user-select: none;
-                -webkit-user-select: none;
-                -webkit-touch-callout: none;
-            }
-            
-            .control-btn:active {
-                background: var(--neon-blue) !important;
-                color: white !important;
-                transform: scale(0.95);
-            }
-            
-            /* HUD più compatto per mobile */
             .futuristic-hud {
-                height: 70px;
-                padding: 8px 12px;
+                height: 50px;
+                padding: 4px 8px;
             }
             
             .hud-layout { 
                 grid-template-columns: 1fr auto;
                 grid-template-rows: auto auto;
-                gap: 8px;
-                padding: 8px 15px;
+                gap: 4px;
+                padding: 4px 8px;
             }
             
             .player-panel {
                 grid-column: 1 / -1;
                 grid-row: 1;
-                padding: 8px 12px;
+                padding: 4px 8px;
             }
             
             .game-dashboard {
                 grid-column: 1;
                 grid-row: 2;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
+                gap: 4px;
             }
             
             .control-cluster {
                 grid-column: 2;
                 grid-row: 2;
                 align-self: center;
-                gap: 6px;
+                gap: 3px;
             }
             
             .energy-system {
                 grid-column: 1 / -1;
                 grid-row: 3;
-                padding: 8px 12px;
-                margin-top: 5px;
+                padding: 4px 8px;
+                margin-top: 2px;
+            }
+
+            .metric-card {
+                padding: 2px 4px;
+                min-width: 50px;
+            }
+
+            .neo-btn {
+                padding: 4px 6px;
+                font-size: 0.5rem;
+                min-width: 24px;
             }
 
             /* Menu mobile ottimizzato */
             .mission-cards {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 8px;
             }
             
             .mission-card {
-                padding: 15px;
-            }
-            
-            .retro-logo .retro-text {
-                font-size: clamp(2rem, 8vw, 3.5rem);
-            }
-            
-            .dark-chronicles {
-                font-size: clamp(0.8rem, 3vw, 1rem);
-                letter-spacing: 1.5px;
+                padding: 10px;
             }
             
             .briefing-intro {
-                font-size: 0.9rem;
-                padding: 0 10px;
-                line-height: 1.5;
+                font-size: 0.8rem;
+                padding: 0 5px;
+                line-height: 1.4;
             }
             
             .futuristic-input {
-                font-size: 0.9rem;
-                padding: 12px 16px;
-                max-width: 300px;
+                font-size: 0.8rem;
+                padding: 8px 12px;
+                max-width: 280px;
             }
             
             .launch-button {
-                font-size: 0.9rem;
-                padding: 12px 25px;
-                min-width: 200px;
+                font-size: 0.8rem;
+                padding: 8px 20px;
+                min-width: 180px;
             }
 
             .story-content {
-                padding: 20px 15px;
+                padding: 15px 10px;
                 width: 95%;
-                margin: 10px;
+                margin: 5px;
             }
 
             .story-title {
-                font-size: 1.4rem;
+                font-size: 1.2rem;
             }
 
             .story-text {
-                font-size: 0.85rem;
-                line-height: 1.4;
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+
+            /* Audio controls per mobile */
+            .audio-controls {
+                bottom: 95px;
+                left: 5px;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .audio-btn, .quality-btn {
+                min-width: 32px;
+                height: 32px;
+                padding: 4px;
+                font-size: 0.8rem;
             }
         }
 
-        /* Ulteriori ottimizzazioni per schermi molto piccoli */
-        @media (max-width: 480px) {
-            .world {
-                scale: 0.7; /* Zoom out maggiore per schermi piccolissimi */
+        /* Tablet Portrait */
+        @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .game-container {
+                transform: scale(0.9);
+                transform-origin: center center;
             }
             
+            .world {
+                width: 110vw;
+            }
+            
+            .futuristic-hud {
+                height: 60px;
+                padding: 6px 10px;
+            }
+
+            .hud-layout {
+                padding: 6px 10px;
+                gap: 6px;
+            }
+
             .control-btn {
                 width: 60px;
                 height: 60px;
                 font-size: 1.4rem;
             }
-            
-            .mobile-controls {
-                bottom: 10px;
-                left: 10px;
-                right: 10px;
-                gap: 15px;
-            }
-            
-            .futuristic-hud {
-                height: 60px;
-                padding: 4px 8px;
+        }
+
+        /* Tablet Landscape */
+        @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+            .game-container {
+                transform: scale(1);
             }
             
-            .hud-layout {
-                padding: 4px 8px;
-                gap: 4px;
+            .world {
+                width: 100vw;
             }
 
-            .neo-btn {
-                padding: 6px 8px;
-                font-size: 0.6rem;
-                min-width: 30px;
+            .control-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
             }
+        }
 
-            .player-panel,
-            .energy-system {
-                padding: 6px 8px;
+        /* Desktop */
+        @media screen and (min-width: 1025px) {
+            .game-container {
+                transform: none;
             }
-
-            .metric-card {
-                padding: 4px 6px;
+            
+            .world {
+                width: 2000px;
             }
         }
 
@@ -307,22 +305,6 @@
             
             .enemy {
                 animation-duration: 3s;
-            }
-        }
-
-        /* Per tablet in landscape */
-        @media screen and (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-            .mobile-controls {
-                display: flex !important;
-                bottom: 20px;
-                left: 20px;
-                right: 20px;
-            }
-            
-            .control-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.4rem;
             }
         }
 
@@ -1211,24 +1193,23 @@
             box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
         }
 
-        /* Mobile Controls - MIGLIORATI */
+        /* Mobile Controls - SISTEMA COMPLETAMENTE NUOVO */
         .mobile-controls {
             position: absolute;
             bottom: 20px;
             left: 20px;
             right: 20px;
-            display: none; /* Nascosti di default, mostrati solo su mobile */
+            /* IMPORTANTE: Nascosti di default, mostrati via JavaScript */
+            display: none;
             justify-content: space-between;
             align-items: center;
             pointer-events: all;
             z-index: 200;
         }
 
-        /* Forza visualizzazione su mobile */
-        @media screen and (max-width: 1024px) {
-            .mobile-controls {
-                display: flex !important;
-            }
+        /* Mostrati quando è attiva la classe .touch-device */
+        body.touch-device .mobile-controls {
+            display: flex !important;
         }
 
         .control-group {
@@ -1238,12 +1219,12 @@
 
         .control-btn {
             background: var(--glass);
-            border: 2px solid var(--neon-blue);
+            border: 3px solid var(--neon-blue);
             border-radius: 50%;
-            width: 65px;
-            height: 65px;
+            width: 70px;
+            height: 70px;
             color: var(--neon-blue);
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -1260,7 +1241,7 @@
         .control-btn:active {
             background: var(--neon-blue) !important;
             color: white !important;
-            transform: scale(0.95);
+            transform: scale(0.9);
             box-shadow: var(--glow) var(--neon-blue);
         }
 
@@ -1273,15 +1254,6 @@
             z-index: 250;
             display: flex;
             gap: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .audio-controls {
-                bottom: 110px; /* Sposta sopra i controlli mobile */
-                left: 10px;
-                flex-direction: column;
-                gap: 6px;
-            }
         }
 
         .audio-btn, .quality-btn {
@@ -1618,9 +1590,35 @@
             0% { transform: scale(0.5); opacity: 1; }
             100% { transform: scale(2); opacity: 0; }
         }
+
+        /* DEBUG INFO - Rimosso in produzione */
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: lime;
+            padding: 5px 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 5px;
+            z-index: 9999;
+            display: none;
+        }
+
+        body.debug .debug-info {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <!-- Debug info -->
+    <div class="debug-info" id="debugInfo">
+        Touch: <span id="debugTouch">-</span><br>
+        Screen: <span id="debugScreen">-</span><br>
+        Controls: <span id="debugControls">-</span>
+    </div>
+
     <!-- Animated Background -->
     <div class="animated-background">
         <div class="background-layer stars" id="starsLayer"></div>
@@ -1806,8 +1804,8 @@
             
             <div id="world" class="world"></div>
             
-            <!-- Mobile Controls - MIGLIORATI -->
-            <div class="mobile-controls">
+            <!-- Mobile Controls - NUOVO SISTEMA -->
+            <div class="mobile-controls" id="mobileControls">
                 <div class="control-group">
                     <div class="control-btn" id="leftBtn">←</div>
                     <div class="control-btn" id="rightBtn">→</div>
@@ -1831,6 +1829,78 @@
     <script>
         // Initialize game manager globally
         let gameManager = null;
+        let deviceInfo = {
+            isTouch: false,
+            isMobile: false,
+            isTablet: false,
+            screenWidth: 0,
+            screenHeight: 0
+        };
+
+        // SISTEMA DI RILEVAMENTO DISPOSITIVO MIGLIORATO
+        function detectDevice() {
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const userAgent = navigator.userAgent.toLowerCase();
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            deviceInfo = {
+                isTouch: hasTouch,
+                isMobile: width <= 767,
+                isTablet: width >= 768 && width <= 1024,
+                isDesktop: width > 1024,
+                screenWidth: width,
+                screenHeight: height,
+                orientation: width > height ? 'landscape' : 'portrait'
+            };
+
+            // Aggiungi classe CSS per dispositivi touch
+            if (deviceInfo.isTouch) {
+                document.body.classList.add('touch-device');
+                console.log('🔧 Dispositivo TOUCH rilevato - Controlli mobile ATTIVATI');
+            } else {
+                document.body.classList.remove('touch-device');
+                console.log('🖱️ Dispositivo DESKTOP rilevato - Controlli tastiera attivati');
+            }
+
+            // Debug info
+            if (document.body.classList.contains('debug')) {
+                updateDebugInfo();
+            }
+
+            // Forza aggiornamento controlli mobile
+            updateMobileControls();
+        }
+
+        // Aggiorna informazioni debug
+        function updateDebugInfo() {
+            const debugTouch = document.getElementById('debugTouch');
+            const debugScreen = document.getElementById('debugScreen');
+            const debugControls = document.getElementById('debugControls');
+            
+            if (debugTouch) debugTouch.textContent = deviceInfo.isTouch ? 'YES' : 'NO';
+            if (debugScreen) debugScreen.textContent = `${deviceInfo.screenWidth}x${deviceInfo.screenHeight}`;
+            if (debugControls) {
+                const controlsVisible = document.body.classList.contains('touch-device');
+                debugControls.textContent = controlsVisible ? 'VISIBLE' : 'HIDDEN';
+            }
+        }
+
+        // Forza aggiornamento controlli mobile
+        function updateMobileControls() {
+            const mobileControls = document.getElementById('mobileControls');
+            if (!mobileControls) return;
+
+            if (deviceInfo.isTouch) {
+                // Forza visualizzazione su dispositivi touch
+                mobileControls.style.display = 'flex';
+                console.log('✅ Controlli mobile FORZATI a visibili');
+            } else {
+                // Nascondi su desktop
+                mobileControls.style.display = 'none';
+                console.log('❌ Controlli mobile nascosti (desktop)');
+            }
+        }
 
         // Enhanced Audio Manager con Musica Dinamica
         class AudioManager {
@@ -2595,29 +2665,57 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 controls.forEach(({ id, key }) => {
                     const btn = document.getElementById(id);
                     if (btn) {
-                        // Touch events
+                        // Touch events - MIGLIORATI
                         btn.addEventListener('touchstart', (e) => {
                             e.preventDefault();
-                            if (!this.isPaused) this.keys[key] = true;
+                            e.stopPropagation();
+                            if (!this.isPaused) {
+                                this.keys[key] = true;
+                                btn.style.background = 'var(--neon-blue)';
+                                btn.style.color = 'white';
+                                btn.style.transform = 'scale(0.9)';
+                                console.log(`🎮 Touch START: ${key}`);
+                            }
                         }, { passive: false });
                         
                         btn.addEventListener('touchend', (e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             this.keys[key] = false;
+                            btn.style.background = '';
+                            btn.style.color = '';
+                            btn.style.transform = '';
+                            console.log(`🎮 Touch END: ${key}`);
                         }, { passive: false });
                         
-                        // Mouse events per desktop
+                        btn.addEventListener('touchcancel', (e) => {
+                            e.preventDefault();
+                            this.keys[key] = false;
+                            btn.style.background = '';
+                            btn.style.color = '';
+                            btn.style.transform = '';
+                        }, { passive: false });
+                        
+                        // Mouse events per test desktop
                         btn.addEventListener('mousedown', (e) => {
                             e.preventDefault();
-                            if (!this.isPaused) this.keys[key] = true;
+                            if (!this.isPaused) {
+                                this.keys[key] = true;
+                                btn.style.background = 'var(--neon-blue)';
+                                btn.style.color = 'white';
+                                btn.style.transform = 'scale(0.9)';
+                            }
                         });
                         
                         btn.addEventListener('mouseup', (e) => {
                             e.preventDefault();
                             this.keys[key] = false;
+                            btn.style.background = '';
+                            btn.style.color = '';
+                            btn.style.transform = '';
                         });
                         
-                        // Previeni context menu su touch
+                        // Previeni context menu
                         btn.addEventListener('contextmenu', (e) => {
                             e.preventDefault();
                         });
@@ -2638,6 +2736,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
 
             startLevel() {
                 document.body.classList.add('game-active');
+                
+                // Forza aggiornamento controlli mobile
+                updateMobileControls();
                 
                 this.loadLevel();
                 this.showScreen('gameScreen');
@@ -3128,8 +3229,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     p.vx = 0;
                 }
                 
-                if (p.x + p.width > this.worldWidth) {
-                    p.x = this.worldWidth - p.width;
+                // Mondo dinamico basato su dispositivo
+                const effectiveWorldWidth = deviceInfo.isMobile ? this.worldWidth * 0.7 : this.worldWidth;
+                if (p.x + p.width > effectiveWorldWidth) {
+                    p.x = effectiveWorldWidth - p.width;
                     p.vx = 0;
                 }
 
@@ -3194,11 +3297,16 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             updateCamera(deltaTime) {
-                // Camera ottimizzata per mobile
-                const isMobile = window.innerWidth <= 768;
-                const viewportWidth = isMobile ? window.innerWidth * 0.8 : 800;
+                // Camera ottimizzata per dispositivo
+                let viewportWidth = 800;
+                if (deviceInfo.isMobile) {
+                    viewportWidth = deviceInfo.screenWidth * 0.7;
+                } else if (deviceInfo.isTablet) {
+                    viewportWidth = deviceInfo.screenWidth * 0.8;
+                }
                 
-                const target = Math.max(0, Math.min(this.player.x - viewportWidth/2, this.worldWidth - viewportWidth));
+                const effectiveWorldWidth = deviceInfo.isMobile ? this.worldWidth * 0.7 : this.worldWidth;
+                const target = Math.max(0, Math.min(this.player.x - viewportWidth/2, effectiveWorldWidth - viewportWidth));
                 this.camera.targetX = target;
                 this.camera.x += (this.camera.targetX - this.camera.x) * 0.12;
             }
@@ -3790,7 +3898,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     const btn = document.getElementById('qualityToggle');
                     if (btn) {
                         btn.className = newMode === 'low' ? 'quality-btn low-quality' : 'quality-btn';
-                        btn.title = newMode === 'low' ? 'Qualità: Bassa (Migliori prestazioni)' : 'Qualità: Alta (Tutti gli effetti)';
+                        btn.title = newMode === 'low' ? '🔧 Qualità: BASSA (Prestazioni ottimizzate)' : '🚀 Qualità: ALTA (Tutti gli effetti)';
                     }
                     
                     this.showNotification(`🎮 Qualità: ${newMode === 'high' ? 'ALTA (Tutti gli effetti)' : 'BASSA (Prestazioni ottimizzate)'}`);
@@ -3978,10 +4086,17 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
         }
 
-        // Initialize immediately when script loads
+        // SISTEMA DI INIZIALIZZAZIONE MIGLIORATO
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('📱 DOM loaded - Inizializzazione...');
+            
+            // Rileva dispositivo immediatamente
+            detectDevice();
+            
+            // Inizializza il gioco
             initializeGame();
             
+            // Setup event listeners per click sui bottoni
             document.addEventListener('click', (e) => {
                 if (e.target.matches('.btn, .neo-btn, .audio-btn, .launch-button') || e.target.closest('.neo-btn')) {
                     if (gameManager && gameManager.game && gameManager.game.audioManager) {
@@ -3989,18 +4104,38 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 }
             });
+
+            // Abilita debug se necessario (solo per testing)
+            if (window.location.search.includes('debug')) {
+                document.body.classList.add('debug');
+                console.log('🔧 DEBUG MODE ATTIVATO');
+            }
+        });
+
+        // Evento resize per ricalcolare dispositivo
+        window.addEventListener('resize', () => {
+            detectDevice();
+        });
+
+        // Evento orientamento per mobile
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                detectDevice();
+            }, 500); // Delay per permettere il cambio orientamento
         });
 
         // Fallback initialization
         window.addEventListener('load', () => {
             if (!gameManager) {
+                console.log('🔄 Fallback initialization...');
                 initializeGame();
             }
         });
 
-        // Initialize immediately for safety
+        // Final safety initialization
         setTimeout(() => {
             if (!gameManager) {
+                console.log('⚡ Safety initialization...');
                 initializeGame();
             }
         }, 100);
