@@ -2434,62 +2434,80 @@
             }
         }
 
-        // NUOVO: Forza layout dashboard mobile
-        function forceMobileDashboardLayout() {
-            const dashboard = document.getElementById('hud-score')?.closest('.game-dashboard');
-            const hudLayout = document.querySelector('.hud-layout');
-            
-            if (!dashboard || !hudLayout) return;
+        // NUOVO: Sistema dashboard mobile dedicata
+        function createMobileDashboard() {
+            // Rimuovi dashboard esistente se presente
+            const existingDashboard = document.getElementById('mobileDashboard');
+            if (existingDashboard) {
+                existingDashboard.remove();
+            }
 
-            if (deviceInfo.isMobile) {
-                console.log('🔧 Forzando layout dashboard mobile...');
-                
-                // Forza posizionamento assoluto
-                dashboard.style.setProperty('position', 'absolute', 'important');
-                dashboard.style.setProperty('top', '0', 'important');
-                dashboard.style.setProperty('right', deviceInfo.isExtraSmallMobile ? '4px' : '6px', 'important');
-                dashboard.style.setProperty('display', 'flex', 'important');
-                dashboard.style.setProperty('flex-direction', 'column', 'important');
-                dashboard.style.setProperty('gap', '3px', 'important');
-                dashboard.style.setProperty('z-index', '300', 'important');
-                dashboard.style.setProperty('grid-template-columns', 'none', 'important');
-                dashboard.style.setProperty('grid-column', 'unset', 'important');
-                dashboard.style.setProperty('grid-row', 'unset', 'important');
-                
-                // Stile background e bordi
-                dashboard.style.setProperty('background', 'linear-gradient(135deg, rgba(10, 10, 15, 0.92) 0%, rgba(26, 26, 46, 0.85) 100%)', 'important');
-                dashboard.style.setProperty('backdrop-filter', 'blur(15px)', 'important');
-                dashboard.style.setProperty('border-radius', '0 0 0 12px', 'important');
-                dashboard.style.setProperty('padding', '5px 7px', 'important');
-                dashboard.style.setProperty('border-left', '1px solid rgba(0, 212, 255, 0.4)', 'important');
-                dashboard.style.setProperty('border-bottom', '1px solid rgba(0, 212, 255, 0.4)', 'important');
-                dashboard.style.setProperty('box-shadow', '0 3px 10px rgba(0, 0, 0, 0.3)', 'important');
-                
-                // Forza layout HUD semplificato
-                hudLayout.style.setProperty('display', 'flex', 'important');
-                hudLayout.style.setProperty('grid-template-columns', 'none', 'important');
-                hudLayout.style.setProperty('justify-content', 'flex-start', 'important');
-                
-                // Stile metric cards
-                const metricCards = dashboard.querySelectorAll('.metric-card');
-                metricCards.forEach(card => {
-                    card.style.setProperty('margin', '0', 'important');
-                    card.style.setProperty('min-width', deviceInfo.isExtraSmallMobile ? '42px' : '55px', 'important');
-                    card.style.setProperty('text-align', 'center', 'important');
-                    card.style.setProperty('background', 'rgba(255, 255, 255, 0.08)', 'important');
-                    card.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
-                    card.style.setProperty('border-radius', '6px', 'important');
-                    card.style.setProperty('padding', '3px 6px', 'important');
-                });
-                
-                console.log('✅ Dashboard mobile layout applicato con successo!');
-            } else {
-                // Reset per desktop
-                dashboard.style.removeProperty('position');
-                dashboard.style.removeProperty('top');
-                dashboard.style.removeProperty('right');
-                hudLayout.style.removeProperty('display');
-                hudLayout.style.removeProperty('grid-template-columns');
+            if (!deviceInfo.isMobile) return;
+
+            console.log('🔧 Creando dashboard mobile dedicata...');
+
+            // Crea container dashboard mobile
+            const mobileDashboard = document.createElement('div');
+            mobileDashboard.id = 'mobileDashboard';
+            mobileDashboard.className = 'mobile-dashboard';
+
+            // Crea metriche
+            const metrics = [
+                { id: 'score', label: 'Score', value: '0', class: 'score' },
+                { id: 'time', label: 'Time', value: '0:00', class: 'time' },
+                { id: 'crystals', label: 'Crystals', value: '0/0', class: 'crystals' },
+                { id: 'energy', label: 'Energy', value: '3/3', class: 'energy' }
+            ];
+
+            metrics.forEach(metric => {
+                const metricDiv = document.createElement('div');
+                metricDiv.className = `mobile-metric ${metric.class}`;
+                metricDiv.innerHTML = `
+                    <div class="mobile-metric-label">${metric.label}</div>
+                    <div class="mobile-metric-value" id="mobile-${metric.id}">${metric.value}</div>
+                `;
+                mobileDashboard.appendChild(metricDiv);
+            });
+
+            // Aggiungi al DOM
+            document.body.appendChild(mobileDashboard);
+            console.log('✅ Dashboard mobile creata con successo!');
+        }
+
+        // NUOVO: Aggiorna dashboard mobile
+        function updateMobileDashboard(game) {
+            if (!deviceInfo.isMobile || !game) return;
+
+            const scoreEl = document.getElementById('mobile-score');
+            const timeEl = document.getElementById('mobile-time');
+            const crystalsEl = document.getElementById('mobile-crystals');
+            const energyEl = document.getElementById('mobile-energy');
+
+            if (scoreEl) scoreEl.textContent = game.score.toLocaleString();
+            if (timeEl) timeEl.textContent = game.formatTime(game.gameTime);
+            if (energyEl) energyEl.textContent = `${game.player.energy}/3`;
+            
+            if (crystalsEl && game.entities) {
+                const collected = game.entities.filter(e => e.type === 'collectible' && e.collected).length;
+                const total = game.entities.filter(e => e.type === 'collectible').length;
+                crystalsEl.textContent = `${collected}/${total}`;
+            }
+        }
+
+        // NUOVO: Rimuovi dashboard mobile
+        function removeMobileDashboard() {
+            const mobileDashboard = document.getElementById('mobileDashboard');
+            if (mobileDashboard) {
+                mobileDashboard.remove();
+                console.log('🗑️ Dashboard mobile rimossa');
+            }
+        }
+
+        // NUOVO: Aggiorna nome player nel body
+        function updatePlayerNameAttribute(name) {
+            if (deviceInfo.isMobile && name) {
+                document.body.setAttribute('data-player-name', `🚀 ${name}`);
+                console.log(`🏷️ Nome player aggiornato: ${name}`);
             }
         }
 
@@ -2505,25 +2523,10 @@
             audioControls.style.right = '';
 
             if (deviceInfo.isTouch) {
-                // Posizionamento per dispositivi touch
-                if (deviceInfo.isExtraSmallMobile) {
-                    // Telefoni molto piccoli: in alto a sinistra, dashboard verticale a destra
-                    audioControls.style.top = '25px';
-                    audioControls.style.left = '3px';
-                    audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Extra Small Mobile (top-left, dashboard vertical right)');
-                } else if (deviceInfo.isSmallMobile) {
-                    // Telefoni piccoli: in alto a sinistra, dashboard verticale a destra
-                    audioControls.style.top = '27px';
-                    audioControls.style.left = '5px';
-                    audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Small Mobile (top-left, dashboard vertical right)');
-                } else if (deviceInfo.isLargeMobile) {
-                    // Telefoni grandi: in alto a sinistra, dashboard verticale a destra
-                    audioControls.style.top = '40px';
-                    audioControls.style.left = '5px';
-                    audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Large Mobile (top-left, dashboard vertical right)');
+                // Su mobile gli audio controls sono al centro in basso (gestito da CSS)
+                if (deviceInfo.isMobile) {
+                    // Il CSS mobile gestisce già la posizione
+                    console.log('📱 Audio controls: Mobile (center bottom via CSS)');
                 } else if (deviceInfo.isTabletPortrait) {
                     // Tablet portrait: in alto a sinistra, colonna
                     audioControls.style.top = '70px';
@@ -3382,6 +3385,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.isPaused = false;
                 this.startTime = Date.now();
                 this.state = 'story';
+                
+                // Aggiorna nome player per mobile
+                updatePlayerNameAttribute(playerName);
+                
                 this.story.showStory(1, 'intro');
             }
 
@@ -3392,8 +3399,8 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 updateMobileControls();
                 updateAudioControlsPosition();
                 
-                // NUOVO: Forza layout dashboard mobile
-                setTimeout(() => forceMobileDashboardLayout(), 200);
+                // NUOVO: Crea dashboard mobile dedicata
+                createMobileDashboard();
                 
                 this.loadLevel();
                 this.showScreen('gameScreen');
@@ -4345,6 +4352,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                         hudCrystals.textContent = crystalText;
                     }
                 }
+
+                // NUOVO: Aggiorna dashboard mobile
+                updateMobileDashboard(this);
             }
 
             updateEnergyDisplay() {
@@ -4367,6 +4377,12 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 if (hudTime && hudTime.textContent !== time) {
                     hudTime.textContent = time;
                 }
+
+                // NUOVO: Aggiorna anche timer mobile
+                const mobileTime = document.getElementById('mobile-time');
+                if (mobileTime && mobileTime.textContent !== time) {
+                    mobileTime.textContent = time;
+                }
             }
 
             formatTime(ms) {
@@ -4379,6 +4395,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             showScreen(screenId) {
                 if (screenId === 'mainMenu') {
                     document.body.classList.remove('game-active');
+                    removeMobileDashboard(); // NUOVO: Rimuovi dashboard mobile
                 }
                 
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -4770,12 +4787,20 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
         // Evento resize per ricalcolare dispositivo
         window.addEventListener('resize', () => {
             detectDevice();
+            // Ricrea dashboard mobile se il gioco è attivo
+            if (document.body.classList.contains('game-active')) {
+                setTimeout(() => createMobileDashboard(), 100);
+            }
         });
 
         // Evento orientamento per mobile
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 detectDevice();
+                // Ricrea dashboard mobile se il gioco è attivo
+                if (document.body.classList.contains('game-active')) {
+                    setTimeout(() => createMobileDashboard(), 100);
+                }
             }, 500); // Delay per permettere il cambio orientamento
         });
 
