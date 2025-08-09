@@ -120,84 +120,104 @@
                 height: 100dvh;
             }
             
-            /* HUD ULTRA-MINIMALE per telefoni molto piccoli */
+            /* HUD ULTRA-COMPATTO per telefoni molto piccoli */
             .futuristic-hud {
-                height: 25px !important;
-                padding: 1px 3px !important;
+                height: 20px !important;
+                padding: 1px 2px !important;
                 background: linear-gradient(180deg, 
-                    rgba(10, 10, 15, 0.98) 0%, 
-                    rgba(26, 26, 46, 0.95) 70%, 
+                    rgba(10, 10, 15, 0.95) 0%, 
+                    rgba(26, 26, 46, 0.9) 70%, 
                     transparent 100%);
-                backdrop-filter: blur(10px);
+                backdrop-filter: blur(8px);
             }
             
             .hud-layout { 
-                grid-template-columns: auto 1fr;
-                grid-template-rows: auto;
-                gap: 2px;
-                padding: 1px 3px;
+                display: flex;
+                justify-content: space-between;
                 align-items: center;
+                height: 100%;
+                padding: 1px 2px;
+                gap: 2px;
             }
             
             .player-panel {
-                grid-column: 1;
-                grid-row: 1;
+                flex: 0 0 auto;
                 padding: 1px 3px;
-                min-width: 60px;
+                min-width: 50px;
             }
             
             .player-info {
-                gap: 3px;
+                gap: 2px;
                 align-items: center;
+                flex-direction: row;
             }
             
             .player-avatar {
-                width: 16px;
-                height: 16px;
-                font-size: 8px;
+                width: 14px;
+                height: 14px;
+                font-size: 6px;
             }
             
             .player-name {
-                font-size: 0.5rem;
+                font-size: 0.45rem;
                 margin-bottom: 0;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 40px;
+                max-width: 30px;
             }
             
             .player-level {
-                display: none; /* Completamente nascosto su telefoni molto piccoli */
+                display: none; /* Nascosto su telefoni molto piccoli */
             }
             
             .level-badge {
                 display: none;
             }
             
+            /* DASHBOARD VERTICALE IN ALTO A DESTRA - SOLUZIONE INTELLIGENTE */
             .game-dashboard {
-                grid-column: 2;
-                grid-row: 1;
-                grid-template-columns: repeat(2, 1fr); /* Solo 2 metriche */
-                gap: 2px;
-                justify-content: end;
+                position: absolute;
+                top: 0;
+                right: 2px;
+                width: auto;
+                height: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+                z-index: 200;
+                background: linear-gradient(135deg, 
+                    rgba(10, 10, 15, 0.9) 0%, 
+                    rgba(26, 26, 46, 0.8) 100%);
+                backdrop-filter: blur(10px);
+                border-radius: 0 0 0 8px;
+                padding: 2px 3px;
+                border-left: 1px solid rgba(0, 212, 255, 0.3);
+                border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             }
             
             .metric-card {
-                padding: 1px 2px;
-                min-width: 30px;
+                padding: 1px 3px;
+                min-width: 35px;
                 border-radius: 3px;
+                margin: 0;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.08);
             }
             
             .metric-label {
-                font-size: 0.35rem;
+                font-size: 0.3rem;
                 margin-bottom: 0;
+                line-height: 1;
             }
             
             .metric-value {
-                font-size: 0.5rem;
+                font-size: 0.45rem;
+                line-height: 1;
+                margin-top: 1px;
             }
             
-            /* Nascondi metriche meno importanti */
+            /* Mantieni solo le metriche essenziali in verticale */
             .time-card {
                 display: none !important;
             }
@@ -209,19 +229,19 @@
 
             /* Audio controls ottimizzati per telefoni molto piccoli */
             .audio-controls {
-                top: 30px; /* Sopra l'HUD ultra-compatto */
+                top: 25px; /* Sotto l'HUD ultra-compatto */
                 bottom: auto;
                 left: 3px;
                 flex-direction: row;
-                gap: 3px;
+                gap: 2px;
                 z-index: 350;
             }
 
             .audio-btn, .quality-btn {
-                min-width: 24px;
-                height: 24px;
+                min-width: 20px;
+                height: 20px;
                 padding: 1px;
-                font-size: 0.6rem;
+                font-size: 0.5rem;
                 border-width: 1px;
             }
 
@@ -273,88 +293,119 @@
             
             /* HUD COMPATTO per smartphone piccoli */
             .futuristic-hud {
-                height: 30px !important;
-                padding: 2px 4px !important;
+                height: 22px !important;
+                padding: 1px 3px !important;
                 background: linear-gradient(180deg, 
-                    rgba(10, 10, 15, 0.98) 0%, 
-                    rgba(26, 26, 46, 0.95) 70%, 
+                    rgba(10, 10, 15, 0.95) 0%, 
+                    rgba(26, 26, 46, 0.9) 70%, 
                     transparent 100%);
             }
             
             .hud-layout { 
-                grid-template-columns: auto 1fr auto;
-                grid-template-rows: auto;
-                gap: 3px;
-                padding: 2px 4px;
+                display: flex;
+                justify-content: space-between;
                 align-items: center;
+                height: 100%;
+                padding: 1px 3px;
+                gap: 3px;
             }
             
             .player-panel {
-                grid-column: 1;
-                grid-row: 1;
-                padding: 2px 4px;
+                flex: 0 0 auto;
+                padding: 1px 4px;
             }
             
             .player-info {
-                gap: 4px;
+                gap: 3px;
+                align-items: center;
+                flex-direction: row;
             }
             
             .player-avatar {
-                width: 20px;
-                height: 20px;
-                font-size: 10px;
+                width: 16px;
+                height: 16px;
+                font-size: 8px;
             }
             
             .player-name {
-                font-size: 0.6rem;
+                font-size: 0.5rem;
                 margin-bottom: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 45px;
             }
             
             .player-level {
-                font-size: 0.5rem;
+                font-size: 0.4rem;
                 display: none; /* Nascondi su mobile piccolo */
             }
             
             .level-badge {
-                font-size: 0.45rem;
-                padding: 0 3px;
+                font-size: 0.4rem;
+                padding: 0 2px;
             }
             
+            /* DASHBOARD VERTICALE IN ALTO A DESTRA per smartphone piccoli */
             .game-dashboard {
-                grid-column: 2;
-                grid-row: 1;
-                grid-template-columns: repeat(3, 1fr);
+                position: absolute;
+                top: 0;
+                right: 3px;
+                width: auto;
+                height: auto;
+                display: flex;
+                flex-direction: column;
                 gap: 2px;
-                justify-content: center;
+                z-index: 200;
+                background: linear-gradient(135deg, 
+                    rgba(10, 10, 15, 0.9) 0%, 
+                    rgba(26, 26, 46, 0.8) 100%);
+                backdrop-filter: blur(12px);
+                border-radius: 0 0 0 10px;
+                padding: 3px 4px;
+                border-left: 1px solid rgba(0, 212, 255, 0.3);
+                border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             }
             
             .metric-card {
-                padding: 1px 2px;
-                min-width: 35px;
+                padding: 2px 4px;
+                min-width: 40px;
                 border-radius: 4px;
+                margin: 0;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
             
             .metric-label {
-                font-size: 0.4rem;
-                margin-bottom: 0;
+                font-size: 0.35rem;
+                margin-bottom: 1px;
+                line-height: 1;
             }
             
             .metric-value {
-                font-size: 0.6rem;
+                font-size: 0.5rem;
+                line-height: 1;
             }
             
             .control-cluster {
-                grid-column: 3;
-                grid-row: 1;
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
                 display: flex;
                 gap: 2px;
+                z-index: 180;
+                background: rgba(10, 10, 15, 0.8);
+                backdrop-filter: blur(8px);
+                border-radius: 0 0 8px 8px;
+                padding: 2px 4px;
             }
             
             .neo-btn {
                 padding: 2px 4px;
-                font-size: 0.5rem;
-                min-width: 20px;
-                height: 20px;
+                font-size: 0.4rem;
+                min-width: 18px;
+                height: 18px;
             }
             
             .energy-system {
@@ -363,19 +414,19 @@
 
             /* Audio controls riposizionati per evitare sovrapposizioni */
             .audio-controls {
-                top: 35px; /* Sopra l'HUD */
+                top: 27px; /* Sotto l'HUD compatto */
                 bottom: auto;
                 left: 5px;
                 flex-direction: row;
-                gap: 4px;
+                gap: 3px;
                 z-index: 300;
             }
 
             .audio-btn, .quality-btn {
-                min-width: 28px;
-                height: 28px;
+                min-width: 24px;
+                height: 24px;
                 padding: 2px;
-                font-size: 0.7rem;
+                font-size: 0.6rem;
                 border-width: 1px;
             }
         }
@@ -413,49 +464,121 @@
             
             /* HUD NORMALE per smartphone grandi */
             .futuristic-hud {
-                height: 45px;
+                height: 35px;
                 padding: 3px 6px;
             }
             
             .hud-layout { 
-                grid-template-columns: 1fr 1fr auto;
-                grid-template-rows: auto;
-                gap: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 100%;
                 padding: 3px 6px;
+                gap: 4px;
             }
             
             .player-panel {
-                grid-column: 1;
-                grid-row: 1;
+                flex: 0 0 auto;
                 padding: 3px 6px;
             }
             
+            .player-info {
+                gap: 4px;
+                align-items: center;
+                flex-direction: row;
+            }
+            
+            .player-avatar {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+            
+            .player-name {
+                font-size: 0.65rem;
+                margin-bottom: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 60px;
+            }
+            
+            .player-level {
+                font-size: 0.5rem;
+            }
+            
+            .level-badge {
+                font-size: 0.45rem;
+                padding: 1px 4px;
+            }
+            
+            /* DASHBOARD VERTICALE MIGLIORATA per smartphone grandi */
             .game-dashboard {
-                grid-column: 2;
-                grid-row: 1;
-                grid-template-columns: repeat(3, 1fr);
+                position: absolute;
+                top: 0;
+                right: 5px;
+                width: auto;
+                height: auto;
+                display: flex;
+                flex-direction: column;
                 gap: 3px;
-            }
-            
-            .control-cluster {
-                grid-column: 3;
-                grid-row: 1;
-                gap: 2px;
-            }
-            
-            .energy-system {
-                display: none; /* Nascondi per risparmiare spazio */
+                z-index: 200;
+                background: linear-gradient(135deg, 
+                    rgba(10, 10, 15, 0.9) 0%, 
+                    rgba(26, 26, 46, 0.8) 100%);
+                backdrop-filter: blur(15px);
+                border-radius: 0 0 0 12px;
+                padding: 4px 6px;
+                border-left: 1px solid rgba(0, 212, 255, 0.3);
+                border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             }
 
             .metric-card {
-                padding: 2px 4px;
-                min-width: 45px;
+                padding: 3px 6px;
+                min-width: 50px;
+                border-radius: 6px;
+                margin: 0;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .metric-label {
+                font-size: 0.4rem;
+                margin-bottom: 1px;
+                line-height: 1;
+            }
+            
+            .metric-value {
+                font-size: 0.65rem;
+                line-height: 1;
+            }
+
+            .control-cluster {
+                position: absolute;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 3px;
+                z-index: 180;
+                background: rgba(10, 10, 15, 0.85);
+                backdrop-filter: blur(10px);
+                border-radius: 0 0 10px 10px;
+                padding: 3px 6px;
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                border-right: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             .neo-btn {
                 padding: 3px 5px;
                 font-size: 0.5rem;
                 min-width: 20px;
+                height: 22px;
+            }
+            
+            .energy-system {
+                display: none; /* Nascondi per risparmiare spazio */
             }
 
             /* Audio controls riposizionati INTELLIGENTEMENTE */
@@ -2284,23 +2407,23 @@
             if (deviceInfo.isTouch) {
                 // Posizionamento per dispositivi touch
                 if (deviceInfo.isExtraSmallMobile) {
-                    // Telefoni molto piccoli: in alto a sinistra, molto compatti
-                    audioControls.style.top = '30px';
+                    // Telefoni molto piccoli: in alto a sinistra, dashboard verticale a destra
+                    audioControls.style.top = '25px';
                     audioControls.style.left = '3px';
                     audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Extra Small Mobile (top-left)');
+                    console.log('📱 Audio controls: Extra Small Mobile (top-left, dashboard vertical right)');
                 } else if (deviceInfo.isSmallMobile) {
-                    // Telefoni piccoli: in alto a sinistra
-                    audioControls.style.top = '35px';
+                    // Telefoni piccoli: in alto a sinistra, dashboard verticale a destra
+                    audioControls.style.top = '27px';
                     audioControls.style.left = '5px';
                     audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Small Mobile (top-left)');
+                    console.log('📱 Audio controls: Small Mobile (top-left, dashboard vertical right)');
                 } else if (deviceInfo.isLargeMobile) {
-                    // Telefoni grandi: in alto a sinistra
-                    audioControls.style.top = '50px';
+                    // Telefoni grandi: in alto a sinistra, dashboard verticale a destra
+                    audioControls.style.top = '40px';
                     audioControls.style.left = '5px';
                     audioControls.style.flexDirection = 'row';
-                    console.log('📱 Audio controls: Large Mobile (top-left)');
+                    console.log('📱 Audio controls: Large Mobile (top-left, dashboard vertical right)');
                 } else if (deviceInfo.isTabletPortrait) {
                     // Tablet portrait: in alto a sinistra, colonna
                     audioControls.style.top = '70px';
