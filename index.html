@@ -281,153 +281,191 @@
                 height: 100dvh;
                 overflow: hidden;
                 position: relative;
-                transform: scale(0.75); /* Zoom ridotto per vedere meglio */
+                transform: scale(0.75);
                 transform-origin: center center;
             }
             
             .world {
-                width: 140vw; /* Mondo più ampio per mobile piccolo */
+                width: 140vw;
                 height: 100vh;
                 height: 100dvh;
             }
             
-            /* HUD COMPATTO per smartphone piccoli */
+            /* HUD SEMPLIFICATO - SOLO PLAYER INFO */
             .futuristic-hud {
-                height: 22px !important;
-                padding: 1px 3px !important;
-                background: linear-gradient(180deg, 
+                height: 30px !important;
+                padding: 3px 5px !important;
+                background: linear-gradient(90deg, 
                     rgba(10, 10, 15, 0.95) 0%, 
-                    rgba(26, 26, 46, 0.9) 70%, 
+                    rgba(26, 26, 46, 0.9) 50%, 
                     transparent 100%);
             }
             
             .hud-layout { 
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                height: 100%;
-                padding: 1px 3px;
-                gap: 3px;
+                display: flex !important;
+                grid-template-columns: none !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                height: 100% !important;
+                padding: 3px 5px !important;
+                gap: 0 !important;
             }
             
             .player-panel {
-                flex: 0 0 auto;
-                padding: 1px 4px;
+                display: flex !important;
+                grid-column: unset !important;
+                grid-row: unset !important;
+                position: relative !important;
+                flex: 0 0 auto !important;
+                padding: 3px 8px !important;
             }
             
             .player-info {
-                gap: 3px;
-                align-items: center;
-                flex-direction: row;
+                gap: 5px !important;
+                align-items: center !important;
+                flex-direction: row !important;
             }
             
             .player-avatar {
-                width: 16px;
-                height: 16px;
-                font-size: 8px;
+                width: 20px !important;
+                height: 20px !important;
+                font-size: 10px !important;
             }
             
             .player-name {
-                font-size: 0.5rem;
-                margin-bottom: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 45px;
+                font-size: 0.6rem !important;
+                margin-bottom: 0 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 60px !important;
             }
             
             .player-level {
-                font-size: 0.4rem;
-                display: none; /* Nascondi su mobile piccolo */
+                font-size: 0.5rem !important;
+                display: none !important;
             }
             
             .level-badge {
-                font-size: 0.4rem;
-                padding: 0 2px;
+                font-size: 0.4rem !important;
+                padding: 0 2px !important;
             }
             
-            /* DASHBOARD VERTICALE IN ALTO A DESTRA per smartphone piccoli */
+            /* DASHBOARD VERTICALE FORZATA IN ALTO A DESTRA */
             .game-dashboard {
-                position: absolute;
-                top: 0;
-                right: 3px;
-                width: auto;
-                height: auto;
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-                z-index: 200;
+                display: flex !important;
+                position: absolute !important;
+                top: 0 !important;
+                right: 5px !important;
+                width: auto !important;
+                height: auto !important;
+                flex-direction: column !important;
+                gap: 3px !important;
+                z-index: 300 !important;
+                grid-template-columns: none !important;
+                grid-column: unset !important;
+                grid-row: unset !important;
                 background: linear-gradient(135deg, 
-                    rgba(10, 10, 15, 0.9) 0%, 
-                    rgba(26, 26, 46, 0.8) 100%);
-                backdrop-filter: blur(12px);
-                border-radius: 0 0 0 10px;
-                padding: 3px 4px;
-                border-left: 1px solid rgba(0, 212, 255, 0.3);
-                border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+                    rgba(10, 10, 15, 0.92) 0%, 
+                    rgba(26, 26, 46, 0.85) 100%) !important;
+                backdrop-filter: blur(15px) !important;
+                border-radius: 0 0 0 10px !important;
+                padding: 4px 6px !important;
+                border-left: 1px solid rgba(0, 212, 255, 0.4) !important;
+                border-bottom: 1px solid rgba(0, 212, 255, 0.4) !important;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
             }
             
             .metric-card {
-                padding: 2px 4px;
-                min-width: 40px;
-                border-radius: 4px;
-                margin: 0;
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 3px 5px !important;
+                min-width: 48px !important;
+                border-radius: 5px !important;
+                margin: 0 !important;
+                background: rgba(255, 255, 255, 0.06) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                text-align: center !important;
             }
             
             .metric-label {
-                font-size: 0.35rem;
-                margin-bottom: 1px;
-                line-height: 1;
+                font-size: 0.4rem !important;
+                margin-bottom: 1px !important;
+                line-height: 1 !important;
+                text-transform: uppercase !important;
             }
             
             .metric-value {
-                font-size: 0.5rem;
-                line-height: 1;
+                font-size: 0.6rem !important;
+                line-height: 1 !important;
+                font-weight: 700 !important;
             }
-            
+
             .control-cluster {
-                position: absolute;
-                top: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                display: flex;
-                gap: 2px;
-                z-index: 180;
-                background: rgba(10, 10, 15, 0.8);
-                backdrop-filter: blur(8px);
-                border-radius: 0 0 8px 8px;
-                padding: 2px 4px;
+                position: absolute !important;
+                top: 5px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                display: flex !important;
+                gap: 2px !important;
+                z-index: 280 !important;
+                background: rgba(10, 10, 15, 0.85) !important;
+                backdrop-filter: blur(8px) !important;
+                border-radius: 0 0 8px 8px !important;
+                padding: 2px 4px !important;
+                grid-column: unset !important;
+                grid-row: unset !important;
             }
-            
+
             .neo-btn {
-                padding: 2px 4px;
-                font-size: 0.4rem;
-                min-width: 18px;
-                height: 18px;
+                padding: 2px 4px !important;
+                font-size: 0.45rem !important;
+                min-width: 18px !important;
+                height: 20px !important;
             }
             
             .energy-system {
-                display: none; /* Nascondi energia per spazio */
+                display: none !important;
             }
 
-            /* Audio controls riposizionati per evitare sovrapposizioni */
+            /* Audio controls sotto l'HUD */
             .audio-controls {
-                top: 27px; /* Sotto l'HUD compatto */
-                bottom: auto;
-                left: 5px;
-                flex-direction: row;
-                gap: 3px;
-                z-index: 300;
+                top: 35px !important;
+                bottom: auto !important;
+                left: 5px !important;
+                flex-direction: row !important;
+                gap: 4px !important;
+                z-index: 350 !important;
             }
 
             .audio-btn, .quality-btn {
-                min-width: 24px;
-                height: 24px;
-                padding: 2px;
-                font-size: 0.6rem;
-                border-width: 1px;
+                min-width: 26px !important;
+                height: 26px !important;
+                padding: 2px !important;
+                font-size: 0.65rem !important;
+                border-width: 1px !important;
+            }
+
+            /* MENU PRINCIPALE - FIX VIEWPORT */
+            .main-menu-container {
+                padding: 15px 20px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                justify-content: flex-start !important;
+                padding-top: 25px !important;
+            }
+
+            .retro-logo {
+                font-size: 2.5rem !important;
+                margin-bottom: 12px !important;
+            }
+
+            .dark-chronicles {
+                font-size: 0.8rem !important;
+                margin-bottom: 18px !important;
+            }
+
+            .briefing-intro {
+                font-size: 0.85rem !important;
+                line-height: 1.5 !important;
             }
         }
 
@@ -583,18 +621,18 @@
 
             /* Audio controls riposizionati INTELLIGENTEMENTE */
             .audio-controls {
-                top: 50px;
+                top: 40px; /* Sotto l'HUD normale */
                 bottom: auto;
                 left: 5px;
                 flex-direction: row;
-                gap: 5px;
+                gap: 4px;
             }
 
             .audio-btn, .quality-btn {
-                min-width: 30px;
-                height: 30px;
+                min-width: 28px;
+                height: 28px;
                 padding: 3px;
-                font-size: 0.75rem;
+                font-size: 0.7rem;
             }
         }
 
@@ -2343,6 +2381,9 @@
             // Forza aggiornamento controlli mobile e audio
             updateMobileControls();
             updateAudioControlsPosition();
+            
+            // NUOVO: Forza layout dashboard mobile
+            setTimeout(() => forceMobileDashboardLayout(), 100);
         }
 
         // Descrizione leggibile del dispositivo
@@ -2390,6 +2431,65 @@
                 // Nascondi su desktop
                 mobileControls.style.display = 'none';
                 console.log('❌ Controlli mobile nascosti (desktop)');
+            }
+        }
+
+        // NUOVO: Forza layout dashboard mobile
+        function forceMobileDashboardLayout() {
+            const dashboard = document.getElementById('hud-score')?.closest('.game-dashboard');
+            const hudLayout = document.querySelector('.hud-layout');
+            
+            if (!dashboard || !hudLayout) return;
+
+            if (deviceInfo.isMobile) {
+                console.log('🔧 Forzando layout dashboard mobile...');
+                
+                // Forza posizionamento assoluto
+                dashboard.style.setProperty('position', 'absolute', 'important');
+                dashboard.style.setProperty('top', '0', 'important');
+                dashboard.style.setProperty('right', deviceInfo.isExtraSmallMobile ? '4px' : '6px', 'important');
+                dashboard.style.setProperty('display', 'flex', 'important');
+                dashboard.style.setProperty('flex-direction', 'column', 'important');
+                dashboard.style.setProperty('gap', '3px', 'important');
+                dashboard.style.setProperty('z-index', '300', 'important');
+                dashboard.style.setProperty('grid-template-columns', 'none', 'important');
+                dashboard.style.setProperty('grid-column', 'unset', 'important');
+                dashboard.style.setProperty('grid-row', 'unset', 'important');
+                
+                // Stile background e bordi
+                dashboard.style.setProperty('background', 'linear-gradient(135deg, rgba(10, 10, 15, 0.92) 0%, rgba(26, 26, 46, 0.85) 100%)', 'important');
+                dashboard.style.setProperty('backdrop-filter', 'blur(15px)', 'important');
+                dashboard.style.setProperty('border-radius', '0 0 0 12px', 'important');
+                dashboard.style.setProperty('padding', '5px 7px', 'important');
+                dashboard.style.setProperty('border-left', '1px solid rgba(0, 212, 255, 0.4)', 'important');
+                dashboard.style.setProperty('border-bottom', '1px solid rgba(0, 212, 255, 0.4)', 'important');
+                dashboard.style.setProperty('box-shadow', '0 3px 10px rgba(0, 0, 0, 0.3)', 'important');
+                
+                // Forza layout HUD semplificato
+                hudLayout.style.setProperty('display', 'flex', 'important');
+                hudLayout.style.setProperty('grid-template-columns', 'none', 'important');
+                hudLayout.style.setProperty('justify-content', 'flex-start', 'important');
+                
+                // Stile metric cards
+                const metricCards = dashboard.querySelectorAll('.metric-card');
+                metricCards.forEach(card => {
+                    card.style.setProperty('margin', '0', 'important');
+                    card.style.setProperty('min-width', deviceInfo.isExtraSmallMobile ? '42px' : '55px', 'important');
+                    card.style.setProperty('text-align', 'center', 'important');
+                    card.style.setProperty('background', 'rgba(255, 255, 255, 0.08)', 'important');
+                    card.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.15)', 'important');
+                    card.style.setProperty('border-radius', '6px', 'important');
+                    card.style.setProperty('padding', '3px 6px', 'important');
+                });
+                
+                console.log('✅ Dashboard mobile layout applicato con successo!');
+            } else {
+                // Reset per desktop
+                dashboard.style.removeProperty('position');
+                dashboard.style.removeProperty('top');
+                dashboard.style.removeProperty('right');
+                hudLayout.style.removeProperty('display');
+                hudLayout.style.removeProperty('grid-template-columns');
             }
         }
 
@@ -3291,6 +3391,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 // Forza aggiornamento controlli mobile e audio
                 updateMobileControls();
                 updateAudioControlsPosition();
+                
+                // NUOVO: Forza layout dashboard mobile
+                setTimeout(() => forceMobileDashboardLayout(), 200);
                 
                 this.loadLevel();
                 this.showScreen('gameScreen');
