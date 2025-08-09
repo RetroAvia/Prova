@@ -87,10 +87,161 @@
             visibility: hidden !important;
         }
 
-        /* SISTEMA RESPONSIVE INTELLIGENTE - COMPLETAMENTE RIPENSATO */
+        /* SISTEMA RESPONSIVE INTELLIGENTE - COMPLETAMENTE OTTIMIZZATO */
         
-        /* Mobile First - Smartphone (fino 480px) */
-        @media screen and (max-width: 480px) {
+        /* Mobile Extra Small - Smartphone molto piccoli (fino 375px) */
+        @media screen and (max-width: 375px) {
+            body:not(.game-active) {
+                overflow-y: auto;
+                overflow-x: hidden;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            body.game-active {
+                overflow: hidden;
+                height: 100vh;
+                height: 100dvh;
+            }
+            
+            .game-container {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden;
+                position: relative;
+                transform: scale(0.7); /* Zoom ancora più ridotto */
+                transform-origin: center center;
+            }
+            
+            .world {
+                width: 150vw; /* Mondo più ampio per telefoni molto piccoli */
+                height: 100vh;
+                height: 100dvh;
+            }
+            
+            /* HUD ULTRA-MINIMALE per telefoni molto piccoli */
+            .futuristic-hud {
+                height: 25px !important;
+                padding: 1px 3px !important;
+                background: linear-gradient(180deg, 
+                    rgba(10, 10, 15, 0.98) 0%, 
+                    rgba(26, 26, 46, 0.95) 70%, 
+                    transparent 100%);
+                backdrop-filter: blur(10px);
+            }
+            
+            .hud-layout { 
+                grid-template-columns: auto 1fr;
+                grid-template-rows: auto;
+                gap: 2px;
+                padding: 1px 3px;
+                align-items: center;
+            }
+            
+            .player-panel {
+                grid-column: 1;
+                grid-row: 1;
+                padding: 1px 3px;
+                min-width: 60px;
+            }
+            
+            .player-info {
+                gap: 3px;
+                align-items: center;
+            }
+            
+            .player-avatar {
+                width: 16px;
+                height: 16px;
+                font-size: 8px;
+            }
+            
+            .player-name {
+                font-size: 0.5rem;
+                margin-bottom: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 40px;
+            }
+            
+            .player-level {
+                display: none; /* Completamente nascosto su telefoni molto piccoli */
+            }
+            
+            .level-badge {
+                display: none;
+            }
+            
+            .game-dashboard {
+                grid-column: 2;
+                grid-row: 1;
+                grid-template-columns: repeat(2, 1fr); /* Solo 2 metriche */
+                gap: 2px;
+                justify-content: end;
+            }
+            
+            .metric-card {
+                padding: 1px 2px;
+                min-width: 30px;
+                border-radius: 3px;
+            }
+            
+            .metric-label {
+                font-size: 0.35rem;
+                margin-bottom: 0;
+            }
+            
+            .metric-value {
+                font-size: 0.5rem;
+            }
+            
+            /* Nascondi metriche meno importanti */
+            .time-card {
+                display: none !important;
+            }
+            
+            .control-cluster,
+            .energy-system {
+                display: none !important; /* Completamente nascosti */
+            }
+
+            /* Audio controls ottimizzati per telefoni molto piccoli */
+            .audio-controls {
+                top: 30px; /* Sopra l'HUD ultra-compatto */
+                bottom: auto;
+                left: 3px;
+                flex-direction: row;
+                gap: 3px;
+                z-index: 350;
+            }
+
+            .audio-btn, .quality-btn {
+                min-width: 24px;
+                height: 24px;
+                padding: 1px;
+                font-size: 0.6rem;
+                border-width: 1px;
+            }
+
+            /* Controlli mobile ottimizzati */
+            .mobile-controls {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+
+            .control-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Mobile Small - Smartphone piccoli (376px - 480px) */
+        @media screen and (min-width: 376px) and (max-width: 480px) {
             body:not(.game-active) {
                 overflow-y: auto;
                 overflow-x: hidden;
@@ -120,9 +271,9 @@
                 height: 100dvh;
             }
             
-            /* HUD ULTRA-COMPATTO per smartphone */
+            /* HUD COMPATTO per smartphone piccoli */
             .futuristic-hud {
-                height: 35px !important;
+                height: 30px !important;
                 padding: 2px 4px !important;
                 background: linear-gradient(180deg, 
                     rgba(10, 10, 15, 0.98) 0%, 
@@ -131,9 +282,9 @@
             }
             
             .hud-layout { 
-                grid-template-columns: 1fr auto;
+                grid-template-columns: auto 1fr auto;
                 grid-template-rows: auto;
-                gap: 2px;
+                gap: 3px;
                 padding: 2px 4px;
                 align-items: center;
             }
@@ -142,7 +293,6 @@
                 grid-column: 1;
                 grid-row: 1;
                 padding: 2px 4px;
-                min-width: auto;
             }
             
             .player-info {
@@ -162,11 +312,11 @@
             
             .player-level {
                 font-size: 0.5rem;
-                display: none; /* Nascondi su mobile molto piccolo */
+                display: none; /* Nascondi su mobile piccolo */
             }
             
             .level-badge {
-                font-size: 0.5rem;
+                font-size: 0.45rem;
                 padding: 0 3px;
             }
             
@@ -175,6 +325,7 @@
                 grid-row: 1;
                 grid-template-columns: repeat(3, 1fr);
                 gap: 2px;
+                justify-content: center;
             }
             
             .metric-card {
@@ -193,16 +344,26 @@
             }
             
             .control-cluster {
-                display: none; /* Nascondi controlli HUD su mobile piccolo */
+                grid-column: 3;
+                grid-row: 1;
+                display: flex;
+                gap: 2px;
+            }
+            
+            .neo-btn {
+                padding: 2px 4px;
+                font-size: 0.5rem;
+                min-width: 20px;
+                height: 20px;
             }
             
             .energy-system {
-                display: none; /* Nascondi energia su mobile piccolo per spazio */
+                display: none; /* Nascondi energia per spazio */
             }
 
             /* Audio controls riposizionati per evitare sovrapposizioni */
             .audio-controls {
-                top: 45px; /* Sopra l'HUD */
+                top: 35px; /* Sopra l'HUD */
                 bottom: auto;
                 left: 5px;
                 flex-direction: row;
@@ -216,49 +377,6 @@
                 padding: 2px;
                 font-size: 0.7rem;
                 border-width: 1px;
-            }
-
-            /* Menu mobile ottimizzato */
-            .mission-cards {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            
-            .mission-card {
-                padding: 8px;
-            }
-            
-            .briefing-intro {
-                font-size: 0.75rem;
-                padding: 0 5px;
-                line-height: 1.3;
-            }
-            
-            .futuristic-input {
-                font-size: 0.8rem;
-                padding: 8px 12px;
-                max-width: 280px;
-            }
-            
-            .launch-button {
-                font-size: 0.8rem;
-                padding: 8px 18px;
-                min-width: 160px;
-            }
-
-            .story-content {
-                padding: 12px 8px;
-                width: 95%;
-                margin: 5px;
-            }
-
-            .story-title {
-                font-size: 1.1rem;
-            }
-
-            .story-text {
-                font-size: 0.75rem;
-                line-height: 1.2;
             }
         }
 
@@ -293,7 +411,7 @@
                 height: 100dvh;
             }
             
-            /* HUD COMPATTO per smartphone grandi */
+            /* HUD NORMALE per smartphone grandi */
             .futuristic-hud {
                 height: 45px;
                 padding: 3px 6px;
@@ -340,7 +458,7 @@
                 min-width: 20px;
             }
 
-            /* Audio controls riposizionati */
+            /* Audio controls riposizionati INTELLIGENTEMENTE */
             .audio-controls {
                 top: 50px;
                 bottom: auto;
@@ -357,7 +475,7 @@
             }
         }
 
-        /* Tablet Portrait - OTTIMIZZATO */
+        /* Tablet Portrait - OTTIMIZZATO con posizionamento intelligente */
         @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
             .game-container {
                 transform: scale(0.85); /* Zoom ridotto per tablet portrait */
@@ -385,12 +503,20 @@
                 font-size: 1.5rem;
             }
 
-            /* Audio controls per tablet portrait */
+            /* Audio controls per tablet portrait - POSIZIONAMENTO INTELLIGENTE */
             .audio-controls {
-                bottom: 80px; /* Sopra i controlli mobile */
+                /* Posizionamento dinamico basato su presenza controlli mobile */
+                bottom: auto;
+                top: 60px; /* Posizionati in alto per evitare sovrapposizioni */
                 left: 8px;
                 flex-direction: column;
                 gap: 6px;
+                z-index: 350; /* Z-index più alto */
+            }
+
+            /* Quando i controlli mobile sono visibili, sposta l'audio ancora più in alto */
+            body.touch-device .audio-controls {
+                top: 70px;
             }
 
             .audio-btn, .quality-btn {
@@ -399,7 +525,7 @@
             }
         }
 
-        /* Tablet Landscape - OTTIMIZZATO */
+        /* Tablet Landscape - OTTIMIZZATO con posizionamento intelligente */
         @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
             .game-container {
                 transform: scale(0.95); /* Zoom quasi normale per tablet landscape */
@@ -427,12 +553,20 @@
                 font-size: 1.4rem;
             }
 
-            /* Audio controls per tablet landscape */
+            /* Audio controls per tablet landscape - POSIZIONAMENTO DINAMICO */
             .audio-controls {
-                bottom: 75px;
-                left: 10px;
-                flex-direction: row;
+                /* Posizionamento a destra invece che a sinistra per evitare conflitti */
+                bottom: 80px;
+                left: auto;
+                right: 10px; /* Spostato a destra */
+                flex-direction: column;
                 gap: 8px;
+                z-index: 350;
+            }
+
+            /* Se i controlli mobile sono visibili, rimane a destra ma più in alto */
+            body.touch-device .audio-controls {
+                bottom: 90px;
             }
 
             .audio-btn, .quality-btn {
@@ -451,10 +585,11 @@
                 width: 2000px;
             }
 
-            /* Audio controls desktop - posizione originale */
+            /* Audio controls desktop - posizione originale sicura */
             .audio-controls {
                 bottom: 15px;
                 left: 15px;
+                right: auto; /* Reset right positioning from tablet */
                 flex-direction: row;
                 gap: 8px;
             }
@@ -486,6 +621,43 @@
             .enemy {
                 animation-duration: 3s;
             }
+        }
+
+        /* SISTEMA DI POSIZIONAMENTO MOBILE CONTROLS INTELLIGENTE */
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            /* IMPORTANTE: Nascosti di default, mostrati via JavaScript */
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: all;
+            z-index: 200;
+        }
+
+        /* Mostrati quando è attiva la classe .touch-device */
+        body.touch-device .mobile-controls {
+            display: flex !important;
+        }
+
+        /* SISTEMA DI POSIZIONAMENTO AUDIO INTELLIGENTE */
+        .audio-controls {
+            position: absolute;
+            pointer-events: all;
+            z-index: 250;
+            display: flex;
+            /* Posizionamento di default per desktop */
+            bottom: 15px;
+            left: 15px;
+            gap: 8px;
+            transition: all 0.3s ease; /* Transizione fluida per riposizionamenti */
+        }
+
+        /* Quando i controlli mobile sono presenti, riposiziona automaticamente */
+        body.touch-device .audio-controls {
+            /* Questo verrà sovrascritto dalle media queries specifiche */
         }
 
         /* Animated Background */
@@ -1373,25 +1545,6 @@
             box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
         }
 
-        /* Mobile Controls - SISTEMA COMPLETAMENTE NUOVO */
-        .mobile-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            /* IMPORTANTE: Nascosti di default, mostrati via JavaScript */
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            pointer-events: all;
-            z-index: 200;
-        }
-
-        /* Mostrati quando è attiva la classe .touch-device */
-        body.touch-device .mobile-controls {
-            display: flex !important;
-        }
-
         .control-group {
             display: flex;
             gap: 15px;
@@ -1425,17 +1578,6 @@
             box-shadow: var(--glow) var(--neon-blue);
         }
 
-        /* Controlli Audio e Qualità */
-        .audio-controls {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            pointer-events: all;
-            z-index: 250;
-            display: flex;
-            gap: 8px;
-        }
-
         .audio-btn, .quality-btn {
             background: var(--glass);
             border: 2px solid var(--neon-blue);
@@ -1451,6 +1593,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .audio-btn:hover, .quality-btn:hover {
@@ -1796,7 +1940,8 @@
     <div class="debug-info" id="debugInfo">
         Touch: <span id="debugTouch">-</span><br>
         Screen: <span id="debugScreen">-</span><br>
-        Controls: <span id="debugControls">-</span>
+        Controls: <span id="debugControls">-</span><br>
+        Audio Pos: <span id="debugAudioPos">-</span>
     </div>
 
     <!-- Animated Background -->
@@ -1975,8 +2120,8 @@
                     </div>
                 </div>
 
-                <!-- Audio e Quality controls -->
-                <div class="audio-controls">
+                <!-- Audio e Quality controls - POSIZIONAMENTO INTELLIGENTE -->
+                <div class="audio-controls" id="audioControls">
                     <button id="audioToggle" class="audio-btn" onclick="toggleAudio()" title="Audio Toggle">🔊</button>
                     <button id="qualityToggle" class="quality-btn" onclick="toggleQuality()" title="Qualità Grafica">⚙️</button>
                 </div>
@@ -1984,7 +2129,7 @@
             
             <div id="world" class="world"></div>
             
-            <!-- Mobile Controls - NUOVO SISTEMA -->
+            <!-- Mobile Controls - SISTEMA OTTIMIZZATO -->
             <div class="mobile-controls" id="mobileControls">
                 <div class="control-group">
                     <div class="control-btn" id="leftBtn">←</div>
@@ -2026,7 +2171,8 @@
             const pixelRatio = window.devicePixelRatio || 1;
             
             // Rilevamento più preciso del tipo di dispositivo
-            const isSmallMobile = width <= 480;
+            const isExtraSmallMobile = width <= 375;
+            const isSmallMobile = width > 375 && width <= 480;
             const isLargeMobile = width > 480 && width <= 767;
             const isTabletPortrait = width >= 768 && width <= 1024 && height > width;
             const isTabletLandscape = width >= 768 && width <= 1024 && width > height;
@@ -2034,12 +2180,13 @@
             
             deviceInfo = {
                 isTouch: hasTouch,
+                isExtraSmallMobile: isExtraSmallMobile,
                 isSmallMobile: isSmallMobile,
                 isLargeMobile: isLargeMobile,
                 isTabletPortrait: isTabletPortrait,
                 isTabletLandscape: isTabletLandscape,
                 isDesktop: isDesktop,
-                isMobile: isSmallMobile || isLargeMobile,
+                isMobile: isExtraSmallMobile || isSmallMobile || isLargeMobile,
                 isTablet: isTabletPortrait || isTabletLandscape,
                 screenWidth: width,
                 screenHeight: height,
@@ -2058,7 +2205,8 @@
 
             // Aggiungi classi specifiche per tipo di dispositivo
             document.body.className = document.body.className.replace(/device-\w+/g, '');
-            if (deviceInfo.isSmallMobile) document.body.classList.add('device-small-mobile');
+            if (deviceInfo.isExtraSmallMobile) document.body.classList.add('device-extra-small-mobile');
+            else if (deviceInfo.isSmallMobile) document.body.classList.add('device-small-mobile');
             else if (deviceInfo.isLargeMobile) document.body.classList.add('device-large-mobile');
             else if (deviceInfo.isTabletPortrait) document.body.classList.add('device-tablet-portrait');
             else if (deviceInfo.isTabletLandscape) document.body.classList.add('device-tablet-landscape');
@@ -2069,12 +2217,14 @@
                 updateDebugInfo();
             }
 
-            // Forza aggiornamento controlli mobile
+            // Forza aggiornamento controlli mobile e audio
             updateMobileControls();
+            updateAudioControlsPosition();
         }
 
         // Descrizione leggibile del dispositivo
         function getDeviceDescription() {
+            if (deviceInfo.isExtraSmallMobile) return `Smartphone extra piccolo (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
             if (deviceInfo.isSmallMobile) return `Smartphone piccolo (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
             if (deviceInfo.isLargeMobile) return `Smartphone grande (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
             if (deviceInfo.isTabletPortrait) return `Tablet portrait (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
@@ -2087,12 +2237,20 @@
             const debugTouch = document.getElementById('debugTouch');
             const debugScreen = document.getElementById('debugScreen');
             const debugControls = document.getElementById('debugControls');
+            const debugAudioPos = document.getElementById('debugAudioPos');
             
             if (debugTouch) debugTouch.textContent = deviceInfo.isTouch ? 'YES' : 'NO';
             if (debugScreen) debugScreen.textContent = `${deviceInfo.screenWidth}x${deviceInfo.screenHeight}`;
             if (debugControls) {
                 const controlsVisible = document.body.classList.contains('touch-device');
                 debugControls.textContent = controlsVisible ? 'VISIBLE' : 'HIDDEN';
+            }
+            if (debugAudioPos) {
+                const audioControls = document.getElementById('audioControls');
+                if (audioControls) {
+                    const style = window.getComputedStyle(audioControls);
+                    debugAudioPos.textContent = `${style.bottom} / ${style.top} / ${style.left} / ${style.right}`;
+                }
             }
         }
 
@@ -2109,6 +2267,65 @@
                 // Nascondi su desktop
                 mobileControls.style.display = 'none';
                 console.log('❌ Controlli mobile nascosti (desktop)');
+            }
+        }
+
+        // NUOVO: Sistema di posizionamento intelligente per controlli audio
+        function updateAudioControlsPosition() {
+            const audioControls = document.getElementById('audioControls');
+            if (!audioControls) return;
+
+            // Reset di tutti gli stili di posizionamento
+            audioControls.style.top = '';
+            audioControls.style.bottom = '';
+            audioControls.style.left = '';
+            audioControls.style.right = '';
+
+            if (deviceInfo.isTouch) {
+                // Posizionamento per dispositivi touch
+                if (deviceInfo.isExtraSmallMobile) {
+                    // Telefoni molto piccoli: in alto a sinistra, molto compatti
+                    audioControls.style.top = '30px';
+                    audioControls.style.left = '3px';
+                    audioControls.style.flexDirection = 'row';
+                    console.log('📱 Audio controls: Extra Small Mobile (top-left)');
+                } else if (deviceInfo.isSmallMobile) {
+                    // Telefoni piccoli: in alto a sinistra
+                    audioControls.style.top = '35px';
+                    audioControls.style.left = '5px';
+                    audioControls.style.flexDirection = 'row';
+                    console.log('📱 Audio controls: Small Mobile (top-left)');
+                } else if (deviceInfo.isLargeMobile) {
+                    // Telefoni grandi: in alto a sinistra
+                    audioControls.style.top = '50px';
+                    audioControls.style.left = '5px';
+                    audioControls.style.flexDirection = 'row';
+                    console.log('📱 Audio controls: Large Mobile (top-left)');
+                } else if (deviceInfo.isTabletPortrait) {
+                    // Tablet portrait: in alto a sinistra, colonna
+                    audioControls.style.top = '70px';
+                    audioControls.style.left = '8px';
+                    audioControls.style.flexDirection = 'column';
+                    console.log('📱 Audio controls: Tablet Portrait (top-left column)');
+                } else if (deviceInfo.isTabletLandscape) {
+                    // Tablet landscape: a destra per evitare conflitti
+                    audioControls.style.bottom = '90px';
+                    audioControls.style.right = '10px';
+                    audioControls.style.left = 'auto';
+                    audioControls.style.flexDirection = 'column';
+                    console.log('📱 Audio controls: Tablet Landscape (bottom-right column)');
+                }
+            } else {
+                // Desktop: posizione originale
+                audioControls.style.bottom = '15px';
+                audioControls.style.left = '15px';
+                audioControls.style.flexDirection = 'row';
+                console.log('🖥️ Audio controls: Desktop (bottom-left row)');
+            }
+
+            // Debug info
+            if (document.body.classList.contains('debug')) {
+                updateDebugInfo();
             }
         }
 
@@ -2875,7 +3092,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 controls.forEach(({ id, key }) => {
                     const btn = document.getElementById(id);
                     if (btn) {
-                        // Touch events - MIGLIORATI
+                        // Touch events - MIGLIORATI CON DEBUGGING
                         btn.addEventListener('touchstart', (e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -2904,6 +3121,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             btn.style.background = '';
                             btn.style.color = '';
                             btn.style.transform = '';
+                            console.log(`🎮 Touch CANCEL: ${key}`);
                         }, { passive: false });
                         
                         // Mouse events per test desktop
@@ -2947,8 +3165,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             startLevel() {
                 document.body.classList.add('game-active');
                 
-                // Forza aggiornamento controlli mobile
+                // Forza aggiornamento controlli mobile e audio
                 updateMobileControls();
+                updateAudioControlsPosition();
                 
                 this.loadLevel();
                 this.showScreen('gameScreen');
