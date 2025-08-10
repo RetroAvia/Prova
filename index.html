@@ -179,74 +179,34 @@
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
         }
 
-        /* PROGRESS INDICATOR - POSIZIONAMENTO INTELLIGENTE */
+        /* PROGRESS INDICATOR - SOLO DESKTOP */
         .progress-indicator {
             position: fixed;
             display: none;
             flex-direction: row;
-            gap: 8px;
+            gap: 10px;
             z-index: 300;
             background: rgba(10, 10, 15, 0.9);
-            padding: 8px 12px;
-            border-radius: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
             border: 1px solid var(--neon-blue);
             backdrop-filter: blur(10px);
         }
 
-        body.game-active .progress-indicator {
-            display: flex;
-        }
-
-        /* POSIZIONAMENTO DESKTOP - in alto a destra */
+        /* MOSTRA SOLO SU DESKTOP */
         @media screen and (min-width: 1025px) {
-            .progress-indicator {
-                top: 90px;
-                right: 20px;
-            }
-        }
-
-        /* POSIZIONAMENTO TABLET - in alto al centro */
-        @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .progress-indicator {
-                top: 10px;
+            body.game-active .progress-indicator {
+                display: flex;
+                top: 20px;
                 left: 50%;
                 transform: translateX(-50%);
             }
         }
 
-        /* POSIZIONAMENTO MOBILE - ottimizzato per evitare sovrapposizioni */
-        @media screen and (max-width: 767px) {
+        /* NASCOSTO SU TABLET E MOBILE */
+        @media screen and (max-width: 1024px) {
             .progress-indicator {
-                top: 15px;
-                right: 10px;
-                left: auto;
-                transform: none;
-                padding: 6px 8px;
-                flex-direction: column;
-                gap: 4px;
-                border-radius: 12px;
-            }
-            
-            /* Su mobile portrait con dashboard, spostiamo sotto e a sinistra dei controlli */
-            body.touch-device .progress-indicator {
-                top: 55px; /* Sotto la mobile dashboard */
-                right: 90px; /* A sinistra dei controlli audio (default) */
-            }
-            
-            /* Su mobile landscape, posizionamento diverso */
-            @media screen and (max-width: 767px) and (orientation: landscape) {
-                body.touch-device .progress-indicator {
-                    top: 10px;
-                    right: 90px;
-                    flex-direction: row;
-                    gap: 6px;
-                }
-            }
-            
-            /* Progress dots più piccoli su mobile */
-            .progress-dot {
-                width: 8px;
-                height: 8px;
+                display: none !important;
             }
         }
 
@@ -274,7 +234,7 @@
             50% { transform: scale(1.3); }
         }
 
-        /* DASHBOARD MOBILE ORIZZONTALE IN ALTO - LAYOUT INTELLIGENTE */
+        /* DASHBOARD MOBILE ORIZZONTALE - INGRANDITA */
         .mobile-dashboard {
             position: absolute;
             top: 5px;
@@ -284,18 +244,18 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 10px; /* Aumentato da 8px */
             z-index: 300;
             background: linear-gradient(90deg, 
                 rgba(10, 10, 15, 0.95) 0%, 
                 rgba(26, 26, 46, 0.9) 50%,
                 rgba(10, 10, 15, 0.95) 100%);
             backdrop-filter: blur(20px);
-            border-radius: 0 0 15px 15px;
-            padding: 8px 12px;
+            border-radius: 0 0 18px 18px; /* Aumentato da 15px */
+            padding: 12px 16px; /* Aumentato da 8px 12px */
             border-bottom: 2px solid rgba(0, 212, 255, 0.6);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            height: 45px;
+            height: 55px; /* Aumentato da 45px */
         }
 
         /* Mostra dashboard mobile solo su dispositivi touch */
@@ -319,15 +279,16 @@
             }
         }
 
-        /* Dashboard mobile - stile delle metriche INGRANDITE */
+        /* Dashboard mobile - stile delle metriche INGRANDITE ANCORA DI PIÙ */
         .mobile-metric {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: 12px; /* Aumentato da 10px */
+            padding: 12px 14px; /* Aumentato da 10px 12px */
             text-align: center;
             position: relative;
             overflow: hidden;
+            min-width: 65px; /* Larghezza minima aumentata */
         }
 
         .mobile-metric::before {
@@ -342,18 +303,18 @@
         }
 
         .mobile-metric-label {
-            font-size: 0.6rem;
+            font-size: 0.7rem; /* Aumentato da 0.6rem */
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px; /* Aumentato da 4px */
             font-weight: 600;
         }
 
         .mobile-metric-value {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 1.1rem; /* Aumentato da 0.9rem */
             text-shadow: 0 0 8px currentColor;
             line-height: 1;
         }
@@ -379,29 +340,29 @@
             border-color: rgba(255, 107, 53, 0.3);
         }
 
-        /* Player info mobile INGRANDITA */
+        /* Player info mobile INGRANDITA ANCORA DI PIÙ */
         .mobile-player-info {
             background: linear-gradient(135deg, 
                 rgba(0, 212, 255, 0.25) 0%, 
                 rgba(139, 92, 246, 0.2) 100%);
             border: 1px solid rgba(0, 212, 255, 0.5);
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 14px; /* Aumentato da 12px */
+            padding: 14px 16px; /* Aumentato da 12px */
             margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px; /* Aumentato da 8px */
         }
 
         .mobile-avatar {
-            width: 32px;
-            height: 32px;
+            width: 38px; /* Aumentato da 32px */
+            height: 38px; /* Aumentato da 32px */
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
-            border-radius: 8px;
+            border-radius: 10px; /* Aumentato da 8px */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 16px; /* Aumentato da 14px */
             box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
         }
 
@@ -416,18 +377,18 @@
         .mobile-player-name {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 0.7rem;
+            font-size: 0.8rem; /* Aumentato da 0.7rem */
             color: var(--neon-blue);
             text-shadow: 0 0 6px var(--neon-blue);
-            margin-bottom: 2px;
+            margin-bottom: 3px; /* Aumentato da 2px */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 60px;
+            max-width: 70px; /* Aumentato da 60px */
         }
 
         .mobile-player-level {
-            font-size: 0.5rem;
+            font-size: 0.6rem; /* Aumentato da 0.5rem */
             color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -569,7 +530,7 @@
 
             /* Audio controls per extra small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 40px;
+                top: 50px; /* Aggiornato per la nuova dashboard */
                 right: 6px;
                 padding: 2px;
             }
@@ -579,12 +540,6 @@
                 min-width: 28px !important;
                 height: 28px !important;
                 font-size: 0.7rem !important;
-            }
-
-            /* Progress indicator posizione specifica per extra small */
-            body.touch-device .progress-indicator {
-                top: 40px;
-                right: 80px; /* A sinistra dei controlli audio */
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -681,7 +636,7 @@
 
             /* Audio controls per small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 45px;
+                top: 55px; /* Aggiornato per la nuova dashboard */
                 right: 8px;
                 padding: 3px;
             }
@@ -691,12 +646,6 @@
                 min-width: 30px !important;
                 height: 30px !important;
                 font-size: 0.75rem !important;
-            }
-
-            /* Progress indicator posizione per small mobile */
-            body.touch-device .progress-indicator {
-                top: 45px;
-                right: 85px; /* A sinistra dei controlli audio */
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -759,7 +708,7 @@
 
             /* Audio controls per large mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 50px;
+                top: 60px; /* Aggiornato per la nuova dashboard */
                 right: 8px;
                 padding: 4px;
             }
@@ -769,12 +718,6 @@
                 min-width: 32px !important;
                 height: 32px !important;
                 font-size: 0.8rem !important;
-            }
-
-            /* Progress indicator posizione per large mobile */
-            body.touch-device .progress-indicator {
-                top: 50px;
-                right: 90px; /* A sinistra dei controlli audio */
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -893,9 +836,9 @@
             }
 
             .control-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.3rem;
+                width: 70px; /* Aumentato da 60px */
+                height: 70px; /* Aumentato da 60px */
+                font-size: 1.6rem; /* Aumentato da 1.3rem */
             }
         }
 
@@ -927,9 +870,9 @@
             }
 
             .control-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
+                width: 65px; /* Aumentato da 55px */
+                height: 65px; /* Aumentato da 55px */
+                font-size: 1.5rem; /* Aumentato da 1.3rem */
             }
         }
 
@@ -941,6 +884,13 @@
             
             .world {
                 width: 2000px;
+            }
+            
+            /* Su desktop i controlli sono generalmente più piccoli e precisi */
+            .control-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.6rem;
             }
         }
 
@@ -999,7 +949,7 @@
 
         /* Su mobile, posiziona i controlli audio in alto a destra - SEMPRE VISIBILI */
         body.touch-device .audio-controls {
-            top: 55px; /* Sotto la dashboard orizzontale */
+            top: 65px; /* Aumentato da 55px per la nuova dashboard */
             right: 8px;
             left: auto;
             bottom: auto;
@@ -1017,6 +967,13 @@
             body.touch-device .audio-controls {
                 top: 50px; /* Sotto la HUD compatta dei tablet */
                 right: 10px;
+            }
+            
+            /* Su tablet i controlli possono essere leggermente più grandi */
+            body.touch-device .control-btn {
+                width: 75px !important;
+                height: 75px !important;
+                font-size: 1.7rem !important;
             }
         }
 
@@ -1983,10 +1940,10 @@
             background: var(--glass);
             border: 3px solid var(--neon-blue);
             border-radius: 50%;
-            width: 70px;
-            height: 70px;
+            width: 80px; /* Aumentato da 70px */
+            height: 80px; /* Aumentato da 70px */
             color: var(--neon-blue);
-            font-size: 1.6rem;
+            font-size: 1.8rem; /* Aumentato da 1.6rem */
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -2005,6 +1962,30 @@
             color: white !important;
             transform: scale(0.9);
             box-shadow: var(--glow) var(--neon-blue);
+        }
+
+        /* Responsive per mobile controls */
+        .control-group {
+            display: flex;
+            gap: 20px; /* Aumentato da 15px per più spazio */
+        }
+
+        /* Mobile controls - distanziamento migliorato */
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px; /* Aumentato da 15px */
+            left: 20px;   /* Aumentato da 15px */
+            right: 20px;  /* Aumentato da 15px */
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: all;
+            z-index: 200;
+        }
+
+        /* Mostrati quando è attiva la classe .touch-device */
+        body.touch-device .mobile-controls {
+            display: flex !important;
         }
 
         .audio-btn, .quality-btn {
