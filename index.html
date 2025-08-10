@@ -87,25 +87,25 @@
             visibility: hidden !important;
         }
 
-        /* DASHBOARD MOBILE UNIFICATA - SEMPRE IN ALTO A DESTRA */
+        /* DASHBOARD MOBILE UNIFICATA - SEMPRE IN ALTO A DESTRA - INGRANDITA */
         .mobile-dashboard {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 5px;
+            right: 5px;
             display: none;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             z-index: 300;
             background: linear-gradient(135deg, 
                 rgba(10, 10, 15, 0.95) 0%, 
                 rgba(26, 26, 46, 0.9) 100%);
             backdrop-filter: blur(20px);
-            border-radius: 0 0 0 15px;
-            padding: 8px 10px;
-            border-left: 2px solid rgba(0, 212, 255, 0.5);
-            border-bottom: 2px solid rgba(0, 212, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            min-width: 80px;
+            border-radius: 0 0 0 18px;
+            padding: 12px 14px;
+            border-left: 2px solid rgba(0, 212, 255, 0.6);
+            border-bottom: 2px solid rgba(0, 212, 255, 0.6);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+            min-width: 110px;
         }
 
         /* Mostra dashboard mobile solo su dispositivi touch */
@@ -118,12 +118,12 @@
             display: none !important;
         }
 
-        /* Dashboard mobile - stile delle metriche */
+        /* Dashboard mobile - stile delle metriche INGRANDITE */
         .mobile-metric {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -135,25 +135,25 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 1px;
+            height: 2px;
             background: linear-gradient(90deg, transparent, currentColor, transparent);
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
         .mobile-metric-label {
-            font-size: 0.45rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
 
         .mobile-metric-value {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 0.7rem;
-            text-shadow: 0 0 6px currentColor;
+            font-size: 0.9rem;
+            text-shadow: 0 0 8px currentColor;
             line-height: 1;
         }
 
@@ -178,30 +178,30 @@
             border-color: rgba(255, 107, 53, 0.3);
         }
 
-        /* Player info mobile */
+        /* Player info mobile INGRANDITA */
         .mobile-player-info {
             background: linear-gradient(135deg, 
-                rgba(0, 212, 255, 0.2) 0%, 
-                rgba(139, 92, 246, 0.15) 100%);
-            border: 1px solid rgba(0, 212, 255, 0.4);
-            border-radius: 10px;
-            padding: 8px;
-            margin-bottom: 4px;
+                rgba(0, 212, 255, 0.25) 0%, 
+                rgba(139, 92, 246, 0.2) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .mobile-avatar {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+            font-size: 14px;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
         }
 
         .mobile-avatar::before {
@@ -215,19 +215,19 @@
         .mobile-player-name {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 0.55rem;
+            font-size: 0.7rem;
             color: var(--neon-blue);
-            text-shadow: 0 0 4px var(--neon-blue);
-            margin-bottom: 1px;
+            text-shadow: 0 0 6px var(--neon-blue);
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 45px;
+            max-width: 60px;
         }
 
         .mobile-player-level {
-            font-size: 0.4rem;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -266,43 +266,108 @@
             }
 
             .mobile-dashboard {
-                top: 5px;
-                right: 5px;
-                gap: 3px;
-                padding: 4px 6px;
-                min-width: 60px;
+                top: 3px;
+                right: 3px;
+                gap: 6px;
+                padding: 8px 10px;
+                min-width: 90px;
             }
 
             .mobile-metric {
-                padding: 3px 5px;
+                padding: 6px 8px;
             }
 
             .mobile-metric-label {
-                font-size: 0.35rem;
+                font-size: 0.5rem;
             }
 
             .mobile-metric-value {
-                font-size: 0.55rem;
+                font-size: 0.7rem;
             }
 
             .mobile-player-info {
-                padding: 4px 6px;
-                gap: 4px;
+                padding: 8px 10px;
+                gap: 6px;
             }
 
             .mobile-avatar {
-                width: 18px;
-                height: 18px;
-                font-size: 8px;
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
             }
 
             .mobile-player-name {
-                font-size: 0.45rem;
-                max-width: 35px;
+                font-size: 0.6rem;
+                max-width: 50px;
             }
 
             .mobile-player-level {
-                font-size: 0.35rem;
+                font-size: 0.45rem;
+            }
+
+            /* Audio controls per extra small mobile */
+            body.touch-device .audio-controls {
+                top: 140px;
+                right: 3px;
+            }
+
+            .audio-btn, .quality-btn {
+                min-width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+
+            /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
+            .main-menu-container {
+                padding: 10px 15px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                justify-content: flex-start !important;
+                padding-top: 15px !important;
+                overflow-y: auto !important;
+            }
+
+            .retro-logo {
+                font-size: 2.2rem !important;
+                margin-bottom: 8px !important;
+                line-height: 1.1 !important;
+            }
+
+            .dark-chronicles {
+                font-size: 0.7rem !important;
+                margin-bottom: 15px !important;
+            }
+
+            .briefing-intro {
+                font-size: 0.8rem !important;
+                line-height: 1.4 !important;
+                margin-bottom: 20px !important;
+            }
+
+            .mission-cards {
+                gap: 10px !important;
+                margin: 15px 0 !important;
+            }
+
+            .mission-card {
+                padding: 12px !important;
+                min-height: auto !important;
+            }
+
+            .player-input-section {
+                margin-top: 20px !important;
+            }
+
+            .futuristic-input {
+                max-width: 280px !important;
+                padding: 10px 15px !important;
+                font-size: 0.9rem !important;
+            }
+
+            .launch-button {
+                min-width: 180px !important;
+                padding: 10px 25px !important;
+                font-size: 0.9rem !important;
             }
         }
 
@@ -338,11 +403,49 @@
             }
 
             .mobile-dashboard {
-                top: 8px;
-                right: 8px;
-                gap: 4px;
-                padding: 6px 8px;
-                min-width: 70px;
+                top: 5px;
+                right: 5px;
+                gap: 7px;
+                padding: 10px 12px;
+                min-width: 95px;
+            }
+
+            /* Audio controls per small mobile */
+            body.touch-device .audio-controls {
+                top: 150px;
+                right: 5px;
+            }
+
+            .audio-btn, .quality-btn {
+                min-width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+
+            /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
+            .main-menu-container {
+                padding: 15px 20px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                justify-content: flex-start !important;
+                padding-top: 20px !important;
+                overflow-y: auto !important;
+            }
+
+            .retro-logo {
+                font-size: 2.5rem !important;
+                margin-bottom: 10px !important;
+                line-height: 1.1 !important;
+            }
+
+            .dark-chronicles {
+                font-size: 0.75rem !important;
+                margin-bottom: 16px !important;
+            }
+
+            .briefing-intro {
+                font-size: 0.82rem !important;
+                line-height: 1.5 !important;
             }
         }
 
@@ -375,6 +478,44 @@
                 width: 130vw;
                 height: 100vh;
                 height: 100dvh;
+            }
+
+            /* Audio controls per large mobile */
+            body.touch-device .audio-controls {
+                top: 170px;
+                right: 5px;
+            }
+
+            .audio-btn, .quality-btn {
+                min-width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
+            .main-menu-container {
+                padding: 20px 25px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                justify-content: flex-start !important;
+                padding-top: 25px !important;
+                overflow-y: auto !important;
+            }
+
+            .retro-logo {
+                font-size: 3rem !important;
+                margin-bottom: 12px !important;
+                line-height: 1.2 !important;
+            }
+
+            .dark-chronicles {
+                font-size: 0.9rem !important;
+                margin-bottom: 18px !important;
+            }
+
+            .briefing-intro {
+                font-size: 0.9rem !important;
+                line-height: 1.5 !important;
             }
         }
 
@@ -500,13 +641,14 @@
             transition: all 0.3s ease;
         }
 
-        /* Su mobile, posiziona i controlli audio centralmente in basso */
+        /* Su mobile, posiziona i controlli audio in alto a destra SOTTO la dashboard */
         body.touch-device .audio-controls {
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            flex-direction: row;
-            gap: 15px;
+            top: 160px; /* Sotto la dashboard mobile */
+            right: 5px;
+            left: auto;
+            bottom: auto;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* Animated Background */
@@ -633,15 +775,45 @@
             100% { transform: translateY(60px); }
         }
 
-        /* Logo compatto */
+        /* Logo compatto - FIX UNIVERSALE PER TUTTI I MOBILE */
         .retro-logo {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
-            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-size: clamp(2.2rem, 5vw, 4rem);
             font-weight: 900;
             text-align: center;
             margin-bottom: 15px;
             position: relative;
             z-index: 10;
+            line-height: 1.1;
+            overflow: visible;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        /* Assicura che il logo non venga mai tagliato su mobile */
+        @media screen and (max-width: 767px) {
+            .retro-logo {
+                font-size: clamp(1.8rem, 8vw, 3rem) !important;
+                margin-bottom: 10px !important;
+                line-height: 1 !important;
+                padding: 0 10px !important;
+            }
+            
+            .dark-chronicles {
+                font-size: clamp(0.7rem, 3vw, 1rem) !important;
+                margin-bottom: 15px !important;
+            }
+            
+            /* Menu principale responsive per tutti i mobile */
+            .main-menu-container {
+                padding: 15px 20px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                justify-content: flex-start !important;
+                padding-top: 20px !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            }
         }
 
         .retro-logo .retro-text {
@@ -2181,40 +2353,109 @@
                 this.currentMusicLevel = 0;
                 this.userInteracted = false;
                 this.pendingSounds = [];
+                this.initAttempts = 0;
+                this.maxInitAttempts = 5;
                 
-                // Ascolta per la prima interazione utente
+                // Ascolta per la prima interazione utente CON APPROCCIO AGGRESSIVO
                 this.setupFirstInteraction();
             }
 
             setupFirstInteraction() {
-                const startAudioOnInteraction = () => {
-                    if (!this.userInteracted) {
+                const startAudioOnInteraction = async (e) => {
+                    console.log('🎵 Tentativo inizializzazione audio su interazione:', e.type);
+                    
+                    if (!this.userInteracted && this.initAttempts < this.maxInitAttempts) {
                         this.userInteracted = true;
-                        this.init().then(() => {
-                            console.log('🎵 Audio inizializzato dopo interazione utente');
-                            // Riproduci suoni in coda
-                            this.processPendingSounds();
-                        });
+                        this.initAttempts++;
                         
-                        // Rimuovi listeners dopo la prima interazione
-                        document.removeEventListener('touchstart', startAudioOnInteraction);
-                        document.removeEventListener('click', startAudioOnInteraction);
-                        document.removeEventListener('keydown', startAudioOnInteraction);
+                        try {
+                            await this.init();
+                            console.log('🎵 Audio inizializzato con successo dopo interazione');
+                            this.processPendingSounds();
+                            
+                            // Rimuovi listeners dopo successo
+                            this.removeInteractionListeners();
+                        } catch (error) {
+                            console.warn('🎵 Tentativo audio fallito, riprovo...', error);
+                            this.userInteracted = false;
+                            
+                            // Riprova dopo un breve delay
+                            setTimeout(() => {
+                                if (this.initAttempts < this.maxInitAttempts) {
+                                    this.userInteracted = false;
+                                }
+                            }, 1000);
+                        }
                     }
                 };
 
-                // Aggiungi listeners per diverse tipologie di interazione
-                document.addEventListener('touchstart', startAudioOnInteraction, { passive: true });
-                document.addEventListener('click', startAudioOnInteraction, { passive: true });
-                document.addEventListener('keydown', startAudioOnInteraction, { passive: true });
+                // Aggiungi listeners per TUTTI i tipi di interazione possibili
+                this.interactionEvents = [
+                    'touchstart', 'touchend', 'click', 'mousedown', 'keydown', 
+                    'pointerdown', 'pointerup', 'gesturestart'
+                ];
+                
+                this.interactionEvents.forEach(eventType => {
+                    document.addEventListener(eventType, startAudioOnInteraction, { 
+                        passive: true, 
+                        once: false // Non rimuovere automaticamente
+                    });
+                });
+
+                // Listener speciale per i bottoni del gioco
+                document.addEventListener('click', (e) => {
+                    if (e.target.matches('.audio-btn, .quality-btn, .control-btn, .btn, .launch-button')) {
+                        startAudioOnInteraction(e);
+                    }
+                }, { passive: true });
+            }
+
+            removeInteractionListeners() {
+                this.interactionEvents.forEach(eventType => {
+                    // Rimuovi i listeners dopo inizializzazione riuscita
+                    document.removeEventListener(eventType, this.startAudioOnInteraction);
+                });
             }
 
             async init() {
                 if (this.isInitialized) return;
                 
                 try {
-                    // Inizializza AudioContext
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('🎵 Inizializzazione AudioContext...');
+                    
+                    // Crea AudioContext con approccio compatibile
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+                    if (!AudioContextClass) {
+                        throw new Error('AudioContext non supportato');
+                    }
+                    
+                    this.audioContext = new AudioContextClass();
+                    
+                    // FORZATURA AGGRESSIVE per mobile
+                    if (this.audioContext.state === 'suspended') {
+                        console.log('🎵 AudioContext sospeso, tentativo resume...');
+                        await this.audioContext.resume();
+                        
+                        // Doppio controllo
+                        if (this.audioContext.state === 'suspended') {
+                            // Approccio più aggressivo per iOS
+                            await new Promise(resolve => {
+                                const resumeAttempt = async () => {
+                                    if (this.audioContext.state === 'suspended') {
+                                        await this.audioContext.resume();
+                                    }
+                                    if (this.audioContext.state === 'running') {
+                                        resolve();
+                                    } else {
+                                        setTimeout(resumeAttempt, 100);
+                                    }
+                                };
+                                resumeAttempt();
+                            });
+                        }
+                    }
+                    
+                    console.log('🎵 AudioContext state:', this.audioContext.state);
                     
                     // Crea i nodi audio
                     this.masterGain = this.audioContext.createGain();
@@ -2226,36 +2467,61 @@
                     this.musicGain.connect(this.masterGain);
                     this.sfxGain.connect(this.masterGain);
                     
-                    // Imposta i volumi
-                    this.masterGain.gain.value = this.isEnabled ? 1 : 0;
-                    this.musicGain.gain.value = this.musicVolume;
-                    this.sfxGain.gain.value = this.sfxVolume;
+                    // Imposta i volumi con valori più alti per mobile
+                    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const volumeMultiplier = isMobile ? 1.5 : 1;
                     
-                    // Assicurati che il contesto sia attivo
-                    if (this.audioContext.state === 'suspended') {
-                        await this.audioContext.resume();
-                    }
+                    this.masterGain.gain.value = this.isEnabled ? 1 : 0;
+                    this.musicGain.gain.value = this.musicVolume * volumeMultiplier;
+                    this.sfxGain.gain.value = this.sfxVolume * volumeMultiplier;
+                    
+                    // Test con un suono semplice
+                    await this.testAudioContext();
                     
                     this.createSoundEffects();
                     this.isInitialized = true;
                     
-                    // Avvia la musica di background se non stiamo giocando
+                    // Avvia la musica di background se appropriato
                     setTimeout(() => {
                         if (this.currentMusicLevel === 0) {
                             this.startBackgroundMusic();
                         }
                     }, 500);
                     
-                    console.log('🎵 AudioManager inizializzato con successo');
+                    console.log('🎵 AudioManager inizializzato con successo!');
                 } catch (error) {
-                    console.warn('⚠️ Audio non supportato o fallito:', error);
+                    console.error('❌ Audio inizializzazione fallita:', error);
                     this.isEnabled = false;
                     this.isInitialized = false;
+                    throw error;
+                }
+            }
+
+            async testAudioContext() {
+                // Test rapido per verificare che l'audio funzioni
+                try {
+                    const osc = this.audioContext.createOscillator();
+                    const gain = this.audioContext.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(this.audioContext.destination);
+                    
+                    gain.gain.value = 0.01; // Volume molto basso per il test
+                    osc.frequency.value = 440;
+                    osc.type = 'sine';
+                    
+                    osc.start();
+                    osc.stop(this.audioContext.currentTime + 0.1);
+                    
+                    console.log('🎵 Test audio completato con successo');
+                } catch (error) {
+                    console.warn('⚠️ Test audio fallito:', error);
+                    throw error;
                 }
             }
 
             processPendingSounds() {
-                // Riproduci i suoni che erano in coda
+                console.log('🎵 Elaborando', this.pendingSounds.length, 'suoni in coda');
                 this.pendingSounds.forEach(soundName => {
                     this.playSound(soundName);
                 });
@@ -2524,29 +2790,35 @@
             }
 
             playSound(soundName) {
-                if (!this.userInteracted) {
-                    // Aggiungi alla coda se l'utente non ha ancora interagito
-                    this.pendingSounds.push(soundName);
+                if (!this.userInteracted || !this.isInitialized) {
+                    // Aggiungi alla coda se l'utente non ha ancora interagito o l'audio non è inizializzato
+                    if (!this.pendingSounds.includes(soundName)) {
+                        this.pendingSounds.push(soundName);
+                        console.log('🎵 Suono', soundName, 'aggiunto alla coda');
+                    }
                     return;
                 }
                 
-                if (!this.isInitialized) {
-                    // Prova a inizializzare se non è stato fatto
-                    this.init().then(() => {
-                        if (this.sounds[soundName] && this.isEnabled) {
-                            this.sounds[soundName]();
-                        }
-                    });
+                if (!this.audioContext || this.audioContext.state !== 'running') {
+                    console.warn('🎵 AudioContext non disponibile per', soundName);
                     return;
                 }
                 
                 if (this.sounds[soundName] && this.isEnabled) {
-                    this.sounds[soundName]();
+                    try {
+                        this.sounds[soundName]();
+                        console.log('🎵 Riprodotto suono:', soundName);
+                    } catch (error) {
+                        console.warn('🎵 Errore riproduzione suono', soundName, ':', error);
+                    }
+                } else {
+                    console.log('🎵 Suono non disponibile o audio disabilitato:', soundName);
                 }
             }
 
             toggle() {
                 this.isEnabled = !this.isEnabled;
+                console.log('🎵 Audio toggle:', this.isEnabled ? 'ON' : 'OFF');
                 
                 if (this.masterGain) {
                     this.masterGain.gain.value = this.isEnabled ? 1 : 0;
@@ -2555,7 +2827,12 @@
                 if (!this.isEnabled) {
                     this.stopMusic();
                 } else {
-                    if (this.isInitialized) {
+                    // Se stiamo riabilitando l'audio e non è inizializzato, prova a inizializzarlo
+                    if (!this.isInitialized && this.userInteracted) {
+                        this.init().catch(error => {
+                            console.warn('🎵 Errore reinizializzazione audio:', error);
+                        });
+                    } else if (this.isInitialized) {
                         if (this.currentMusicLevel > 0) {
                             this.startLevelMusic(this.currentMusicLevel);
                         } else {
@@ -2568,6 +2845,15 @@
                 if (btn) {
                     btn.textContent = this.isEnabled ? '🔊' : '🔇';
                     btn.className = this.isEnabled ? 'audio-btn' : 'audio-btn muted';
+                    btn.style.borderColor = this.isEnabled ? 'var(--neon-blue)' : 'var(--neon-red)';
+                    btn.style.color = this.isEnabled ? 'var(--neon-blue)' : 'var(--neon-red)';
+                }
+                
+                // Feedback visivo per confermare il toggle
+                if (gameManager && gameManager.game) {
+                    gameManager.game.showMessage(
+                        this.isEnabled ? '🔊 Audio attivato' : '🔇 Audio disattivato'
+                    );
                 }
             }
 
@@ -4263,7 +4549,18 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             toggleAudio() {
-                if (this.game && this.game.audioManager) {
+                // FORZA INIZIALIZZAZIONE AUDIO SU MOBILE
+                if (!this.game.audioManager.isInitialized && !this.game.audioManager.userInteracted) {
+                    console.log('🎵 Forzando inizializzazione audio...');
+                    this.game.audioManager.userInteracted = true;
+                    this.game.audioManager.init().then(() => {
+                        console.log('🎵 Audio forzato inizializzato con successo');
+                        this.game.audioManager.toggle();
+                    }).catch(error => {
+                        console.error('🎵 Errore inizializzazione audio forzata:', error);
+                        this.showNotification('❌ Audio non disponibile su questo dispositivo');
+                    });
+                } else {
                     this.game.audioManager.toggle();
                 }
             }
@@ -4483,6 +4780,37 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 }
             });
+
+            // LISTENER SPECIALE PER CONTROLLI AUDIO - FORZA INIZIALIZZAZIONE
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('#audioToggle, .audio-btn')) {
+                    console.log('🎵 Click su controllo audio rilevato');
+                    if (gameManager && gameManager.game && gameManager.game.audioManager) {
+                        if (!gameManager.game.audioManager.isInitialized) {
+                            console.log('🎵 Forzando inizializzazione audio da click...');
+                            gameManager.game.audioManager.userInteracted = true;
+                            gameManager.game.audioManager.init().catch(error => {
+                                console.error('🎵 Errore inizializzazione audio da click:', error);
+                            });
+                        }
+                    }
+                }
+            });
+
+            // LISTENER TOUCH SPECIALE PER MOBILE
+            document.addEventListener('touchstart', (e) => {
+                if (e.target.matches('#audioToggle, .audio-btn, .control-btn')) {
+                    console.log('🎵 Touch su controllo rilevato');
+                    if (gameManager && gameManager.game && gameManager.game.audioManager) {
+                        if (!gameManager.game.audioManager.userInteracted) {
+                            gameManager.game.audioManager.userInteracted = true;
+                            gameManager.game.audioManager.init().catch(error => {
+                                console.warn('🎵 Errore inizializzazione audio da touch:', error);
+                            });
+                        }
+                    }
+                }
+            }, { passive: true });
 
             // Abilita debug se necessario (solo per testing)
             if (window.location.search.includes('debug')) {
