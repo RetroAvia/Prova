@@ -212,7 +212,7 @@
 
 
 
-        /* DASHBOARD MOBILE ORIZZONTALE - SUPER INGRANDITA */
+        /* DASHBOARD MOBILE ORIZZONTALE - DIMENSIONI BASE PER OVERRIDE */
         .mobile-dashboard {
             position: absolute;
             top: 5px;
@@ -222,18 +222,18 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            gap: 12px; /* Aumentato da 10px */
+            gap: 15px;
             z-index: 300;
             background: linear-gradient(90deg, 
                 rgba(10, 10, 15, 0.95) 0%, 
                 rgba(26, 26, 46, 0.9) 50%,
                 rgba(10, 10, 15, 0.95) 100%);
             backdrop-filter: blur(20px);
-            border-radius: 0 0 20px 20px; /* Aumentato da 18px */
-            padding: 16px 20px; /* Aumentato da 12px 16px */
+            border-radius: 0 0 25px 25px;
+            padding: 20px 24px;
             border-bottom: 2px solid rgba(0, 212, 255, 0.6);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            height: 65px; /* Aumentato da 55px */
+            height: 75px; /* Dimensione base - verrà sovrascritta dai breakpoint */
         }
 
         /* Mostra dashboard mobile solo su dispositivi touch */
@@ -257,16 +257,16 @@
             }
         }
 
-        /* Dashboard mobile - stile delle metriche SUPER INGRANDITE */
+        /* Dashboard mobile - stile delle metriche BASE */
         .mobile-metric {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px; /* Aumentato da 12px */
-            padding: 14px 16px; /* Aumentato da 12px 14px */
+            border-radius: 16px;
+            padding: 16px 18px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            min-width: 75px; /* Aumentato da 65px */
+            min-width: 85px;
         }
 
         .mobile-metric::before {
@@ -281,18 +281,18 @@
         }
 
         .mobile-metric-label {
-            font-size: 0.8rem; /* Aumentato da 0.7rem */
+            font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 8px; /* Aumentato da 6px */
+            margin-bottom: 10px;
             font-weight: 600;
         }
 
         .mobile-metric-value {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 1.3rem; /* Aumentato da 1.1rem */
+            font-size: 1.3rem; /* Dimensione base - verrà sovrascritta dai breakpoint */
             text-shadow: 0 0 8px currentColor;
             line-height: 1;
         }
@@ -318,29 +318,29 @@
             border-color: rgba(255, 107, 53, 0.3);
         }
 
-        /* Player info mobile SUPER INGRANDITA */
+        /* Player info mobile BASE */
         .mobile-player-info {
             background: linear-gradient(135deg, 
                 rgba(0, 212, 255, 0.25) 0%, 
                 rgba(139, 92, 246, 0.2) 100%);
             border: 1px solid rgba(0, 212, 255, 0.5);
-            border-radius: 16px; /* Aumentato da 14px */
-            padding: 16px 18px; /* Aumentato da 14px 16px */
+            border-radius: 18px;
+            padding: 18px 20px;
             margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 12px; /* Aumentato da 10px */
+            gap: 14px;
         }
 
         .mobile-avatar {
-            width: 42px; /* Aumentato da 38px */
-            height: 42px; /* Aumentato da 38px */
+            width: 44px; /* Dimensione base - verrà sovrascritta dai breakpoint */
+            height: 44px;
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
-            border-radius: 12px; /* Aumentato da 10px */
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px; /* Aumentato da 16px */
+            font-size: 18px;
             box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
         }
 
@@ -355,18 +355,18 @@
         .mobile-player-name {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 0.9rem; /* Aumentato da 0.8rem */
+            font-size: 0.95rem; /* Dimensione base - verrà sovrascritta dai breakpoint */
             color: var(--neon-blue);
             text-shadow: 0 0 6px var(--neon-blue);
-            margin-bottom: 4px; /* Aumentato da 3px */
+            margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 80px; /* Aumentato da 70px */
+            max-width: 90px;
         }
 
         .mobile-player-level {
-            font-size: 0.7rem; /* Aumentato da 0.6rem */
+            font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -506,20 +506,6 @@
                 font-size: 0.35rem;
             }
 
-            /* Audio controls per extra small mobile - SEMPRE VISIBILI */
-            body.touch-device .audio-controls {
-                top: 60px; /* Aggiornato per la nuova dashboard più grande */
-                right: 6px;
-                padding: 2px;
-            }
-
-            body.touch-device .audio-btn, 
-            body.touch-device .quality-btn {
-                min-width: 28px !important;
-                height: 28px !important;
-                font-size: 0.7rem !important;
-            }
-
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
                 padding: 10px 15px !important;
@@ -612,20 +598,6 @@
                 gap: 8px;
             }
 
-            /* Audio controls per small mobile - SEMPRE VISIBILI */
-            body.touch-device .audio-controls {
-                top: 65px; /* Aggiornato per la nuova dashboard più grande */
-                right: 8px;
-                padding: 3px;
-            }
-
-            body.touch-device .audio-btn, 
-            body.touch-device .quality-btn {
-                min-width: 30px !important;
-                height: 30px !important;
-                font-size: 0.75rem !important;
-            }
-
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
                 padding: 15px 20px !important;
@@ -684,19 +656,7 @@
                 height: 100dvh;
             }
 
-            /* Audio controls per large mobile - SEMPRE VISIBILI */
-            body.touch-device .audio-controls {
-                top: 70px; /* Aggiornato per la nuova dashboard più grande */
-                right: 8px;
-                padding: 4px;
-            }
 
-            body.touch-device .audio-btn, 
-            body.touch-device .quality-btn {
-                min-width: 32px !important;
-                height: 32px !important;
-                font-size: 0.8rem !important;
-            }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
@@ -814,9 +774,9 @@
             }
 
             .control-btn {
-                width: 75px; /* Aumentato da 70px */
-                height: 75px; /* Aumentato da 70px */
-                font-size: 1.7rem; /* Aumentato da 1.6rem */
+                width: 70px; /* Tablet Portrait */
+                height: 70px;
+                font-size: 1.6rem;
             }
         }
 
@@ -848,9 +808,9 @@
             }
 
             .control-btn {
-                width: 70px; /* Aumentato da 65px */
-                height: 70px; /* Aumentato da 65px */
-                font-size: 1.6rem; /* Aumentato da 1.5rem */
+                width: 65px; /* Tablet Landscape */
+                height: 65px;
+                font-size: 1.5rem;
             }
         }
 
@@ -866,9 +826,9 @@
             
             /* Su desktop i controlli sono generalmente più piccoli e precisi */
             .control-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 1.6rem;
+                width: 70px !important; /* Forza la dimensione per desktop */
+                height: 70px !important;
+                font-size: 1.6rem !important;
             }
         }
 
@@ -927,7 +887,7 @@
 
         /* Su mobile, posiziona i controlli audio in alto a destra - SEMPRE VISIBILI */
         body.touch-device .audio-controls {
-            top: 75px; /* Aumentato da 65px per la nuova dashboard */
+            top: 80px; /* Dimensione base per i controlli audio */
             right: 8px;
             left: auto;
             bottom: auto;
@@ -940,18 +900,66 @@
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        /* Posizionamento specifico per tablet */
+        /* Audio controls per iPhone 13 mini e extra small (≤375px) */
+        @media screen and (max-width: 375px) {
+            body.touch-device .audio-controls {
+                top: 85px; /* Per dashboard 80px */
+            }
+        }
+
+        /* Audio controls per iPhone 14 e small (376px-414px) */
+        @media screen and (min-width: 376px) and (max-width: 414px) {
+            body.touch-device .audio-controls {
+                top: 75px; /* Per dashboard 70px */
+            }
+        }
+
+        /* Audio controls per telefoni medium (415px-480px) */
+        @media screen and (min-width: 415px) and (max-width: 480px) {
+            body.touch-device .audio-controls {
+                top: 80px; /* Per dashboard 75px */
+            }
+        }
+
+        /* Audio controls per phablet (481px-767px) */
+        @media screen and (min-width: 481px) and (max-width: 767px) {
+            body.touch-device .audio-controls {
+                top: 70px; /* Per dashboard 65px */
+            }
+        }
+
+        /* Posizionamento specifico per tablet - DIMENSIONI MODERATE */
         @media screen and (min-width: 768px) and (max-width: 1024px) {
             body.touch-device .audio-controls {
                 top: 50px; /* Sotto la HUD compatta dei tablet */
                 right: 10px;
             }
             
-            /* Su tablet i controlli possono essere leggermente più grandi ma meno dei telefoni */
+            /* Su tablet i controlli sono moderati - NON troppo grandi come i telefoni */
             body.touch-device .control-btn {
-                width: 80px !important; /* Aumentato ma meno dei telefoni */
-                height: 80px !important;
-                font-size: 1.8rem !important;
+                width: 75px !important; /* Mantenuto moderato per tablet */
+                height: 75px !important;
+                font-size: 1.7rem !important;
+            }
+            
+            /* Dashboard tablet leggermente più piccola dei telefoni */
+            body.touch-device .mobile-dashboard {
+                height: 60px !important; /* Più piccola dei telefoni */
+                padding: 14px 18px !important;
+            }
+            
+            body.touch-device .mobile-metric-value {
+                font-size: 1.2rem !important; /* Più piccola dei telefoni */
+            }
+            
+            body.touch-device .mobile-avatar {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 17px !important;
+            }
+            
+            body.touch-device .mobile-player-name {
+                font-size: 0.9rem !important;
             }
         }
 
@@ -1918,10 +1926,10 @@
             background: var(--glass);
             border: 3px solid var(--neon-blue);
             border-radius: 50%;
-            width: 90px; /* Aumentato da 80px */
-            height: 90px; /* Aumentato da 80px */
+            width: 85px; /* Dimensione base - verrà sovrascritta dai breakpoint */
+            height: 85px;
             color: var(--neon-blue);
-            font-size: 2rem; /* Aumentato da 1.8rem */
+            font-size: 1.9rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -1945,15 +1953,15 @@
         /* Responsive per mobile controls */
         .control-group {
             display: flex;
-            gap: 25px; /* Aumentato da 20px per più spazio */
+            gap: 25px; /* Gap base - verrà sovrascritta dai breakpoint se necessario */
         }
 
         /* Mobile controls - distanziamento migliorato */
         .mobile-controls {
             position: absolute;
-            bottom: 25px; /* Aumentato da 20px */
-            left: 25px;   /* Aumentato da 20px */
-            right: 25px;  /* Aumentato da 20px */
+            bottom: 25px; /* Base - verrà sovrascritta dai breakpoint */
+            left: 25px;
+            right: 25px;
             display: none;
             justify-content: space-between;
             align-items: center;
