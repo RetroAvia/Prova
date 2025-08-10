@@ -212,7 +212,7 @@
 
 
 
-        /* DASHBOARD MOBILE ORIZZONTALE - EXTRA LARGE PER TELEFONI */
+        /* DASHBOARD MOBILE ORIZZONTALE - SUPER INGRANDITA */
         .mobile-dashboard {
             position: absolute;
             top: 5px;
@@ -222,18 +222,18 @@
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            gap: 15px; /* Aumentato da 12px */
+            gap: 12px; /* Aumentato da 10px */
             z-index: 300;
             background: linear-gradient(90deg, 
                 rgba(10, 10, 15, 0.95) 0%, 
                 rgba(26, 26, 46, 0.9) 50%,
                 rgba(10, 10, 15, 0.95) 100%);
             backdrop-filter: blur(20px);
-            border-radius: 0 0 25px 25px; /* Aumentato da 20px */
-            padding: 20px 24px; /* Aumentato da 16px 20px */
+            border-radius: 0 0 20px 20px; /* Aumentato da 18px */
+            padding: 16px 20px; /* Aumentato da 12px 16px */
             border-bottom: 2px solid rgba(0, 212, 255, 0.6);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            height: 80px; /* Aumentato da 65px - SIGNIFICATIVO */
+            height: 65px; /* Aumentato da 55px */
         }
 
         /* Mostra dashboard mobile solo su dispositivi touch */
@@ -257,16 +257,16 @@
             }
         }
 
-        /* Dashboard mobile - stile delle metriche EXTRA LARGE PER TELEFONI */
+        /* Dashboard mobile - stile delle metriche SUPER INGRANDITE */
         .mobile-metric {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px; /* Aumentato da 14px */
-            padding: 16px 18px; /* Aumentato da 14px 16px */
+            border-radius: 14px; /* Aumentato da 12px */
+            padding: 14px 16px; /* Aumentato da 12px 14px */
             text-align: center;
             position: relative;
             overflow: hidden;
-            min-width: 85px; /* Aumentato da 75px */
+            min-width: 75px; /* Aumentato da 65px */
         }
 
         .mobile-metric::before {
@@ -281,18 +281,18 @@
         }
 
         .mobile-metric-label {
-            font-size: 0.9rem; /* Aumentato da 0.8rem */
+            font-size: 0.8rem; /* Aumentato da 0.7rem */
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 10px; /* Aumentato da 8px */
+            margin-bottom: 8px; /* Aumentato da 6px */
             font-weight: 600;
         }
 
         .mobile-metric-value {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 1.5rem; /* Aumentato da 1.3rem - MOLTO PIÙ GRANDE */
+            font-size: 1.3rem; /* Aumentato da 1.1rem */
             text-shadow: 0 0 8px currentColor;
             line-height: 1;
         }
@@ -318,29 +318,29 @@
             border-color: rgba(255, 107, 53, 0.3);
         }
 
-        /* Player info mobile EXTRA LARGE PER TELEFONI */
+        /* Player info mobile SUPER INGRANDITA */
         .mobile-player-info {
             background: linear-gradient(135deg, 
                 rgba(0, 212, 255, 0.25) 0%, 
                 rgba(139, 92, 246, 0.2) 100%);
             border: 1px solid rgba(0, 212, 255, 0.5);
-            border-radius: 18px; /* Aumentato da 16px */
-            padding: 18px 20px; /* Aumentato da 16px 18px */
+            border-radius: 16px; /* Aumentato da 14px */
+            padding: 16px 18px; /* Aumentato da 14px 16px */
             margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 14px; /* Aumentato da 12px */
+            gap: 12px; /* Aumentato da 10px */
         }
 
         .mobile-avatar {
-            width: 48px; /* Aumentato da 42px */
-            height: 48px; /* Aumentato da 42px */
+            width: 42px; /* Aumentato da 38px */
+            height: 42px; /* Aumentato da 38px */
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
-            border-radius: 14px; /* Aumentato da 12px */
+            border-radius: 12px; /* Aumentato da 10px */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px; /* Aumentato da 18px */
+            font-size: 18px; /* Aumentato da 16px */
             box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
         }
 
@@ -355,18 +355,18 @@
         .mobile-player-name {
             font-family: 'Orbitron', 'Orbitron-Fallback', 'Courier New', monospace;
             font-weight: 700;
-            font-size: 1rem; /* Aumentato da 0.9rem */
+            font-size: 0.9rem; /* Aumentato da 0.8rem */
             color: var(--neon-blue);
             text-shadow: 0 0 6px var(--neon-blue);
-            margin-bottom: 5px; /* Aumentato da 4px */
+            margin-bottom: 4px; /* Aumentato da 3px */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 90px; /* Aumentato da 80px */
+            max-width: 80px; /* Aumentato da 70px */
         }
 
         .mobile-player-level {
-            font-size: 0.8rem; /* Aumentato da 0.7rem */
+            font-size: 0.7rem; /* Aumentato da 0.6rem */
             color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -508,7 +508,7 @@
 
             /* Audio controls per extra small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 80px; /* Aggiornato per la nuova dashboard extra large */
+                top: 60px; /* Aggiornato per la nuova dashboard più grande */
                 right: 6px;
                 padding: 2px;
             }
@@ -614,7 +614,7 @@
 
             /* Audio controls per small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 85px; /* Aggiornato per la nuova dashboard extra large */
+                top: 65px; /* Aggiornato per la nuova dashboard più grande */
                 right: 8px;
                 padding: 3px;
             }
@@ -686,7 +686,7 @@
 
             /* Audio controls per large mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 90px; /* Aggiornato per la nuova dashboard extra large */
+                top: 70px; /* Aggiornato per la nuova dashboard più grande */
                 right: 8px;
                 padding: 4px;
             }
@@ -927,7 +927,7 @@
 
         /* Su mobile, posiziona i controlli audio in alto a destra - SEMPRE VISIBILI */
         body.touch-device .audio-controls {
-            top: 90px; /* Aumentato da 75px per la nuova dashboard più grande */
+            top: 75px; /* Aumentato da 65px per la nuova dashboard */
             right: 8px;
             left: auto;
             bottom: auto;
@@ -940,34 +940,18 @@
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
-        /* Posizionamento specifico per tablet - DIMENSIONI MODERATE */
+        /* Posizionamento specifico per tablet */
         @media screen and (min-width: 768px) and (max-width: 1024px) {
             body.touch-device .audio-controls {
                 top: 50px; /* Sotto la HUD compatta dei tablet */
                 right: 10px;
             }
             
-            /* Su tablet i controlli sono moderati - NON troppo grandi come i telefoni */
+            /* Su tablet i controlli possono essere leggermente più grandi ma meno dei telefoni */
             body.touch-device .control-btn {
-                width: 75px !important; /* Mantenuto moderato per tablet */
-                height: 75px !important;
-                font-size: 1.7rem !important;
-            }
-            
-            /* Dashboard tablet leggermente più piccola dei telefoni */
-            body.touch-device .mobile-dashboard {
-                height: 60px !important; /* Più piccola dei telefoni */
-                padding: 14px 18px !important;
-            }
-            
-            body.touch-device .mobile-metric-value {
-                font-size: 1.2rem !important; /* Più piccola dei telefoni */
-            }
-            
-            body.touch-device .mobile-avatar {
-                width: 40px !important;
-                height: 40px !important;
-                font-size: 17px !important;
+                width: 80px !important; /* Aumentato ma meno dei telefoni */
+                height: 80px !important;
+                font-size: 1.8rem !important;
             }
         }
 
@@ -1934,10 +1918,10 @@
             background: var(--glass);
             border: 3px solid var(--neon-blue);
             border-radius: 50%;
-            width: 110px; /* Aumentato da 90px - MOLTO PIÙ GRANDE PER TELEFONI */
-            height: 110px; /* Aumentato da 90px */
+            width: 90px; /* Aumentato da 80px */
+            height: 90px; /* Aumentato da 80px */
             color: var(--neon-blue);
-            font-size: 2.4rem; /* Aumentato da 2rem */
+            font-size: 2rem; /* Aumentato da 1.8rem */
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -1961,15 +1945,15 @@
         /* Responsive per mobile controls */
         .control-group {
             display: flex;
-            gap: 30px; /* Aumentato da 25px per più spazio */
+            gap: 25px; /* Aumentato da 20px per più spazio */
         }
 
         /* Mobile controls - distanziamento migliorato */
         .mobile-controls {
             position: absolute;
-            bottom: 30px; /* Aumentato da 25px */
-            left: 30px;   /* Aumentato da 25px */
-            right: 30px;  /* Aumentato da 25px */
+            bottom: 25px; /* Aumentato da 20px */
+            left: 25px;   /* Aumentato da 20px */
+            right: 25px;  /* Aumentato da 20px */
             display: none;
             justify-content: space-between;
             align-items: center;
