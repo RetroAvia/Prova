@@ -179,24 +179,75 @@
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
         }
 
-        /* PROGRESS INDICATOR */
+        /* PROGRESS INDICATOR - POSIZIONAMENTO INTELLIGENTE */
         .progress-indicator {
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             display: none;
             flex-direction: row;
             gap: 8px;
             z-index: 300;
             background: rgba(10, 10, 15, 0.9);
-            padding: 10px 15px;
-            border-radius: 20px;
+            padding: 8px 12px;
+            border-radius: 15px;
             border: 1px solid var(--neon-blue);
+            backdrop-filter: blur(10px);
         }
 
         body.game-active .progress-indicator {
             display: flex;
+        }
+
+        /* POSIZIONAMENTO DESKTOP - in alto a destra */
+        @media screen and (min-width: 1025px) {
+            .progress-indicator {
+                top: 90px;
+                right: 20px;
+            }
+        }
+
+        /* POSIZIONAMENTO TABLET - in alto al centro */
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .progress-indicator {
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* POSIZIONAMENTO MOBILE - ottimizzato per evitare sovrapposizioni */
+        @media screen and (max-width: 767px) {
+            .progress-indicator {
+                top: 15px;
+                right: 10px;
+                left: auto;
+                transform: none;
+                padding: 6px 8px;
+                flex-direction: column;
+                gap: 4px;
+                border-radius: 12px;
+            }
+            
+            /* Su mobile portrait con dashboard, spostiamo sotto e a sinistra dei controlli */
+            body.touch-device .progress-indicator {
+                top: 55px; /* Sotto la mobile dashboard */
+                right: 90px; /* A sinistra dei controlli audio (default) */
+            }
+            
+            /* Su mobile landscape, posizionamento diverso */
+            @media screen and (max-width: 767px) and (orientation: landscape) {
+                body.touch-device .progress-indicator {
+                    top: 10px;
+                    right: 90px;
+                    flex-direction: row;
+                    gap: 6px;
+                }
+            }
+            
+            /* Progress dots più piccoli su mobile */
+            .progress-dot {
+                width: 8px;
+                height: 8px;
+            }
         }
 
         .progress-dot {
@@ -252,9 +303,20 @@
             display: flex !important;
         }
 
-        /* NASCODI DASHBOARD DESKTOP SU MOBILE */
+        /* NASCODI DASHBOARD DESKTOP SU MOBILE E TABLET TOUCH */
         body.touch-device .futuristic-hud {
             display: none !important;
+        }
+
+        /* Eccezione per tablet in landscape dove la HUD può essere utile */
+        @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+            body.touch-device .futuristic-hud {
+                display: block !important;
+            }
+            
+            body.touch-device .mobile-dashboard {
+                display: none !important;
+            }
         }
 
         /* Dashboard mobile - stile delle metriche INGRANDITE */
@@ -519,6 +581,12 @@
                 font-size: 0.7rem !important;
             }
 
+            /* Progress indicator posizione specifica per extra small */
+            body.touch-device .progress-indicator {
+                top: 40px;
+                right: 80px; /* A sinistra dei controlli audio */
+            }
+
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
                 padding: 10px 15px !important;
@@ -625,6 +693,12 @@
                 font-size: 0.75rem !important;
             }
 
+            /* Progress indicator posizione per small mobile */
+            body.touch-device .progress-indicator {
+                top: 45px;
+                right: 85px; /* A sinistra dei controlli audio */
+            }
+
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
                 padding: 15px 20px !important;
@@ -697,6 +771,12 @@
                 font-size: 0.8rem !important;
             }
 
+            /* Progress indicator posizione per large mobile */
+            body.touch-device .progress-indicator {
+                top: 50px;
+                right: 90px; /* A sinistra dei controlli audio */
+            }
+
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
             .main-menu-container {
                 padding: 20px 25px !important;
@@ -735,21 +815,87 @@
                 width: 120vw;
             }
             
+            /* HUD più compatto sui tablet */
             .futuristic-hud {
-                height: 55px;
-                padding: 5px 8px;
+                height: 45px;
+                padding: 3px 6px;
+                top: 0;
+                position: fixed; /* Fixed per evitare problemi di scroll */
             }
 
             .hud-layout {
-                grid-template-columns: 200px 1fr auto auto 180px;
-                padding: 5px 8px;
-                gap: 8px;
+                grid-template-columns: 180px 1fr auto auto 160px;
+                padding: 3px 6px;
+                gap: 6px;
+                height: 100%;
+                align-items: center;
+            }
+
+            /* Player panel più compatto */
+            .player-panel {
+                padding: 6px 10px;
+            }
+
+            .player-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .player-name {
+                font-size: 0.75rem;
+            }
+
+            .player-level {
+                font-size: 0.6rem;
+            }
+
+            /* Metriche più compatte */
+            .metric-card {
+                padding: 4px 8px;
+                min-width: 60px;
+            }
+
+            .metric-label {
+                font-size: 0.55rem;
+            }
+
+            .metric-value {
+                font-size: 0.75rem;
+            }
+
+            /* Energy system più compatto */
+            .energy-system {
+                padding: 6px 10px;
+                gap: 6px;
+            }
+
+            .energy-icon {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+            }
+
+            .energy-label {
+                font-size: 0.55rem;
+            }
+
+            .energy-orb {
+                width: 10px;
+                height: 10px;
+            }
+
+            /* Controlli più piccoli */
+            .neo-btn {
+                padding: 6px 8px;
+                font-size: 0.6rem;
+                min-width: 35px;
             }
 
             .control-btn {
-                width: 65px;
-                height: 65px;
-                font-size: 1.5rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.3rem;
             }
         }
 
@@ -764,21 +910,26 @@
                 width: 110vw;
             }
 
+            /* HUD ottimizzato per landscape */
             .futuristic-hud {
-                height: 65px;
-                padding: 8px 12px;
+                height: 55px;
+                padding: 6px 10px;
+                top: 0;
+                position: fixed; /* Fixed per evitare problemi di scroll */
             }
 
             .hud-layout {
-                grid-template-columns: 220px 1fr auto auto auto 200px;
-                padding: 8px 12px;
-                gap: 10px;
+                grid-template-columns: 200px 1fr auto auto auto 180px;
+                padding: 6px 10px;
+                gap: 8px;
+                height: 100%;
+                align-items: center;
             }
 
             .control-btn {
-                width: 58px;
-                height: 58px;
-                font-size: 1.4rem;
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
             }
         }
 
@@ -859,6 +1010,42 @@
             border-radius: 8px;
             padding: 4px;
             border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        /* Posizionamento specifico per tablet */
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            body.touch-device .audio-controls {
+                top: 50px; /* Sotto la HUD compatta dei tablet */
+                right: 10px;
+            }
+        }
+
+        /* Mobile controls - distanziamento migliorato */
+        .mobile-controls {
+            position: absolute;
+            bottom: 15px; /* Ridotto da 20px per più spazio */
+            left: 15px;   /* Ridotto da 20px */
+            right: 15px;  /* Ridotto da 20px */
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: all;
+            z-index: 200;
+        }
+
+        /* Assicuriamoci che sui mobile extra small ci sia abbastanza spazio */
+        @media screen and (max-width: 375px) {
+            .mobile-controls {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+            }
+            
+            .control-btn {
+                width: 55px !important;
+                height: 55px !important;
+                font-size: 1.3rem !important;
+            }
         }
 
         /* Controlli audio mobile più visibili */
