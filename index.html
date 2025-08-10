@@ -62,6 +62,74 @@
             min-height: 100dvh;
         }
 
+        /* LOADING SCREEN */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-surface) 50%, var(--dark-accent) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .loading-text {
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            font-weight: 600;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0% { text-shadow: 0 0 20px var(--neon-blue); }
+            100% { text-shadow: 0 0 40px var(--neon-green), 0 0 60px var(--neon-blue); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
         /* NASCONDI COMPLETAMENTE TUTTO IL CODICE VISIBILE */
         .screen:not(.active) {
             display: none !important;
@@ -87,25 +155,96 @@
             visibility: hidden !important;
         }
 
-        /* DASHBOARD MOBILE UNIFICATA - SEMPRE IN ALTO A DESTRA - INGRANDITA */
+        /* SUCCESS NOTIFICATION */
+        .success-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 5000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 50px var(--neon-green);
+            animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes successPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+
+        /* PROGRESS INDICATOR */
+        .progress-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-direction: row;
+            gap: 8px;
+            z-index: 300;
+            background: rgba(10, 10, 15, 0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--neon-blue);
+        }
+
+        body.game-active .progress-indicator {
+            display: flex;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.completed {
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        .progress-dot.current {
+            background: var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-blue);
+            animation: currentLevelPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes currentLevelPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* DASHBOARD MOBILE ORIZZONTALE IN ALTO - LAYOUT INTELLIGENTE */
         .mobile-dashboard {
             position: absolute;
             top: 5px;
+            left: 5px;
             right: 5px;
             display: none;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
             gap: 8px;
             z-index: 300;
-            background: linear-gradient(135deg, 
+            background: linear-gradient(90deg, 
                 rgba(10, 10, 15, 0.95) 0%, 
-                rgba(26, 26, 46, 0.9) 100%);
+                rgba(26, 26, 46, 0.9) 50%,
+                rgba(10, 10, 15, 0.95) 100%);
             backdrop-filter: blur(20px);
-            border-radius: 0 0 0 18px;
-            padding: 12px 14px;
-            border-left: 2px solid rgba(0, 212, 255, 0.6);
+            border-radius: 0 0 15px 15px;
+            padding: 8px 12px;
             border-bottom: 2px solid rgba(0, 212, 255, 0.6);
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
-            min-width: 110px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            height: 45px;
         }
 
         /* Mostra dashboard mobile solo su dispositivi touch */
@@ -232,6 +371,68 @@
             letter-spacing: 0.5px;
         }
 
+        /* TUTORIAL OVERLAY */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 4000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .tutorial-overlay.active {
+            display: flex;
+        }
+
+        .tutorial-content {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-deep);
+        }
+
+        .tutorial-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--neon-green);
+            margin-bottom: 20px;
+        }
+
+        .tutorial-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tutorial-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .tutorial-key {
+            display: inline-block;
+            background: var(--neon-blue);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
         /* SISTEMA RESPONSIVE INTELLIGENTE - COMPLETAMENTE OTTIMIZZATO */
         
         /* Mobile Extra Small - Smartphone molto piccoli (fino 375px) */
@@ -265,56 +466,57 @@
                 height: 100dvh;
             }
 
+            /* Dashboard orizzontale compatta */
             .mobile-dashboard {
-                top: 3px;
-                right: 3px;
+                height: 35px;
+                padding: 4px 8px;
                 gap: 6px;
-                padding: 8px 10px;
-                min-width: 90px;
             }
 
             .mobile-metric {
-                padding: 6px 8px;
+                padding: 2px 6px;
+                min-width: 40px;
             }
 
             .mobile-metric-label {
-                font-size: 0.5rem;
+                font-size: 0.4rem;
             }
 
             .mobile-metric-value {
-                font-size: 0.7rem;
+                font-size: 0.6rem;
             }
 
             .mobile-player-info {
-                padding: 8px 10px;
-                gap: 6px;
+                padding: 2px 6px;
+                gap: 4px;
             }
 
             .mobile-avatar {
-                width: 26px;
-                height: 26px;
-                font-size: 11px;
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
             }
 
             .mobile-player-name {
-                font-size: 0.6rem;
-                max-width: 50px;
+                font-size: 0.5rem;
             }
 
             .mobile-player-level {
-                font-size: 0.45rem;
+                font-size: 0.35rem;
             }
 
-            /* Audio controls per extra small mobile */
+            /* Audio controls per extra small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 140px;
-                right: 3px;
+                top: 40px;
+                right: 6px;
+                padding: 2px;
             }
 
-            .audio-btn, .quality-btn {
-                min-width: 30px;
-                height: 30px;
-                font-size: 0.8rem;
+            body.touch-device .audio-btn, 
+            body.touch-device .quality-btn {
+                min-width: 28px !important;
+                height: 28px !important;
+                font-size: 0.7rem !important;
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -402,24 +604,25 @@
                 height: 100dvh;
             }
 
+            /* Dashboard orizzontale normale */
             .mobile-dashboard {
-                top: 5px;
-                right: 5px;
-                gap: 7px;
-                padding: 10px 12px;
-                min-width: 95px;
+                height: 40px;
+                padding: 6px 10px;
+                gap: 8px;
             }
 
-            /* Audio controls per small mobile */
+            /* Audio controls per small mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 150px;
-                right: 5px;
+                top: 45px;
+                right: 8px;
+                padding: 3px;
             }
 
-            .audio-btn, .quality-btn {
-                min-width: 32px;
-                height: 32px;
-                font-size: 0.85rem;
+            body.touch-device .audio-btn, 
+            body.touch-device .quality-btn {
+                min-width: 30px !important;
+                height: 30px !important;
+                font-size: 0.75rem !important;
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -480,16 +683,18 @@
                 height: 100dvh;
             }
 
-            /* Audio controls per large mobile */
+            /* Audio controls per large mobile - SEMPRE VISIBILI */
             body.touch-device .audio-controls {
-                top: 170px;
-                right: 5px;
+                top: 50px;
+                right: 8px;
+                padding: 4px;
             }
 
-            .audio-btn, .quality-btn {
-                min-width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
+            body.touch-device .audio-btn, 
+            body.touch-device .quality-btn {
+                min-width: 32px !important;
+                height: 32px !important;
+                font-size: 0.8rem !important;
             }
 
             /* MENU PRINCIPALE - FIX LOGO TAGLIATO */
@@ -629,11 +834,11 @@
             display: flex !important;
         }
 
-        /* SISTEMA DI POSIZIONAMENTO AUDIO INTELLIGENTE */
+        /* SISTEMA DI POSIZIONAMENTO AUDIO INTELLIGENTE - SEMPRE VISIBILI SU MOBILE */
         .audio-controls {
             position: absolute;
             pointer-events: all;
-            z-index: 250;
+            z-index: 350;
             display: flex;
             bottom: 15px;
             left: 15px;
@@ -641,14 +846,30 @@
             transition: all 0.3s ease;
         }
 
-        /* Su mobile, posiziona i controlli audio in alto a destra SOTTO la dashboard */
+        /* Su mobile, posiziona i controlli audio in alto a destra - SEMPRE VISIBILI */
         body.touch-device .audio-controls {
-            top: 160px; /* Sotto la dashboard mobile */
-            right: 5px;
+            top: 55px; /* Sotto la dashboard orizzontale */
+            right: 8px;
             left: auto;
             bottom: auto;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: row;
+            gap: 6px;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        /* Controlli audio mobile più visibili */
+        body.touch-device .audio-btn, 
+        body.touch-device .quality-btn {
+            min-width: 32px !important;
+            height: 32px !important;
+            font-size: 0.8rem !important;
+            border-width: 1px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px) !important;
         }
 
         /* Animated Background */
@@ -1957,6 +2178,15 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-logo">RETROAVIA</div>
+        <div class="loading-progress">
+            <div id="loadingBar" class="loading-bar"></div>
+        </div>
+        <div id="loadingText" class="loading-text">Inizializzazione dimensioni...</div>
+    </div>
+
     <!-- Debug info -->
     <div class="debug-info" id="debugInfo">
         Touch: <span id="debugTouch">-</span><br>
@@ -1965,10 +2195,48 @@
         Audio Pos: <span id="debugAudioPos">-</span>
     </div>
 
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" id="progressIndicator">
+        <div class="progress-dot" id="progress-1"></div>
+        <div class="progress-dot" id="progress-2"></div>
+        <div class="progress-dot" id="progress-3"></div>
+        <div class="progress-dot" id="progress-4"></div>
+        <div class="progress-dot" id="progress-5"></div>
+    </div>
+
     <!-- Animated Background -->
     <div class="animated-background">
         <div class="background-layer stars" id="starsLayer"></div>
         <div class="energy-wave"></div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay">
+        <div class="tutorial-content">
+            <div class="tutorial-title">🎮 GUIDA AI COMANDI</div>
+            <div class="tutorial-controls">
+                <div class="tutorial-control">
+                    <span class="tutorial-key">←</span><span class="tutorial-key">→</span>
+                    <div>Movimento laterale</div>
+                </div>
+                <div class="tutorial-control">
+                    <span class="tutorial-key">SPAZIO</span>
+                    <div>Salto quantico</div>
+                </div>
+                <div class="tutorial-control">
+                    <span class="tutorial-key">P</span>
+                    <div>Pausa tattica</div>
+                </div>
+                <div class="tutorial-control">
+                    <span class="tutorial-key">R</span>
+                    <div>Reset dimensionale</div>
+                </div>
+            </div>
+            <p style="margin: 20px 0; color: rgba(255, 255, 255, 0.8);">
+                Su dispositivi touch: usa i controlli virtuali in basso
+            </p>
+            <button class="btn" onclick="closeTutorial()">✅ HO CAPITO</button>
+        </div>
     </div>
 
     <!-- Story Overlay -->
@@ -2053,6 +2321,23 @@
                 <div>
                     <button class="launch-button" onclick="startGame()">
                         🌌 INIZIA ESPLORAZIONE
+                    </button>
+                </div>
+                
+                <!-- Tutorial Button -->
+                <div style="margin-top: 15px;">
+                    <button onclick="showTutorial()" style="
+                        background: rgba(255, 255, 255, 0.1);
+                        border: 1px solid var(--neon-cyan);
+                        color: var(--neon-cyan);
+                        padding: 8px 20px;
+                        border-radius: 8px;
+                        font-family: 'Orbitron', monospace;
+                        font-size: 0.8rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='var(--neon-cyan)'; this.style.color='white'" onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.color='var(--neon-cyan)'">
+                        📖 Guida Comandi
                     </button>
                 </div>
                 
@@ -2141,9 +2426,9 @@
                     </div>
                 </div>
 
-                <!-- DASHBOARD MOBILE UNIFICATA - SEMPRE IN ALTO A DESTRA -->
+                <!-- DASHBOARD MOBILE ORIZZONTALE - IN ALTO -->
                 <div class="mobile-dashboard" id="mobileDashboard">
-                    <!-- Player info mobile -->
+                    <!-- Player info compatta a sinistra -->
                     <div class="mobile-player-info">
                         <div class="mobile-avatar"></div>
                         <div class="mobile-player-details">
@@ -2152,7 +2437,7 @@
                         </div>
                     </div>
                     
-                    <!-- Metriche mobile -->
+                    <!-- Metriche centrali in fila -->
                     <div class="mobile-metric score">
                         <div class="mobile-metric-label">Score</div>
                         <div class="mobile-metric-value" id="mobile-score">0</div>
@@ -2206,7 +2491,117 @@
     </div>
 
     <script>
-        // Initialize game manager globally
+        // ====== SISTEMA DI LOADING E INIZIALIZZAZIONE ======
+        class LoadingManager {
+            constructor() {
+                this.loadingSteps = [
+                    { text: "Inizializzazione dimensioni...", delay: 300 },
+                    { text: "Caricamento entità corrotte...", delay: 400 },
+                    { text: "Sincronizzazione cristalli energetici...", delay: 500 },
+                    { text: "Attivazione motore quantico...", delay: 600 },
+                    { text: "Calibrazione controlli...", delay: 400 },
+                    { text: "Finalizzazione interfaccia...", delay: 300 },
+                    { text: "Pronto per l'esplorazione!", delay: 200 }
+                ];
+                this.currentStep = 0;
+            }
+
+            async start() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                const loadingBar = document.getElementById('loadingBar');
+                const loadingText = document.getElementById('loadingText');
+                
+                for (let i = 0; i < this.loadingSteps.length; i++) {
+                    const step = this.loadingSteps[i];
+                    loadingText.textContent = step.text;
+                    
+                    const progress = ((i + 1) / this.loadingSteps.length) * 100;
+                    loadingBar.style.width = progress + '%';
+                    
+                    await new Promise(resolve => setTimeout(resolve, step.delay));
+                }
+                
+                // Nascondi loading screen
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 800);
+                }, 300);
+            }
+        }
+
+        // ====== SISTEMA DI SALVATAGGIO PROGRESSO ======
+        class ProgressManager {
+            constructor() {
+                this.storageKey = 'retroavia_progress';
+            }
+
+            saveProgress(data) {
+                try {
+                    const progressData = {
+                        playerName: data.playerName || '',
+                        highestLevel: data.highestLevel || 1,
+                        bestScore: data.bestScore || 0,
+                        totalPlaytime: data.totalPlaytime || 0,
+                        completedLevels: data.completedLevels || [],
+                        unlockedRewards: data.unlockedRewards || [],
+                        lastPlayed: Date.now(),
+                        version: '1.0'
+                    };
+                    localStorage.setItem(this.storageKey, JSON.stringify(progressData));
+                    return true;
+                } catch (error) {
+                    console.warn('⚠️ Impossibile salvare progresso:', error);
+                    return false;
+                }
+            }
+
+            loadProgress() {
+                try {
+                    const saved = localStorage.getItem(this.storageKey);
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        // Verifica versione compatibilità
+                        if (data.version === '1.0') {
+                            return data;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Errore caricamento progresso:', error);
+                }
+                return this.getDefaultProgress();
+            }
+
+            getDefaultProgress() {
+                return {
+                    playerName: '',
+                    highestLevel: 1,
+                    bestScore: 0,
+                    totalPlaytime: 0,
+                    completedLevels: [],
+                    unlockedRewards: [],
+                    lastPlayed: 0,
+                    version: '1.0'
+                };
+            }
+
+            updateLevelProgress(level, score, completed = false) {
+                const progress = this.loadProgress();
+                if (completed && !progress.completedLevels.includes(level)) {
+                    progress.completedLevels.push(level);
+                }
+                if (level > progress.highestLevel) {
+                    progress.highestLevel = level;
+                }
+                if (score > progress.bestScore) {
+                    progress.bestScore = score;
+                }
+                this.saveProgress(progress);
+            }
+        }
+
+        // ====== FUNZIONI GLOBALI DEFINITE PER PRIME ======
         let gameManager = null;
         let deviceInfo = {
             isTouch: false,
@@ -2216,128 +2611,236 @@
             screenHeight: 0
         };
 
-        // SISTEMA DI RILEVAMENTO DISPOSITIVO SUPER-INTELLIGENTE
-        function detectDevice() {
-            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            const userAgent = navigator.userAgent.toLowerCase();
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            const pixelRatio = window.devicePixelRatio || 1;
-            
-            // Rilevamento più preciso del tipo di dispositivo
-            const isExtraSmallMobile = width <= 375;
-            const isSmallMobile = width > 375 && width <= 480;
-            const isLargeMobile = width > 480 && width <= 767;
-            const isTabletPortrait = width >= 768 && width <= 1024 && height > width;
-            const isTabletLandscape = width >= 768 && width <= 1024 && width > height;
-            const isDesktop = width > 1024;
-            
-            deviceInfo = {
-                isTouch: hasTouch,
-                isExtraSmallMobile: isExtraSmallMobile,
-                isSmallMobile: isSmallMobile,
-                isLargeMobile: isLargeMobile,
-                isTabletPortrait: isTabletPortrait,
-                isTabletLandscape: isTabletLandscape,
-                isDesktop: isDesktop,
-                isMobile: isExtraSmallMobile || isSmallMobile || isLargeMobile,
-                isTablet: isTabletPortrait || isTabletLandscape,
-                screenWidth: width,
-                screenHeight: height,
-                pixelRatio: pixelRatio,
-                orientation: width > height ? 'landscape' : 'portrait'
-            };
-
-            // Aggiungi classe CSS per dispositivi touch
-            if (deviceInfo.isTouch) {
-                document.body.classList.add('touch-device');
-                console.log(`🔧 Dispositivo TOUCH rilevato: ${getDeviceDescription()}`);
-            } else {
-                document.body.classList.remove('touch-device');
-                console.log(`🖱️ Dispositivo DESKTOP rilevato: ${width}x${height}`);
+        // FUNZIONI GLOBALI IMMEDIATE
+        function startGame() {
+            console.log('🎮 startGame() chiamata');
+            try {
+                if (gameManager && gameManager.startGame) {
+                    gameManager.startGame();
+                } else {
+                    console.warn('⚠️ Game Manager non pronto, provo inizializzazione...');
+                    setTimeout(() => {
+                        if (gameManager && gameManager.startGame) {
+                            gameManager.startGame();
+                        } else {
+                            showNotification('Errore: Game Manager non inizializzato. Ricarica la pagina.');
+                        }
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('❌ Errore in startGame:', error);
+                showNotification('Si è verificato un errore. Ricarica la pagina.');
             }
-
-            // Aggiungi classi specifiche per tipo di dispositivo
-            document.body.className = document.body.className.replace(/device-\w+/g, '');
-            if (deviceInfo.isExtraSmallMobile) document.body.classList.add('device-extra-small-mobile');
-            else if (deviceInfo.isSmallMobile) document.body.classList.add('device-small-mobile');
-            else if (deviceInfo.isLargeMobile) document.body.classList.add('device-large-mobile');
-            else if (deviceInfo.isTabletPortrait) document.body.classList.add('device-tablet-portrait');
-            else if (deviceInfo.isTabletLandscape) document.body.classList.add('device-tablet-landscape');
-            else if (deviceInfo.isDesktop) document.body.classList.add('device-desktop');
-
-            // Debug info
-            if (document.body.classList.contains('debug')) {
-                updateDebugInfo();
-            }
-
-            // Forza aggiornamento controlli mobile
-            updateMobileControls();
-            
-            console.log('📱 Device Info:', deviceInfo);
         }
 
-        // Descrizione leggibile del dispositivo
-        function getDeviceDescription() {
-            if (deviceInfo.isExtraSmallMobile) return `Smartphone extra piccolo (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
-            if (deviceInfo.isSmallMobile) return `Smartphone piccolo (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
-            if (deviceInfo.isLargeMobile) return `Smartphone grande (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
-            if (deviceInfo.isTabletPortrait) return `Tablet portrait (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
-            if (deviceInfo.isTabletLandscape) return `Tablet landscape (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
-            return `Dispositivo touch (${deviceInfo.screenWidth}x${deviceInfo.screenHeight})`;
+        function handleStoryAction() {
+            if (gameManager && gameManager.handleStoryAction) {
+                gameManager.handleStoryAction();
+            }
         }
 
-        // Aggiorna informazioni debug
-        function updateDebugInfo() {
-            const debugTouch = document.getElementById('debugTouch');
-            const debugScreen = document.getElementById('debugScreen');
-            const debugControls = document.getElementById('debugControls');
-            const debugAudioPos = document.getElementById('debugAudioPos');
-            
-            if (debugTouch) debugTouch.textContent = deviceInfo.isTouch ? 'YES' : 'NO';
-            if (debugScreen) debugScreen.textContent = `${deviceInfo.screenWidth}x${deviceInfo.screenHeight}`;
-            if (debugControls) {
-                const controlsVisible = document.body.classList.contains('touch-device');
-                debugControls.textContent = controlsVisible ? 'VISIBLE' : 'HIDDEN';
+        function pauseGame() {
+            if (gameManager && gameManager.pauseGame) {
+                gameManager.pauseGame();
             }
-            if (debugAudioPos) {
-                const audioControls = document.getElementById('audioControls');
-                if (audioControls) {
-                    const style = window.getComputedStyle(audioControls);
-                    debugAudioPos.textContent = `${style.bottom} / ${style.top} / ${style.left} / ${style.right}`;
+        }
+
+        function resumeGame() {
+            if (gameManager && gameManager.resumeGame) {
+                gameManager.resumeGame();
+            }
+        }
+
+        function restartGame() {
+            if (gameManager && gameManager.restartLevel) {
+                gameManager.restartLevel();
+            }
+        }
+
+        function goHomeFromPause() {
+            if (gameManager && gameManager.goHomeFromPause) {
+                gameManager.goHomeFromPause();
+            }
+        }
+
+        function goHome() {
+            if (gameManager && gameManager.goHome) {
+                gameManager.goHome();
+            }
+        }
+
+        function toggleAudio() {
+            if (gameManager && gameManager.toggleAudio) {
+                gameManager.toggleAudio();
+            }
+        }
+
+        function toggleQuality() {
+            if (gameManager && gameManager.toggleQuality) {
+                gameManager.toggleQuality();
+            }
+        }
+
+        function nextAction() {
+            if (gameManager && gameManager.nextAction) {
+                gameManager.nextAction();
+            }
+        }
+
+        function showTutorial() {
+            const tutorialOverlay = document.getElementById('tutorialOverlay');
+            if (tutorialOverlay) {
+                tutorialOverlay.classList.add('active');
+                if (gameManager && gameManager.game && gameManager.game.audioManager) {
+                    gameManager.game.audioManager.playSound('button');
                 }
             }
         }
 
-        // Forza aggiornamento controlli mobile
+        function closeTutorial() {
+            const tutorialOverlay = document.getElementById('tutorialOverlay');
+            if (tutorialOverlay) {
+                tutorialOverlay.classList.remove('active');
+                if (gameManager && gameManager.game && gameManager.game.audioManager) {
+                    gameManager.game.audioManager.playSound('button');
+                }
+            }
+        }
+
+        function copyRewardCode(code) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showSuccessNotification('✅ Codice copiato negli appunti!');
+                }).catch(() => {
+                    fallbackCopyText(code);
+                });
+            } else {
+                fallbackCopyText(code);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showSuccessNotification('✅ Codice copiato negli appunti!');
+            } catch (err) {
+                showNotification('❌ Errore nella copia. Seleziona e copia manualmente.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 600);
+            }, 2500);
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(45deg, var(--neon-orange), var(--neon-red));
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                font-family: 'Orbitron', monospace;
+                font-weight: 700;
+                z-index: 5000;
+                animation: slideDown 0.3s ease;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                max-width: 90%;
+                text-align: center;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // ====== SISTEMA DI RILEVAMENTO DISPOSITIVO ======
+        function detectDevice() {
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            deviceInfo = {
+                isTouch: hasTouch,
+                isExtraSmallMobile: width <= 375,
+                isSmallMobile: width > 375 && width <= 480,
+                isLargeMobile: width > 480 && width <= 767,
+                isTabletPortrait: width >= 768 && width <= 1024 && height > width,
+                isTabletLandscape: width >= 768 && width <= 1024 && width > height,
+                isDesktop: width > 1024,
+                isMobile: width <= 767,
+                isTablet: width >= 768 && width <= 1024,
+                screenWidth: width,
+                screenHeight: height,
+                orientation: width > height ? 'landscape' : 'portrait'
+            };
+
+            if (deviceInfo.isTouch) {
+                document.body.classList.add('touch-device');
+            } else {
+                document.body.classList.remove('touch-device');
+            }
+
+            updateMobileControls();
+        }
+
         function updateMobileControls() {
             const mobileControls = document.getElementById('mobileControls');
             const mobileDashboard = document.getElementById('mobileDashboard');
             
             if (deviceInfo.isTouch) {
-                // Forza visualizzazione su dispositivi touch
                 if (mobileControls) {
                     mobileControls.style.display = 'flex';
-                    console.log('✅ Controlli mobile FORZATI a visibili');
                 }
                 if (mobileDashboard) {
                     mobileDashboard.style.display = 'flex';
-                    console.log('✅ Dashboard mobile FORZATA a visibile');
                 }
             } else {
-                // Nascondi su desktop
                 if (mobileControls) {
                     mobileControls.style.display = 'none';
-                    console.log('❌ Controlli mobile nascosti (desktop)');
                 }
                 if (mobileDashboard) {
                     mobileDashboard.style.display = 'none';
-                    console.log('❌ Dashboard mobile nascosta (desktop)');
                 }
             }
         }
 
-        // AUDIO MANAGER MIGLIORATO CON SUPPORTO MOBILE POTENZIATO
+        // ====== CLASSI DEL GIOCO ======
+        
+        // AUDIO MANAGER MIGLIORATO
         class AudioManager {
             constructor() {
                 this.audioContext = null;
@@ -2347,299 +2850,155 @@
                 this.isEnabled = true;
                 this.isInitialized = false;
                 this.sounds = {};
-                this.musicVolume = 0.15;
-                this.sfxVolume = 0.4;
+                this.musicVolume = 0.2;
+                this.sfxVolume = 0.5;
                 this.musicOscillators = [];
                 this.currentMusicLevel = 0;
                 this.userInteracted = false;
-                this.pendingSounds = [];
-                this.initAttempts = 0;
-                this.maxInitAttempts = 5;
-                
-                // Ascolta per la prima interazione utente CON APPROCCIO AGGRESSIVO
-                this.setupFirstInteraction();
-            }
-
-            setupFirstInteraction() {
-                const startAudioOnInteraction = async (e) => {
-                    console.log('🎵 Tentativo inizializzazione audio su interazione:', e.type);
-                    
-                    if (!this.userInteracted && this.initAttempts < this.maxInitAttempts) {
-                        this.userInteracted = true;
-                        this.initAttempts++;
-                        
-                        try {
-                            await this.init();
-                            console.log('🎵 Audio inizializzato con successo dopo interazione');
-                            this.processPendingSounds();
-                            
-                            // Rimuovi listeners dopo successo
-                            this.removeInteractionListeners();
-                        } catch (error) {
-                            console.warn('🎵 Tentativo audio fallito, riprovo...', error);
-                            this.userInteracted = false;
-                            
-                            // Riprova dopo un breve delay
-                            setTimeout(() => {
-                                if (this.initAttempts < this.maxInitAttempts) {
-                                    this.userInteracted = false;
-                                }
-                            }, 1000);
-                        }
-                    }
-                };
-
-                // Aggiungi listeners per TUTTI i tipi di interazione possibili
-                this.interactionEvents = [
-                    'touchstart', 'touchend', 'click', 'mousedown', 'keydown', 
-                    'pointerdown', 'pointerup', 'gesturestart'
-                ];
-                
-                this.interactionEvents.forEach(eventType => {
-                    document.addEventListener(eventType, startAudioOnInteraction, { 
-                        passive: true, 
-                        once: false // Non rimuovere automaticamente
-                    });
-                });
-
-                // Listener speciale per i bottoni del gioco
-                document.addEventListener('click', (e) => {
-                    if (e.target.matches('.audio-btn, .quality-btn, .control-btn, .btn, .launch-button')) {
-                        startAudioOnInteraction(e);
-                    }
-                }, { passive: true });
-            }
-
-            removeInteractionListeners() {
-                this.interactionEvents.forEach(eventType => {
-                    // Rimuovi i listeners dopo inizializzazione riuscita
-                    document.removeEventListener(eventType, this.startAudioOnInteraction);
-                });
+                this.initializationPromise = null;
             }
 
             async init() {
-                if (this.isInitialized) return;
+                if (this.initializationPromise) {
+                    return this.initializationPromise;
+                }
+
+                this.initializationPromise = this.performInit();
+                return this.initializationPromise;
+            }
+
+            async performInit() {
+                if (this.isInitialized) return true;
                 
                 try {
-                    console.log('🎵 Inizializzazione AudioContext...');
-                    
-                    // Crea AudioContext con approccio compatibile
-                    const AudioContextClass = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                     if (!AudioContextClass) {
-                        throw new Error('AudioContext non supportato');
+                        console.warn('🎵 Web Audio API non supportata');
+                        return false;
                     }
                     
                     this.audioContext = new AudioContextClass();
                     
-                    // FORZATURA AGGRESSIVE per mobile
                     if (this.audioContext.state === 'suspended') {
-                        console.log('🎵 AudioContext sospeso, tentativo resume...');
                         await this.audioContext.resume();
-                        
-                        // Doppio controllo
-                        if (this.audioContext.state === 'suspended') {
-                            // Approccio più aggressivo per iOS
-                            await new Promise(resolve => {
-                                const resumeAttempt = async () => {
-                                    if (this.audioContext.state === 'suspended') {
-                                        await this.audioContext.resume();
-                                    }
-                                    if (this.audioContext.state === 'running') {
-                                        resolve();
-                                    } else {
-                                        setTimeout(resumeAttempt, 100);
-                                    }
-                                };
-                                resumeAttempt();
-                            });
-                        }
                     }
                     
-                    console.log('🎵 AudioContext state:', this.audioContext.state);
-                    
-                    // Crea i nodi audio
                     this.masterGain = this.audioContext.createGain();
                     this.musicGain = this.audioContext.createGain();
                     this.sfxGain = this.audioContext.createGain();
                     
-                    // Connetti i nodi
                     this.masterGain.connect(this.audioContext.destination);
                     this.musicGain.connect(this.masterGain);
                     this.sfxGain.connect(this.masterGain);
                     
-                    // Imposta i volumi con valori più alti per mobile
-                    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    const volumeMultiplier = isMobile ? 1.5 : 1;
-                    
                     this.masterGain.gain.value = this.isEnabled ? 1 : 0;
-                    this.musicGain.gain.value = this.musicVolume * volumeMultiplier;
-                    this.sfxGain.gain.value = this.sfxVolume * volumeMultiplier;
+                    this.musicGain.gain.value = this.musicVolume;
+                    this.sfxGain.gain.value = this.sfxVolume;
                     
-                    // Test con un suono semplice
-                    await this.testAudioContext();
+                    this.createSounds();
                     
-                    this.createSoundEffects();
                     this.isInitialized = true;
+                    this.userInteracted = true;
                     
-                    // Avvia la musica di background se appropriato
-                    setTimeout(() => {
-                        if (this.currentMusicLevel === 0) {
-                            this.startBackgroundMusic();
-                        }
-                    }, 500);
-                    
-                    console.log('🎵 AudioManager inizializzato con successo!');
+                    console.log('🎵 Audio Manager inizializzato con successo');
+                    return true;
                 } catch (error) {
-                    console.error('❌ Audio inizializzazione fallita:', error);
+                    console.error('❌ Errore inizializzazione audio:', error);
                     this.isEnabled = false;
                     this.isInitialized = false;
-                    throw error;
+                    return false;
                 }
             }
 
-            async testAudioContext() {
-                // Test rapido per verificare che l'audio funzioni
+            createSounds() {
+                this.sounds = {
+                    button: () => this.playTone(800, 0.1, 'square'),
+                    jump: () => this.playTone(440, 0.15, 'sine'),
+                    collect: () => this.playMelody([523, 659, 784], 0.1),
+                    hit: () => this.playTone(150, 0.3, 'sawtooth'),
+                    complete: () => this.playMelody([523, 659, 784, 1047], 0.15),
+                    levelStart: () => this.playMelody([392, 523, 659], 0.2),
+                    powerup: () => this.playMelody([440, 554, 659, 880], 0.12),
+                    death: () => this.playTone(220, 0.5, 'sawtooth')
+                };
+            }
+
+            playTone(frequency, duration, type = 'sine') {
+                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
+                
                 try {
                     const osc = this.audioContext.createOscillator();
                     const gain = this.audioContext.createGain();
                     
                     osc.connect(gain);
-                    gain.connect(this.audioContext.destination);
+                    gain.connect(this.sfxGain);
                     
-                    gain.gain.value = 0.01; // Volume molto basso per il test
-                    osc.frequency.value = 440;
-                    osc.type = 'sine';
+                    osc.frequency.value = frequency;
+                    osc.type = type;
+                    
+                    gain.gain.setValueAtTime(0, this.audioContext.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
                     
                     osc.start();
-                    osc.stop(this.audioContext.currentTime + 0.1);
-                    
-                    console.log('🎵 Test audio completato con successo');
+                    osc.stop(this.audioContext.currentTime + duration);
                 } catch (error) {
-                    console.warn('⚠️ Test audio fallito:', error);
-                    throw error;
+                    console.warn('🎵 Errore riproduzione tono:', error);
                 }
             }
 
-            processPendingSounds() {
-                console.log('🎵 Elaborando', this.pendingSounds.length, 'suoni in coda');
-                this.pendingSounds.forEach(soundName => {
-                    this.playSound(soundName);
+            playMelody(frequencies, noteDuration) {
+                frequencies.forEach((freq, i) => {
+                    setTimeout(() => {
+                        this.playTone(freq, noteDuration, 'triangle');
+                    }, i * noteDuration * 400);
                 });
-                this.pendingSounds = [];
             }
 
-            // Musica dinamica per livello
-            startLevelMusic(level) {
-                if (!this.isInitialized) {
-                    console.log('🎵 Audio non ancora inizializzato, aspettando...');
+            async playSound(soundName) {
+                if (!this.userInteracted || !this.isInitialized) {
+                    const success = await this.init();
+                    if (!success) return;
+                }
+                
+                if (!this.audioContext || this.audioContext.state !== 'running') {
                     return;
                 }
                 
-                if (this.currentMusicLevel === level) return;
+                if (this.sounds[soundName] && this.isEnabled) {
+                    try {
+                        this.sounds[soundName]();
+                    } catch (error) {
+                        console.warn('🎵 Errore riproduzione suono', soundName, ':', error);
+                    }
+                }
+            }
+
+            async toggle() {
+                if (!this.isInitialized) {
+                    await this.init();
+                }
                 
-                this.currentMusicLevel = level;
-                this.stopMusic();
+                this.isEnabled = !this.isEnabled;
                 
-                const levelMusics = {
-                    1: this.createLevelMusic1.bind(this),
-                    2: this.createLevelMusic2.bind(this),
-                    3: this.createLevelMusic3.bind(this),
-                    4: this.createLevelMusic4.bind(this),
-                    5: this.createLevelMusic5.bind(this)
-                };
+                if (this.masterGain) {
+                    this.masterGain.gain.value = this.isEnabled ? 1 : 0;
+                }
                 
-                const musicFunction = levelMusics[level] || this.createLevelMusic1.bind(this);
-                setTimeout(() => musicFunction(), 500);
+                this.updateAudioButton();
             }
 
-            createLevelMusic1() {
-                this.playMusicLoop([
-                    [110, 146.83, 174.61],
-                    [87.31, 130.81, 174.61],
-                    [130.81, 164.81, 196],
-                    [98, 146.83, 185]
-                ], 12, 'sine');
+            updateAudioButton() {
+                const btn = document.getElementById('audioToggle');
+                if (btn) {
+                    btn.textContent = this.isEnabled ? '🔊' : '🔇';
+                    btn.className = this.isEnabled ? 'audio-btn' : 'audio-btn muted';
+                }
             }
 
-            createLevelMusic2() {
-                this.playMusicLoop([
-                    [164.81, 196, 246.94],
-                    [146.83, 174.61, 220],
-                    [130.81, 164.81, 196],
-                    [123.47, 155.56, 185]
-                ], 10, 'triangle');
-            }
-
-            createLevelMusic3() {
-                this.playMusicLoop([
-                    [116.54, 146.83, 174.61],
-                    [103.83, 130.81, 155.56],
-                    [110, 138.59, 164.81],
-                    [98, 123.47, 146.83]
-                ], 8, 'square');
-            }
-
-            createLevelMusic4() {
-                this.playMusicLoop([
-                    [146.83, 185, 220],
-                    [164.81, 207.65, 246.94],
-                    [174.61, 220, 261.63],
-                    [185, 233.08, 277.18]
-                ], 9, 'sine');
-            }
-
-            createLevelMusic5() {
-                this.playMusicLoop([
-                    [82.41, 103.83, 130.81],
-                    [87.31, 110, 138.59],
-                    [92.50, 116.54, 146.83],
-                    [98, 123.47, 155.56]
-                ], 14, 'sawtooth');
-            }
-
-            playMusicLoop(chords, duration, waveType) {
-                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
-                
-                const playLoop = () => {
-                    if (!this.isEnabled || !this.audioContext || !this.isInitialized) return;
-                    
-                    this.musicOscillators.forEach(osc => {
-                        try { osc.stop(); } catch(e) {}
-                    });
-                    this.musicOscillators = [];
-                    
-                    const now = this.audioContext.currentTime;
-                    
-                    chords.forEach((chord, chordIndex) => {
-                        const chordTime = now + (chordIndex * duration / 4);
-                        
-                        chord.forEach((freq, noteIndex) => {
-                            const osc = this.audioContext.createOscillator();
-                            const gain = this.audioContext.createGain();
-                            
-                            osc.connect(gain);
-                            gain.connect(this.musicGain);
-                            
-                            osc.frequency.setValueAtTime(freq, chordTime);
-                            osc.type = waveType;
-                            
-                            const volume = 0.05 + (noteIndex * 0.01);
-                            gain.gain.setValueAtTime(0, chordTime);
-                            gain.gain.linearRampToValueAtTime(volume, chordTime + 0.1);
-                            gain.gain.exponentialRampToValueAtTime(0.01, chordTime + duration / 4 - 0.1);
-                            gain.gain.linearRampToValueAtTime(0.001, chordTime + duration / 4);
-                            
-                            osc.start(chordTime);
-                            osc.stop(chordTime + duration / 4);
-                            
-                            this.musicOscillators.push(osc);
-                        });
-                    });
-                    
-                    setTimeout(() => playLoop(), duration * 1000);
-                };
-                
-                playLoop();
+            startLevelMusic(level) {
+                // Implementazione musica di sottofondo semplificata
+                console.log('🎵 Musica livello', level);
             }
 
             stopMusic() {
@@ -2648,370 +3007,16 @@
                 });
                 this.musicOscillators = [];
             }
-
-            startBackgroundMusic() {
-                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
-                
-                const playMusicLoop = () => {
-                    if (!this.isEnabled || !this.audioContext || this.currentMusicLevel > 0 || !this.isInitialized) return;
-                    
-                    this.musicOscillators.forEach(osc => {
-                        try { osc.stop(); } catch(e) {}
-                    });
-                    this.musicOscillators = [];
-                    
-                    const now = this.audioContext.currentTime;
-                    const duration = 12;
-                    
-                    const chords = [
-                        [110, 146.83, 174.61],
-                        [87.31, 130.81, 174.61],
-                        [130.81, 164.81, 196],
-                        [98, 146.83, 185]
-                    ];
-                    
-                    chords.forEach((chord, chordIndex) => {
-                        const chordTime = now + (chordIndex * duration / 4);
-                        
-                        chord.forEach((freq, noteIndex) => {
-                            const osc1 = this.audioContext.createOscillator();
-                            const gain1 = this.audioContext.createGain();
-                            
-                            osc1.connect(gain1);
-                            gain1.connect(this.musicGain);
-                            
-                            osc1.frequency.setValueAtTime(freq, chordTime);
-                            osc1.type = 'sine';
-                            
-                            gain1.gain.setValueAtTime(0, chordTime);
-                            gain1.gain.linearRampToValueAtTime(0.07, chordTime + 0.1);
-                            gain1.gain.exponentialRampToValueAtTime(0.015, chordTime + duration / 4 - 0.1);
-                            gain1.gain.linearRampToValueAtTime(0.001, chordTime + duration / 4);
-                            
-                            osc1.start(chordTime);
-                            osc1.stop(chordTime + duration / 4);
-                            
-                            this.musicOscillators.push(osc1);
-                        });
-                    });
-                    
-                    setTimeout(() => playMusicLoop(), duration * 1000);
-                };
-                
-                setTimeout(() => playMusicLoop(), 1000);
-            }
-
-            createSoundEffects() {
-                if (!this.audioContext) return;
-                
-                this.sounds = {
-                    jump: () => this.createBeep(450, 0.12, 'square', [450, 650]),
-                    collect: () => this.createMelody([523, 659, 784, 1047], 0.08),
-                    hit: () => this.createDeathSound(),
-                    complete: () => this.createMelody([523, 659, 784, 1047, 1319], 0.2),
-                    button: () => this.createBeep(800, 0.06, 'triangle'),
-                    levelStart: () => this.createMelody([392, 523, 659], 0.15)
-                };
-            }
-
-            createDeathSound() {
-                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
-                
-                const osc1 = this.audioContext.createOscillator();
-                const osc2 = this.audioContext.createOscillator();
-                const gain1 = this.audioContext.createGain();
-                const gain2 = this.audioContext.createGain();
-                const filter = this.audioContext.createBiquadFilter();
-                
-                osc1.connect(gain1);
-                osc2.connect(gain2);
-                gain1.connect(filter);
-                gain2.connect(filter);
-                filter.connect(this.sfxGain);
-                
-                osc1.frequency.setValueAtTime(800, this.audioContext.currentTime);
-                osc1.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.8);
-                osc1.type = 'sawtooth';
-                
-                osc2.frequency.setValueAtTime(400, this.audioContext.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.8);
-                osc2.type = 'square';
-                
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(300, this.audioContext.currentTime + 0.8);
-                
-                gain1.gain.setValueAtTime(0, this.audioContext.currentTime);
-                gain1.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.05);
-                gain1.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.8);
-                
-                gain2.gain.setValueAtTime(0, this.audioContext.currentTime);
-                gain2.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + 0.1);
-                gain2.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.8);
-                
-                osc1.start();
-                osc2.start();
-                osc1.stop(this.audioContext.currentTime + 0.8);
-                osc2.stop(this.audioContext.currentTime + 0.8);
-            }
-
-            createBeep(frequency, duration, type = 'sine', sweep = null) {
-                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
-                
-                const osc = this.audioContext.createOscillator();
-                const gain = this.audioContext.createGain();
-                
-                osc.connect(gain);
-                gain.connect(this.sfxGain);
-                
-                osc.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                osc.type = type;
-                
-                if (sweep && sweep.length === 2) {
-                    osc.frequency.linearRampToValueAtTime(sweep[1], this.audioContext.currentTime + duration);
-                }
-                
-                gain.gain.setValueAtTime(0, this.audioContext.currentTime);
-                gain.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.01);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
-                
-                osc.start();
-                osc.stop(this.audioContext.currentTime + duration);
-            }
-
-            createMelody(frequencies, noteDuration) {
-                if (!this.audioContext || !this.isEnabled || !this.isInitialized) return;
-                
-                frequencies.forEach((freq, i) => {
-                    setTimeout(() => {
-                        this.createBeep(freq, noteDuration, 'triangle');
-                    }, i * noteDuration * 350);
-                });
-            }
-
-            playSound(soundName) {
-                if (!this.userInteracted || !this.isInitialized) {
-                    // Aggiungi alla coda se l'utente non ha ancora interagito o l'audio non è inizializzato
-                    if (!this.pendingSounds.includes(soundName)) {
-                        this.pendingSounds.push(soundName);
-                        console.log('🎵 Suono', soundName, 'aggiunto alla coda');
-                    }
-                    return;
-                }
-                
-                if (!this.audioContext || this.audioContext.state !== 'running') {
-                    console.warn('🎵 AudioContext non disponibile per', soundName);
-                    return;
-                }
-                
-                if (this.sounds[soundName] && this.isEnabled) {
-                    try {
-                        this.sounds[soundName]();
-                        console.log('🎵 Riprodotto suono:', soundName);
-                    } catch (error) {
-                        console.warn('🎵 Errore riproduzione suono', soundName, ':', error);
-                    }
-                } else {
-                    console.log('🎵 Suono non disponibile o audio disabilitato:', soundName);
-                }
-            }
-
-            toggle() {
-                this.isEnabled = !this.isEnabled;
-                console.log('🎵 Audio toggle:', this.isEnabled ? 'ON' : 'OFF');
-                
-                if (this.masterGain) {
-                    this.masterGain.gain.value = this.isEnabled ? 1 : 0;
-                }
-                
-                if (!this.isEnabled) {
-                    this.stopMusic();
-                } else {
-                    // Se stiamo riabilitando l'audio e non è inizializzato, prova a inizializzarlo
-                    if (!this.isInitialized && this.userInteracted) {
-                        this.init().catch(error => {
-                            console.warn('🎵 Errore reinizializzazione audio:', error);
-                        });
-                    } else if (this.isInitialized) {
-                        if (this.currentMusicLevel > 0) {
-                            this.startLevelMusic(this.currentMusicLevel);
-                        } else {
-                            setTimeout(() => this.startBackgroundMusic(), 100);
-                        }
-                    }
-                }
-                
-                const btn = document.getElementById('audioToggle');
-                if (btn) {
-                    btn.textContent = this.isEnabled ? '🔊' : '🔇';
-                    btn.className = this.isEnabled ? 'audio-btn' : 'audio-btn muted';
-                    btn.style.borderColor = this.isEnabled ? 'var(--neon-blue)' : 'var(--neon-red)';
-                    btn.style.color = this.isEnabled ? 'var(--neon-blue)' : 'var(--neon-red)';
-                }
-                
-                // Feedback visivo per confermare il toggle
-                if (gameManager && gameManager.game) {
-                    gameManager.game.showMessage(
-                        this.isEnabled ? '🔊 Audio attivato' : '🔇 Audio disattivato'
-                    );
-                }
-            }
-
-            resumeContext() {
-                if (this.audioContext && this.audioContext.state === 'suspended') {
-                    this.audioContext.resume();
-                }
-            }
         }
 
-        // High-Performance Rendering Engine con WebGL
+        // RENDER ENGINE MIGLIORATO
         class RenderEngine {
             constructor() {
-                this.canvas = null;
-                this.ctx = null;
-                this.webglSupported = false;
-                this.performanceMode = this.detectPerformanceMode();
-                this.init();
-            }
-
-            detectPerformanceMode() {
-                const ua = navigator.userAgent;
-                const isOldDevice = /Android [1-4]|iPhone OS [1-9]_|CPU OS [1-9]_/.test(ua);
-                const isLowRAM = navigator.deviceMemory && navigator.deviceMemory < 2;
-                const isSlowCPU = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
-                
-                if (isOldDevice || isLowRAM || isSlowCPU) {
-                    return 'low';
-                }
-                
-                return 'high';
-            }
-
-            init() {
-                try {
-                    this.canvas = document.createElement('canvas');
-                    this.canvas.style.cssText = `
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        pointer-events: none;
-                        z-index: 5;
-                    `;
-                    
-                    const gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
-                    if (gl) {
-                        this.webglSupported = true;
-                        this.setupWebGL(gl);
-                        console.log('🚀 WebGL Renderer attivato');
-                    } else {
-                        this.ctx = this.canvas.getContext('2d');
-                        console.log('📱 Canvas 2D Renderer (WebGL non supportato)');
-                    }
-                    
-                    this.resizeCanvas();
-                    window.addEventListener('resize', () => this.resizeCanvas());
-                    
-                } catch (error) {
-                    console.warn('Render engine initialization failed:', error);
-                }
-            }
-
-            setupWebGL(gl) {
-                this.gl = gl;
-                
-                const vertexShaderSource = `
-                    attribute vec2 a_position;
-                    attribute vec3 a_color;
-                    uniform vec2 u_resolution;
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        vec2 position = ((a_position / u_resolution) * 2.0) - 1.0;
-                        gl_Position = vec4(position * vec2(1, -1), 0, 1);
-                        v_color = a_color;
-                        gl_PointSize = 3.0;
-                    }
-                `;
-
-                const fragmentShaderSource = `
-                    precision mediump float;
-                    varying vec3 v_color;
-                    
-                    void main() {
-                        gl_FragColor = vec4(v_color, 0.8);
-                    }
-                `;
-
-                const vertexShader = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-                const fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-                
-                if (vertexShader && fragmentShader) {
-                    this.program = this.createProgram(gl, vertexShader, fragmentShader);
-                }
-            }
-
-            createShader(gl, type, source) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.warn('Shader compile error:', gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                
-                return shader;
-            }
-
-            createProgram(gl, vertexShader, fragmentShader) {
-                const program = gl.createProgram();
-                gl.attachShader(program, vertexShader);
-                gl.attachShader(program, fragmentShader);
-                gl.linkProgram(program);
-                
-                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                    console.warn('Program link error:', gl.getProgramInfoLog(program));
-                    gl.deleteProgram(program);
-                    return null;
-                }
-                
-                return program;
-            }
-
-            resizeCanvas() {
-                if (!this.canvas) return;
-                
-                const worldEl = document.getElementById('world');
-                if (!worldEl) return;
-                
-                const rect = worldEl.getBoundingClientRect();
-                this.canvas.width = rect.width;
-                this.canvas.height = rect.height;
-                
-                if (this.gl) {
-                    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-                }
-            }
-
-            renderParticles(particles) {
-                if (!this.webglSupported || !this.gl || !this.program) return;
-                
-                if (this.performanceMode === 'low') return;
-                
-                const gl = this.gl;
-                gl.useProgram(this.program);
-                
-                gl.clearColor(0, 0, 0, 0);
-                gl.clear(gl.COLOR_BUFFER_BIT);
-                gl.enable(gl.BLEND);
-                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-                
-                particles.forEach(particle => {
-                    gl.drawArrays(gl.POINTS, 0, 1);
-                });
+                this.performanceMode = 'high';
+                this.frameCounter = 0;
+                this.lastFPSCheck = 0;
+                this.currentFPS = 60;
+                this.autoQualityEnabled = true;
             }
 
             setQualityMode(mode) {
@@ -3020,38 +3025,44 @@
                 
                 if (mode === 'low') {
                     body.classList.add('low-quality');
-                    // Riduce drasticamente le animazioni
-                    document.documentElement.style.setProperty('--animation-speed', '0.3s');
-                    
-                    // Nascondi elementi grafici pesanti
-                    const energyWaves = document.querySelectorAll('.energy-wave');
-                    energyWaves.forEach(wave => wave.style.display = 'none');
-                    
-                    // Riduci qualità delle stelle
-                    const stars = document.querySelectorAll('.star');
-                    stars.forEach((star, index) => {
-                        if (index % 3 !== 0) star.style.display = 'none';
-                    });
-                    
-                    console.log('🔧 Modalità prestazioni BASSA attivata');
                 } else {
                     body.classList.remove('low-quality');
-                    document.documentElement.style.setProperty('--animation-speed', '1s');
+                }
+
+                this.updateQualityButton();
+            }
+
+            updateQualityButton() {
+                const btn = document.getElementById('qualityToggle');
+                if (btn) {
+                    btn.className = this.performanceMode === 'low' ? 'quality-btn low-quality' : 'quality-btn';
+                }
+            }
+
+            checkPerformance() {
+                this.frameCounter++;
+                const now = performance.now();
+                
+                if (now - this.lastFPSCheck >= 1000) {
+                    this.currentFPS = this.frameCounter;
+                    this.frameCounter = 0;
+                    this.lastFPSCheck = now;
                     
-                    // Ripristina elementi grafici
-                    const energyWaves = document.querySelectorAll('.energy-wave');
-                    energyWaves.forEach(wave => wave.style.display = 'block');
-                    
-                    // Ripristina stelle
-                    const stars = document.querySelectorAll('.star');
-                    stars.forEach(star => star.style.display = 'block');
-                    
-                    console.log('🚀 Modalità prestazioni ALTA attivata');
+                    // Auto quality adjustment
+                    if (this.autoQualityEnabled) {
+                        if (this.currentFPS < 45 && this.performanceMode === 'high') {
+                            console.log('🎮 FPS basso, switching to low quality');
+                            this.setQualityMode('low');
+                        } else if (this.currentFPS > 55 && this.performanceMode === 'low') {
+                            console.log('🎮 FPS migliorato, switching to high quality');
+                            this.setQualityMode('high');
+                        }
+                    }
                 }
             }
         }
 
-        // Story System Manager
+        // STORY MANAGER MIGLIORATO
         class StoryManager {
             constructor() {
                 this.stories = {
@@ -3178,7 +3189,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
         }
 
-        // High-Performance Game Engine
+        // GAME CLASS COMPLETAMENTE MIGLIORATA
         class Game {
             constructor() {
                 this.state = 'menu';
@@ -3190,9 +3201,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     x: 50, y: 300, vx: 0, vy: 0,
                     width: 40, height: 40,
                     onGround: false, canJump: true,
-                    energy: 3, 
+                    energy: 3, maxEnergy: 3,
                     name: '', coyoteTime: 0,
-                    isDying: false
+                    isDying: false, invulnerable: false,
+                    invulnerabilityTime: 0
                 };
                 
                 this.camera = { x: 0, targetX: 0 };
@@ -3209,7 +3221,6 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.lastGoalMessage = 0;
                 this.goalMessageCooldown = 2000;
                 
-                // Performance optimization
                 this.lastRenderTime = 0;
                 this.targetFPS = 60;
                 this.frameInterval = 1000 / this.targetFPS;
@@ -3220,9 +3231,22 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.story = new StoryManager();
                 this.audioManager = new AudioManager();
                 this.renderEngine = new RenderEngine();
+                this.progressManager = new ProgressManager();
+                
                 this.setupEventListeners();
                 this.setupMobileControls();
                 this.initBackground();
+                this.loadPlayerProgress();
+            }
+
+            loadPlayerProgress() {
+                const progress = this.progressManager.loadProgress();
+                if (progress.playerName) {
+                    const nameInput = document.getElementById('playerName');
+                    if (nameInput) {
+                        nameInput.value = progress.playerName;
+                    }
+                }
             }
 
             initBackground() {
@@ -3235,7 +3259,8 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 
                 starsLayer.innerHTML = '';
                 
-                for (let i = 0; i < 25; i++) {
+                const starCount = deviceInfo.isMobile ? 15 : 25;
+                for (let i = 0; i < starCount; i++) {
                     const star = document.createElement('div');
                     star.className = 'star';
                     star.style.cssText = `
@@ -3250,8 +3275,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             setupEventListeners() {
+                // Keyboard events
                 document.addEventListener('keydown', (e) => {
-                    if (this.isPaused) return;
+                    if (this.isPaused && e.code !== 'KeyP' && e.code !== 'Escape') return;
+                    
                     this.keys[e.code] = true;
                     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(e.code)) {
                         e.preventDefault();
@@ -3272,6 +3299,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     this.keys[e.code] = false;
                 });
 
+                // Player name input
                 const playerNameInput = document.getElementById('playerName');
                 if (playerNameInput) {
                     playerNameInput.addEventListener('keypress', (e) => {
@@ -3279,7 +3307,37 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             startGame();
                         }
                     });
+                    
+                    // Save name on change
+                    playerNameInput.addEventListener('input', (e) => {
+                        if (e.target.value.length >= 2) {
+                            const progress = this.progressManager.loadProgress();
+                            progress.playerName = e.target.value;
+                            this.progressManager.saveProgress(progress);
+                        }
+                    });
                 }
+
+                // Visibility change (pause when tab loses focus)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden && this.running && this.state === 'playing') {
+                        this.pauseGame();
+                        this.showMessage('🔄 Gioco automaticamente in pausa');
+                    }
+                });
+
+                // Prevent context menu
+                document.addEventListener('contextmenu', e => e.preventDefault());
+                
+                // Prevent double tap zoom
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', e => {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
             }
 
             setupMobileControls() {
@@ -3292,16 +3350,13 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 controls.forEach(({ id, key }) => {
                     const btn = document.getElementById(id);
                     if (btn) {
-                        // Touch events - MIGLIORATI CON DEBUGGING
+                        // Touch events
                         btn.addEventListener('touchstart', (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             if (!this.isPaused) {
                                 this.keys[key] = true;
-                                btn.style.background = 'var(--neon-blue)';
-                                btn.style.color = 'white';
-                                btn.style.transform = 'scale(0.9)';
-                                console.log(`🎮 Touch START: ${key}`);
+                                btn.classList.add('active');
                             }
                         }, { passive: false });
                         
@@ -3309,41 +3364,35 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             e.preventDefault();
                             e.stopPropagation();
                             this.keys[key] = false;
-                            btn.style.background = '';
-                            btn.style.color = '';
-                            btn.style.transform = '';
-                            console.log(`🎮 Touch END: ${key}`);
+                            btn.classList.remove('active');
                         }, { passive: false });
                         
                         btn.addEventListener('touchcancel', (e) => {
                             e.preventDefault();
                             this.keys[key] = false;
-                            btn.style.background = '';
-                            btn.style.color = '';
-                            btn.style.transform = '';
-                            console.log(`🎮 Touch CANCEL: ${key}`);
+                            btn.classList.remove('active');
                         }, { passive: false });
                         
-                        // Mouse events per test desktop
+                        // Mouse events for desktop testing
                         btn.addEventListener('mousedown', (e) => {
                             e.preventDefault();
                             if (!this.isPaused) {
                                 this.keys[key] = true;
-                                btn.style.background = 'var(--neon-blue)';
-                                btn.style.color = 'white';
-                                btn.style.transform = 'scale(0.9)';
+                                btn.classList.add('active');
                             }
                         });
                         
                         btn.addEventListener('mouseup', (e) => {
                             e.preventDefault();
                             this.keys[key] = false;
-                            btn.style.background = '';
-                            btn.style.color = '';
-                            btn.style.transform = '';
+                            btn.classList.remove('active');
                         });
                         
-                        // Previeni context menu
+                        btn.addEventListener('mouseleave', (e) => {
+                            this.keys[key] = false;
+                            btn.classList.remove('active');
+                        });
+                        
                         btn.addEventListener('contextmenu', (e) => {
                             e.preventDefault();
                         });
@@ -3355,18 +3404,21 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.player.name = playerName;
                 this.currentLevel = 1;
                 this.score = 0;
-                this.player.energy = 3;
+                this.player.energy = this.player.maxEnergy;
                 this.isPaused = false;
                 this.startTime = Date.now();
                 this.state = 'story';
+                
+                // Save player name
+                const progress = this.progressManager.loadProgress();
+                progress.playerName = playerName;
+                this.progressManager.saveProgress(progress);
                 
                 this.story.showStory(1, 'intro');
             }
 
             startLevel() {
                 document.body.classList.add('game-active');
-                
-                // Forza aggiornamento controlli mobile
                 updateMobileControls();
                 
                 this.loadLevel();
@@ -3378,14 +3430,22 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.audioManager.startLevelMusic(this.currentLevel);
                 this.audioManager.playSound('levelStart');
                 
-                if (this.renderEngine && this.renderEngine.canvas) {
-                    const world = document.getElementById('world');
-                    if (world && !world.contains(this.renderEngine.canvas)) {
-                        world.appendChild(this.renderEngine.canvas);
+                this.updateProgressIndicator();
+                this.gameLoop();
+            }
+
+            updateProgressIndicator() {
+                for (let i = 1; i <= this.maxLevels; i++) {
+                    const dot = document.getElementById(`progress-${i}`);
+                    if (dot) {
+                        dot.className = 'progress-dot';
+                        if (i < this.currentLevel) {
+                            dot.classList.add('completed');
+                        } else if (i === this.currentLevel) {
+                            dot.classList.add('current');
+                        }
                     }
                 }
-                
-                this.gameLoop();
             }
 
             pauseGame() {
@@ -3410,116 +3470,8 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             showRestartConfirmation() {
-                const confirmOverlay = document.createElement('div');
-                confirmOverlay.id = 'restartConfirmOverlay';
-                confirmOverlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(10, 10, 15, 0.95);
-                    backdrop-filter: blur(15px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 2500;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-
-                const confirmContent = document.createElement('div');
-                confirmContent.style.cssText = `
-                    background: var(--glass);
-                    border: 2px solid var(--neon-orange);
-                    border-radius: 15px;
-                    padding: 30px;
-                    text-align: center;
-                    max-width: 400px;
-                    width: 90%;
-                    box-shadow: var(--shadow-deep), 0 0 30px rgba(255, 107, 53, 0.3);
-                `;
-
-                confirmContent.innerHTML = `
-                    <div style="font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900; margin-bottom: 20px; color: var(--neon-orange); text-shadow: 0 0 10px var(--neon-orange);">
-                        ⚠️ CONFERMA RIAVVIO
-                    </div>
-                    <p style="font-size: 1.1rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 25px; line-height: 1.5;">
-                        Sei sicuro di voler <strong style="color: var(--neon-red);">riavviare completamente</strong> il gioco?
-                    </p>
-                    <p style="font-size: 0.9rem; color: var(--neon-orange); margin-bottom: 30px;">
-                        🔄 Tornerai al <strong>Livello 1</strong> con <strong>3 vite</strong><br>
-                        💯 Il punteggio attuale andrà <strong>perso</strong>
-                    </p>
-                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button id="confirmRestart" style="
-                            background: linear-gradient(45deg, var(--neon-red), var(--neon-orange));
-                            border: none;
-                            color: white;
-                            padding: 12px 25px;
-                            font-family: 'Orbitron', monospace;
-                            font-size: 0.9rem;
-                            font-weight: 700;
-                            cursor: pointer;
-                            border-radius: 10px;
-                            min-width: 140px;
-                            transition: all 0.3s ease;
-                            text-transform: uppercase;
-                        ">🔄 SÌ, RIAVVIA</button>
-                        <button id="cancelRestart" style="
-                            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
-                            border: none;
-                            color: white;
-                            padding: 12px 25px;
-                            font-family: 'Orbitron', monospace;
-                            font-size: 0.9rem;
-                            font-weight: 700;
-                            cursor: pointer;
-                            border-radius: 10px;
-                            min-width: 140px;
-                            transition: all 0.3s ease;
-                            text-transform: uppercase;
-                        ">❌ ANNULLA</button>
-                    </div>
-                `;
-
-                confirmOverlay.appendChild(confirmContent);
-                document.body.appendChild(confirmOverlay);
-
-                setTimeout(() => {
-                    confirmOverlay.style.opacity = '1';
-                }, 10);
-
-                document.getElementById('confirmRestart').addEventListener('click', () => {
-                    this.audioManager.playSound('button');
-                    this.hideRestartConfirmation();
+                if (confirm('Vuoi davvero riavviare il gioco? Tornerai al livello 1.')) {
                     this.performFullRestart();
-                });
-
-                document.getElementById('cancelRestart').addEventListener('click', () => {
-                    this.audioManager.playSound('button');
-                    this.hideRestartConfirmation();
-                });
-
-                const escapeHandler = (e) => {
-                    if (e.key === 'Escape') {
-                        this.audioManager.playSound('button');
-                        this.hideRestartConfirmation();
-                        document.removeEventListener('keydown', escapeHandler);
-                    }
-                };
-                document.addEventListener('keydown', escapeHandler);
-            }
-
-            hideRestartConfirmation() {
-                const overlay = document.getElementById('restartConfirmOverlay');
-                if (overlay) {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        if (overlay.parentNode) {
-                            overlay.remove();
-                        }
-                    }, 300);
                 }
             }
 
@@ -3533,7 +3485,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 
                 this.currentLevel = 1;
                 this.score = 0;
-                this.player.energy = 3;
+                this.player.energy = this.player.maxEnergy;
                 this.startTime = Date.now();
                 this.state = 'story';
                 
@@ -3548,6 +3500,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.isPaused = false;
                 this.running = false;
                 document.getElementById('pauseOverlay').classList.remove('active');
+                document.body.classList.remove('game-active');
                 this.state = 'menu';
                 this.audioManager.playSound('button');
                 this.showScreen('mainMenu');
@@ -3555,7 +3508,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
 
             loadLevel() {
                 const levels = [
-                    // Level 1: Tutorial
+                    // Level 1: Tutorial facile
                     {
                         platforms: [
                             { x: 0, y: 500, w: 200, h: 20 },
@@ -3569,11 +3522,11 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             { x: 850, y: 320 }
                         ],
                         enemies: [
-                            { x: 400, y: 420, w: 30, h: 30, vx: 1, range: 100, platformBound: true }
+                            { x: 400, y: 420, w: 30, h: 30, vx: 1, range: 80, platformBound: true }
                         ],
                         goal: { x: 950, y: 270 }
                     },
-                    // Level 2: Floating Islands
+                    // Level 2: Più difficile
                     {
                         platforms: [
                             { x: 0, y: 520, w: 150, h: 20 },
@@ -3595,7 +3548,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                         ],
                         goal: { x: 990, y: 140 }
                     },
-                    // Level 3: The Gauntlet
+                    // Level 3: Il Guanto di Sfida
                     {
                         platforms: [
                             { x: 0, y: 500, w: 120, h: 20 },
@@ -3619,10 +3572,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             { x: 540, y: 320, w: 25, h: 25, vx: -1, range: 60, platformBound: true },
                             { x: 700, y: 270, w: 25, h: 25, vx: 1, range: 60, platformBound: true }
                         ],
-                        goal: { x: 1040, y: 120 },
-                        reward: "RETRO3"
+                        goal: { x: 1040, y: 120 }
                     },
-                    // Level 4: Precision Platform
+                    // Level 4: Precisione
                     {
                         platforms: [
                             { x: 0, y: 480, w: 100, h: 20 },
@@ -3649,7 +3601,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                         ],
                         goal: { x: 980, y: 50 }
                     },
-                    // Level 5: Final Challenge
+                    // Level 5: Boss finale
                     {
                         platforms: [
                             { x: 0, y: 520, w: 80, h: 20 },
@@ -3678,10 +3630,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             { x: 380, y: 370, w: 25, h: 25, vx: -1, range: 40, platformBound: true },
                             { x: 490, y: 330, w: 25, h: 25, vx: 1, range: 40, platformBound: true },
                             { x: 600, y: 290, w: 25, h: 25, vx: -1, range: 40, platformBound: true },
-                            { x: 930, y: 170, w: 35, h: 35, vx: 0, range: 30, platformBound: true }
+                            { x: 930, y: 170, w: 35, h: 35, vx: 0, range: 30, platformBound: true } // Boss
                         ],
-                        goal: { x: 1040, y: 80 },
-                        reward: "RETRO5"
+                        goal: { x: 1040, y: 80 }
                     }
                 ];
 
@@ -3694,11 +3645,14 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.player.vy = 0;
                 this.player.onGround = false;
                 this.player.isDying = false;
+                this.player.invulnerable = false;
+                this.player.invulnerabilityTime = 0;
                 this.camera.x = 0;
                 this.camera.targetX = 0;
                 
                 this.lastGoalMessage = 0;
 
+                // Add platforms
                 level.platforms.forEach(p => {
                     this.entities.push({
                         type: 'platform',
@@ -3706,6 +3660,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     });
                 });
 
+                // Add collectibles
                 level.collectibles.forEach(c => {
                     this.entities.push({
                         type: 'collectible',
@@ -3714,6 +3669,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     });
                 });
 
+                // Add enemies
                 level.enemies.forEach((e, index) => {
                     const enemy = {
                         type: 'enemy',
@@ -3739,6 +3695,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     this.entities.push(enemy);
                 });
 
+                // Add goal
                 this.entities.push({
                     type: 'goal',
                     x: level.goal.x, y: level.goal.y,
@@ -3757,6 +3714,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 if (this.deltaTime >= this.frameInterval) {
                     this.update(this.deltaTime / 1000);
                     this.render();
+                    this.renderEngine.checkPerformance();
                     this.lastRenderTime = currentTime;
                 }
 
@@ -3777,9 +3735,13 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.updateEnemies(deltaTime);
                 this.updateCamera(deltaTime);
                 this.checkCollisions();
-
-                if (this.updateCounter % 120 === 0) {
-                    this.updateBackground();
+                
+                // Update invulnerability
+                if (this.player.invulnerable) {
+                    this.player.invulnerabilityTime -= deltaTime * 1000;
+                    if (this.player.invulnerabilityTime <= 0) {
+                        this.player.invulnerable = false;
+                    }
                 }
             }
 
@@ -3791,6 +3753,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 const jumpPower = 18;
                 const acceleration = 2.0;
 
+                // Horizontal movement
                 if (this.keys.ArrowLeft) {
                     p.vx = Math.max(p.vx - acceleration, -speed);
                 } else if (this.keys.ArrowRight) {
@@ -3799,6 +3762,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     p.vx *= this.friction;
                 }
 
+                // Jumping
                 if (this.keys.Space && (p.onGround || this.player.coyoteTime > 0) && p.canJump) {
                     p.vy = -jumpPower;
                     p.onGround = false;
@@ -3811,22 +3775,27 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     p.canJump = true;
                 }
 
+                // Coyote time
                 if (p.onGround) {
                     this.player.coyoteTime = 8;
                 } else if (this.player.coyoteTime > 0) {
                     this.player.coyoteTime--;
                 }
 
+                // Gravity
                 p.vy += this.gravity;
                 if (p.vy > 16) p.vy = 16;
 
+                // Variable jump height
                 if (!this.keys.Space && p.vy < 0) {
                     p.vy *= 0.6;
                 }
 
+                // Update position
                 p.x += p.vx;
                 p.y += p.vy;
 
+                // Platform collision
                 p.onGround = false;
                 this.entities.filter(e => e.type === 'platform').forEach(platform => {
                     if (this.collision(p, platform)) {
@@ -3853,18 +3822,19 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 });
 
+                // World boundaries
                 if (p.x < 0) {
                     p.x = 0;
                     p.vx = 0;
                 }
                 
-                // Mondo dinamico basato su dispositivo
                 const effectiveWorldWidth = deviceInfo.isMobile ? this.worldWidth * 0.7 : this.worldWidth;
                 if (p.x + p.width > effectiveWorldWidth) {
                     p.x = effectiveWorldWidth - p.width;
                     p.vx = 0;
                 }
 
+                // Death by falling
                 if (p.y > 600) {
                     this.playerDie();
                 }
@@ -3915,6 +3885,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             enemy.vx *= -1;
                         }
                         
+                        // Respawn enemies that fall
                         if (enemy.y > 700) {
                             enemy.x = enemy.startX;
                             enemy.y = enemy.startX - 100;
@@ -3926,7 +3897,6 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             updateCamera(deltaTime) {
-                // Camera ottimizzata per dispositivo
                 let viewportWidth = 800;
                 if (deviceInfo.isMobile) {
                     viewportWidth = deviceInfo.screenWidth * 0.7;
@@ -3940,19 +3910,11 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.camera.x += (this.camera.targetX - this.camera.x) * 0.12;
             }
 
-            updateBackground() {
-                const starsLayer = document.getElementById('starsLayer');
-                
-                if (starsLayer) {
-                    const transform = `translate3d(${-this.camera.x * 0.08}px, 0, 0)`;
-                    starsLayer.style.transform = transform;
-                }
-            }
-
             checkCollisions() {
                 const p = this.player;
                 if (p.isDying) return;
 
+                // Collectibles
                 this.entities.filter(e => e.type === 'collectible' && !e.collected).forEach((crystal) => {
                     const distance = Math.sqrt(
                         Math.pow(p.x + p.width/2 - (crystal.x + crystal.w/2), 2) + 
@@ -3968,12 +3930,16 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 });
 
-                this.entities.filter(e => e.type === 'enemy').forEach((enemy) => {
-                    if (this.collision(p, enemy)) {
-                        this.playerDie();
-                    }
-                });
+                // Enemies
+                if (!p.invulnerable) {
+                    this.entities.filter(e => e.type === 'enemy').forEach((enemy) => {
+                        if (this.collision(p, enemy)) {
+                            this.playerDie();
+                        }
+                    });
+                }
 
+                // Goal
                 const goalEntity = this.entities.find(e => e.type === 'goal');
                 if (goalEntity && this.collision(p, goalEntity)) {
                     const collected = this.entities.filter(e => e.type === 'collectible' && e.collected).length;
@@ -4018,13 +3984,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             playerDie() {
-                if (this.player.isDying) return;
+                if (this.player.isDying || this.player.invulnerable) return;
                 
                 this.player.isDying = true;
-                this.audioManager.playSound('hit');
-                
-                const playerElements = document.querySelectorAll('.player');
-                playerElements.forEach(el => el.classList.add('dying'));
+                this.audioManager.playSound('death');
                 
                 this.showMessage(`💥 Colpito! Energia: ${this.player.energy - 1}/3`);
                 
@@ -4045,19 +4008,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 this.player.vx = 0;
                 this.player.vy = 0;
                 this.player.isDying = false;
+                this.player.invulnerable = true;
+                this.player.invulnerabilityTime = 2000; // 2 seconds of invulnerability
                 this.camera.x = 0;
                 this.camera.targetX = 0;
-                
-                const playerElements = document.querySelectorAll('.player');
-                playerElements.forEach(el => {
-                    el.classList.remove('dying');
-                    el.classList.add('respawning');
-                });
-                
-                setTimeout(() => {
-                    const playerElements = document.querySelectorAll('.player');
-                    playerElements.forEach(el => el.classList.remove('respawning'));
-                }, 1000);
                 
                 this.updateHUD();
             }
@@ -4065,6 +4019,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             levelComplete() {
                 this.running = false;
                 this.score += 1000 + (this.player.energy * 300);
+                
+                // Save progress
+                this.progressManager.updateLevelProgress(this.currentLevel, this.score, true);
+                
                 this.audioManager.playSound('complete');
                 this.story.showStory(this.currentLevel, 'outro');
             }
@@ -4084,6 +4042,13 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 const discount = this.currentLevel === 3 ? '3%' : '5%';
                 const minimum = this.currentLevel === 3 ? '150€' : '180€';
 
+                // Save reward
+                const progress = this.progressManager.loadProgress();
+                if (!progress.unlockedRewards.includes(rewardCode)) {
+                    progress.unlockedRewards.push(rewardCode);
+                    this.progressManager.saveProgress(progress);
+                }
+
                 document.getElementById('overlayTitle').textContent = '🎉 RICOMPENSA SBLOCCATA!';
                 document.getElementById('overlayTitle').className = 'overlay-title success';
                 document.getElementById('overlayContent').innerHTML = `
@@ -4101,7 +4066,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                             cursor: pointer;
                             font-size: 0.8rem;
                             transition: all 0.3s ease;
-                        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        ">
                             📋 Copia
                         </button>
                     </div>
@@ -4161,6 +4126,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 };
                 
                 this.showOverlay();
+                
+                // Save final progress
+                this.progressManager.updateLevelProgress(this.maxLevels, this.score, true);
             }
 
             gameOver() {
@@ -4200,13 +4168,16 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     this.hideOverlay();
                     this.currentLevel = 1;
                     this.score = 0;
-                    this.player.energy = 3;
+                    this.player.energy = this.player.maxEnergy;
                     this.isPaused = false;
                     this.startTime = Date.now();
                     this.story.showStory(1, 'intro');
                 };
                 
                 this.showOverlay();
+                
+                // Save game over progress
+                this.progressManager.updateLevelProgress(this.currentLevel, this.score, false);
             }
 
             nextLevel() {
@@ -4221,6 +4192,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     this.running = false;
                     this.isPaused = false;
                     this.state = 'menu';
+                    document.body.classList.remove('game-active');
                     this.showScreen('mainMenu');
                 }
             }
@@ -4241,12 +4213,9 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 
                 const fragment = document.createDocumentFragment();
                 
+                // Player
                 const playerEl = document.createElement('div');
                 playerEl.className = 'player';
-                playerEl.style.cssText = `
-                    left: ${this.player.x}px;
-                    top: ${this.player.y}px;
-                `;
                 
                 if (Math.abs(this.player.vx) > 1 && !this.player.isDying) {
                     playerEl.classList.add('moving');
@@ -4254,10 +4223,18 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 
                 if (this.player.isDying) {
                     playerEl.classList.add('dying');
+                } else if (this.player.invulnerable) {
+                    playerEl.classList.add('invulnerable');
                 }
+                
+                playerEl.style.cssText = `
+                    left: ${this.player.x}px;
+                    top: ${this.player.y}px;
+                `;
                 
                 fragment.appendChild(playerEl);
                 
+                // Visible entities (performance optimization)
                 const cameraLeft = this.camera.x - 100;
                 const cameraRight = this.camera.x + 900;
                 
@@ -4281,6 +4258,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                         height: ${entity.h}px;
                     `;
                     
+                    // Boss enemy styling
                     if (entity.type === 'enemy' && entity.w > 30) {
                         el.style.background = 'linear-gradient(45deg, var(--neon-purple), var(--neon-orange))';
                         el.style.border = '2px solid var(--neon-purple)';
@@ -4295,7 +4273,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
 
             updateHUD() {
-                // Aggiorna HUD desktop
+                // Desktop HUD
                 const updates = {
                     'hud-name': this.player.name,
                     'hud-level': this.currentLevel,
@@ -4321,12 +4299,10 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 }
 
-                // Aggiorna HUD mobile
                 this.updateMobileHUD();
             }
 
             updateMobileHUD() {
-                // Aggiorna dashboard mobile
                 const mobileUpdates = {
                     'mobile-player-name': this.player.name,
                     'mobile-player-level': this.currentLevel,
@@ -4397,12 +4373,6 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     if (screen) screen.classList.add('active');
                 }, 100);
                 this.state = screenId === 'mainMenu' ? 'menu' : this.state;
-                
-                if (screenId === 'mainMenu') {
-                    this.audioManager.currentMusicLevel = 0;
-                    this.audioManager.stopMusic();
-                    setTimeout(() => this.audioManager.startBackgroundMusic(), 500);
-                }
             }
 
             showOverlay() {
@@ -4432,18 +4402,35 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
             }
         }
 
-        // Game Manager - Central hub for all game interactions
+        // GAME MANAGER MIGLIORATO - Central hub for all game interactions
         class GameManager {
             constructor() {
                 this.game = null;
+                this.loadingManager = new LoadingManager();
                 this.init();
             }
 
-            init() {
-                this.game = new Game();
-                
+            async init() {
+                try {
+                    // Start loading
+                    await this.loadingManager.start();
+                    
+                    this.game = new Game();
+                    
+                    this.setupGlobalEventListeners();
+                    
+                    console.log('🎮 RetroAvia - The Dark Chronicles caricato con successo!');
+                } catch (error) {
+                    console.error('❌ Errore inizializzazione GameManager:', error);
+                    showNotification('Errore di inizializzazione. Ricarica la pagina.');
+                }
+            }
+
+            setupGlobalEventListeners() {
+                // Context menu prevention
                 document.addEventListener('contextmenu', e => e.preventDefault());
                 
+                // Double tap zoom prevention
                 let lastTouchEnd = 0;
                 document.addEventListener('touchend', e => {
                     const now = (new Date()).getTime();
@@ -4453,6 +4440,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     lastTouchEnd = now;
                 }, false);
                 
+                // Auto pause on visibility change
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden && this.game && this.game.running) {
                         this.game.pauseGame();
@@ -4460,14 +4448,13 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     }
                 });
                 
+                // Prevent accidental page leave
                 window.addEventListener('beforeunload', e => {
                     if (this.game && this.game.running && this.game.state === 'playing') {
                         e.preventDefault();
                         e.returnValue = '';
                     }
                 });
-                
-                console.log('🎮 RetroAvia - The Dark Chronicles caricato con successo!');
             }
 
             startGame() {
@@ -4476,11 +4463,13 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 
                 const name = nameInput.value.trim();
                 if (!name || name.length < 2) {
-                    this.showNotification('Inserisci un nome di almeno 2 caratteri!');
+                    showNotification('Inserisci un nome di almeno 2 caratteri!');
+                    nameInput.focus();
                     return;
                 }
                 if (name.length > 12) {
-                    this.showNotification('Il nome deve essere massimo 12 caratteri!');
+                    showNotification('Il nome deve essere massimo 12 caratteri!');
+                    nameInput.focus();
                     return;
                 }
                 
@@ -4530,38 +4519,22 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                 }
             }
 
-            showMenu() {
-                if (this.game) {
-                    this.game.running = false;
-                    this.game.isPaused = false;
-                    this.game.state = 'menu';
-                    this.game.audioManager.playSound('button');
-                    this.game.showScreen('mainMenu');
-                }
-            }
-
             goHome() {
                 if (this.game && this.game.state === 'playing') {
                     this.game.confirmExit();
                 } else if (this.game) {
-                    this.showMenu();
+                    this.game.showScreen('mainMenu');
                 }
             }
 
-            toggleAudio() {
-                // FORZA INIZIALIZZAZIONE AUDIO SU MOBILE
-                if (!this.game.audioManager.isInitialized && !this.game.audioManager.userInteracted) {
-                    console.log('🎵 Forzando inizializzazione audio...');
-                    this.game.audioManager.userInteracted = true;
-                    this.game.audioManager.init().then(() => {
-                        console.log('🎵 Audio forzato inizializzato con successo');
-                        this.game.audioManager.toggle();
-                    }).catch(error => {
-                        console.error('🎵 Errore inizializzazione audio forzata:', error);
-                        this.showNotification('❌ Audio non disponibile su questo dispositivo');
-                    });
-                } else {
-                    this.game.audioManager.toggle();
+            async toggleAudio() {
+                if (this.game && this.game.audioManager) {
+                    try {
+                        await this.game.audioManager.toggle();
+                    } catch (error) {
+                        console.warn('⚠️ Errore toggle audio:', error);
+                        showNotification('❌ Audio non disponibile su questo dispositivo');
+                    }
                 }
             }
 
@@ -4571,13 +4544,7 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     const newMode = currentMode === 'high' ? 'low' : 'high';
                     this.game.renderEngine.setQualityMode(newMode);
                     
-                    const btn = document.getElementById('qualityToggle');
-                    if (btn) {
-                        btn.className = newMode === 'low' ? 'quality-btn low-quality' : 'quality-btn';
-                        btn.title = newMode === 'low' ? '🔧 Qualità: BASSA (Prestazioni ottimizzate)' : '🚀 Qualità: ALTA (Tutti gli effetti)';
-                    }
-                    
-                    this.showNotification(`🎮 Qualità: ${newMode === 'high' ? 'ALTA (Tutti gli effetti)' : 'BASSA (Prestazioni ottimizzate)'}`);
+                    showNotification(`🎮 Qualità: ${newMode === 'high' ? 'ALTA' : 'BASSA'}`);
                 }
             }
 
@@ -4587,265 +4554,57 @@ Come ricompensa finale, hai sbloccato il codice sconto supremo e la gloria etern
                     overlayButton.onclick();
                 }
             }
-
-            showNotification(message) {
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: linear-gradient(45deg, var(--neon-orange), var(--neon-red));
-                    color: white;
-                    padding: 15px 25px;
-                    border-radius: 12px;
-                    font-family: 'Orbitron', monospace;
-                    font-weight: 700;
-                    z-index: 2000;
-                    animation: slideDown 0.3s ease;
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-                    max-width: 90%;
-                    text-align: center;
-                `;
-                notification.textContent = message;
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.style.animation = 'slideUp 0.3s ease';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.remove();
-                        }
-                    }, 300);
-                }, 3000);
-            }
         }
 
-        // Global function definitions
-        function startGame() {
-            if (gameManager) {
-                gameManager.startGame();
-            }
-        }
-
-        function handleStoryAction() {
-            if (gameManager) {
-                gameManager.handleStoryAction();
-            }
-        }
-
-        function pauseGame() {
-            if (gameManager) {
-                gameManager.pauseGame();
-            }
-        }
-
-        function resumeGame() {
-            if (gameManager) {
-                gameManager.resumeGame();
-            }
-        }
-
-        function restartGame() {
-            if (gameManager) {
-                gameManager.restartLevel();
-            }
-        }
-
-        function goHomeFromPause() {
-            if (gameManager) {
-                gameManager.goHomeFromPause();
-            }
-        }
-
-        function goHome() {
-            if (gameManager) {
-                gameManager.goHome();
-            }
-        }
-
-        function toggleAudio() {
-            if (gameManager) {
-                gameManager.toggleAudio();
-            }
-        }
-
-        function toggleQuality() {
-            if (gameManager) {
-                gameManager.toggleQuality();
-            }
-        }
-
-        function nextAction() {
-            if (gameManager) {
-                gameManager.nextAction();
-            }
-        }
-
-        // Funzione per copiare il codice sconto
-        function copyRewardCode(code) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(code).then(() => {
-                    showCopyConfirmation('✅ Codice copiato negli appunti!');
-                }).catch(() => {
-                    fallbackCopyText(code);
-                });
-            } else {
-                fallbackCopyText(code);
-            }
-        }
-
-        // Fallback per browser più vecchi
-        function fallbackCopyText(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                showCopyConfirmation('✅ Codice copiato negli appunti!');
-            } catch (err) {
-                showCopyConfirmation('❌ Errore nella copia. Seleziona e copia manualmente.');
-            }
-            
-            document.body.removeChild(textArea);
-        }
-
-        // Mostra conferma copia
-        function showCopyConfirmation(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
-                color: white;
-                padding: 15px 25px;
-                border-radius: 10px;
-                font-family: 'Orbitron', monospace;
-                font-weight: 700;
-                z-index: 10000;
-                animation: slideDown 0.3s ease;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideUp 0.3s ease';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 300);
-            }, 2000);
-        }
-
-        // Initialize game
-        function initializeGame() {
-            try {
-                if (!gameManager) {
-                    gameManager = new GameManager();
-                    window.gameManager = gameManager;
-                    console.log('🎮 Game Manager initialized successfully');
-                }
-                return true;
-            } catch (error) {
-                console.error('Game initialization error:', error);
-                return false;
-            }
-        }
-
-        // SISTEMA DI INIZIALIZZAZIONE MIGLIORATO
-        document.addEventListener('DOMContentLoaded', () => {
+        // ====== INIZIALIZZAZIONE MIGLIORATA ======
+        
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('📱 DOM loaded - Inizializzazione...');
             
             // Rileva dispositivo immediatamente
             detectDevice();
             
-            // Inizializza il gioco
-            initializeGame();
+            // Inizializza il Game Manager
+            try {
+                gameManager = new GameManager();
+                window.gameManager = gameManager;
+                console.log('✅ Game Manager inizializzato con successo');
+            } catch (error) {
+                console.error('❌ Errore inizializzazione:', error);
+                showNotification('Errore di inizializzazione. Ricarica la pagina.');
+            }
             
-            // Setup event listeners per click sui bottoni per triggerer audio
-            document.addEventListener('click', (e) => {
-                if (e.target.matches('.btn, .neo-btn, .audio-btn, .launch-button') || e.target.closest('.neo-btn')) {
-                    if (gameManager && gameManager.game && gameManager.game.audioManager) {
-                        gameManager.game.audioManager.playSound('button');
-                    }
-                }
-            });
-
-            // LISTENER SPECIALE PER CONTROLLI AUDIO - FORZA INIZIALIZZAZIONE
-            document.addEventListener('click', (e) => {
-                if (e.target.matches('#audioToggle, .audio-btn')) {
-                    console.log('🎵 Click su controllo audio rilevato');
-                    if (gameManager && gameManager.game && gameManager.game.audioManager) {
-                        if (!gameManager.game.audioManager.isInitialized) {
-                            console.log('🎵 Forzando inizializzazione audio da click...');
-                            gameManager.game.audioManager.userInteracted = true;
-                            gameManager.game.audioManager.init().catch(error => {
-                                console.error('🎵 Errore inizializzazione audio da click:', error);
-                            });
-                        }
-                    }
-                }
-            });
-
-            // LISTENER TOUCH SPECIALE PER MOBILE
-            document.addEventListener('touchstart', (e) => {
-                if (e.target.matches('#audioToggle, .audio-btn, .control-btn')) {
-                    console.log('🎵 Touch su controllo rilevato');
-                    if (gameManager && gameManager.game && gameManager.game.audioManager) {
-                        if (!gameManager.game.audioManager.userInteracted) {
-                            gameManager.game.audioManager.userInteracted = true;
-                            gameManager.game.audioManager.init().catch(error => {
-                                console.warn('🎵 Errore inizializzazione audio da touch:', error);
-                            });
-                        }
-                    }
-                }
-            }, { passive: true });
-
-            // Abilita debug se necessario (solo per testing)
+            // Abilita debug se necessario
             if (window.location.search.includes('debug')) {
                 document.body.classList.add('debug');
                 console.log('🔧 DEBUG MODE ATTIVATO');
             }
         });
 
-        // Evento resize per ricalcolare dispositivo
+        // Eventi resize e orientamento
         window.addEventListener('resize', () => {
             detectDevice();
         });
 
-        // Evento orientamento per mobile
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 detectDevice();
-            }, 500); // Delay per permettere il cambio orientamento
+            }, 500);
         });
 
-        // Fallback initialization
-        window.addEventListener('load', () => {
-            if (!gameManager) {
-                console.log('🔄 Fallback initialization...');
-                initializeGame();
-            }
-        });
-
-        // Final safety initialization
+        // Safety initialization (fallback)
         setTimeout(() => {
             if (!gameManager) {
                 console.log('⚡ Safety initialization...');
-                initializeGame();
+                try {
+                    gameManager = new GameManager();
+                    window.gameManager = gameManager;
+                } catch (error) {
+                    console.error('❌ Safety initialization failed:', error);
+                    showNotification('Errore critico. Ricarica la pagina.');
+                }
             }
-        }, 100);
+        }, 2000);
     </script>
 </body>
 </html>
