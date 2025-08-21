@@ -1208,6 +1208,12 @@
                         <p id="smartPlanningMessage">Il sistema sta ottimizzando il tuo piano di studio.</p>
                     </div>
 
+                    <div id="recoveryDashboard" class="card hidden" style="background: linear-gradient(135deg, var(--warning), #d97706); color: white; margin-bottom: 2rem;">
+                        <h4>📊 Stato Recupero</h4>
+                        <div>Tempo da recuperare: <span id="missedTime">0h 0min</span></div>
+                        <button class="btn btn-warning mt-2" onclick="App.UI.showRecoveryOptions()">🔧 Modifica Piano</button>
+                    </div>
+
                     <div style="background: var(--bg-tertiary); border-radius: var(--border-radius); padding: 2rem; margin-bottom: 2rem;">
                         <h4 style="color: var(--primary-light); margin-bottom: 1rem;">🔥 PROSSIMO TASK:</h4>
                         <div id="taskCorrente" style="background: var(--bg-secondary); border-radius: var(--border-radius); padding: 1.5rem;">
@@ -1229,6 +1235,12 @@
 
                             <button class="btn btn-primary" onclick="App.TimerManager.startTask()" id="startTaskBtn" disabled>🚀 Inizia Subito</button>
                         </div>
+                    </div>
+
+                    <div id="microTasks" class="hidden" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--border-radius); padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h4 style="color: var(--secondary); margin-bottom: 1rem;">⚡ Task Micro (Anti-Procrastinazione)</h4>
+                        <p style="opacity: 0.8; margin-bottom: 1rem;">Inizia con qualcosa di facile per creare momentum:</p>
+                        <div id="microTasksList"></div>
                     </div>
 
                     <div>
@@ -1428,6 +1440,25 @@
                     <h4>🎯 Piano di Studio Intelligente</h4>
                     <p id="planSummary">Caricamento piano personalizzato...</p>
                     
+                    <!-- Score Explanation -->
+                    <div class="score-explanation" onclick="App.UI.toggleScoreExplanation()" style="margin: 1.5rem 0; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                        <div class="flex-between">
+                            <h5 style="margin: 0; color: white;">🧮 Come Funziona lo Score Intelligente?</h5>
+                            <span id="scoreToggleIcon" style="color: white; font-size: 1.2rem;">▼</span>
+                        </div>
+                        <div id="scoreExplanationDetails" class="hidden" style="margin-top: 1rem; font-size: 0.9rem; line-height: 1.5;">
+                            <p><strong>Lo Score rappresenta l'urgenza e importanza di una materia:</strong></p>
+                            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                                <li><strong>Giorni all'esame:</strong> Più è vicino l'esame, più sale lo score (max 40 punti)</li>
+                                <li><strong>Priorità:</strong> Alta=25pt, Media=15pt, Bassa=5pt</li>
+                                <li><strong>Difficoltà:</strong> Ogni stella aggiunge 4 punti</li>
+                                <li><strong>CFU:</strong> Più CFU = più importante (max 15 punti)</li>
+                                <li><strong>Progresso:</strong> Materie poco avanzate hanno bonus priorità</li>
+                            </ul>
+                            <p><strong>Score più alto = Studiare per primo! 🎯</strong></p>
+                        </div>
+                    </div>
+                    
                     <div class="stats-grid mt-2">
                         <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: var(--border-radius); text-align: center;">
                             <div id="totalWeeklyHours" style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem;">0h</div>
@@ -1444,6 +1475,16 @@
                         <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: var(--border-radius); text-align: center;">
                             <div id="completionWeeks" style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem;">0</div>
                             <div style="font-size: 0.8rem; opacity: 0.9;">Settimane Stimate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card fade-in-up" style="background: rgba(6, 214, 160, 0.1); border: 1px solid rgba(6, 214, 160, 0.3);">
+                    <h3 style="color: var(--secondary);">🤖 Suggerimenti AI</h3>
+                    <div id="suggestionsList">
+                        <div style="background: rgba(6, 214, 160, 0.05); border: 1px solid rgba(6, 214, 160, 0.2); border-radius: 12px; padding: 1rem;">
+                            <div style="font-weight: 600; color: var(--secondary); margin-bottom: 0.5rem;">💡 Analizzando i tuoi dati...</div>
+                            <div style="color: var(--text-primary);">Il sistema sta elaborando raccomandazioni personalizzate.</div>
                         </div>
                     </div>
                 </div>
@@ -2647,9 +2688,66 @@
         // === SESSION TRACKER ===
         App.SessionTracker = {
             showModal() {
+                // Reset modal state
+                App.State.sessionType = null;
+                App.State.progressType = null;
+                
                 const modalContent = `
-                    <div class="text-center">
+                    <div id="sessionTypeStep" class="text-center">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+                        <p style="margin-bottom: 1.5rem;">Che tipo di sessione hai fatto?</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                            <button id="studySessionBtn" onclick="App.SessionTracker.selectType('study')" 
+                                style="padding: 1.5rem; background: var(--bg-tertiary); border: 2px solid var(--border); 
+                                border-radius: 12px; cursor: pointer; transition: all var(--transition); color: var(--text-primary);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+                                <div style="font-weight: 600;">Studio</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Nuovi argomenti/esercizi</div>
+                            </button>
+                            <button id="reviewSessionBtn" onclick="App.SessionTracker.selectType('review')" 
+                                style="padding: 1.5rem; background: var(--bg-tertiary); border: 2px solid var(--border); 
+                                border-radius: 12px; cursor: pointer; transition: all var(--transition); color: var(--text-primary);">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+                                <div style="font-weight: 600;">Ripasso</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Revisione argomenti</div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="progressStep" class="hidden text-center">
+                        <p style="margin-bottom: 1.5rem;">Cosa hai fatto durante la sessione?</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <button id="pagesStudyBtn" onclick="App.SessionTracker.selectProgressType('pages')" 
+                                style="padding: 1rem; background: var(--bg-tertiary); border: 2px solid var(--border); 
+                                border-radius: 8px; cursor: pointer; transition: all var(--transition); color: var(--text-primary);">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📖</div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Pagine Studiate</div>
+                            </button>
+                            <button id="exercisesBtn" onclick="App.SessionTracker.selectProgressType('exercises')" 
+                                style="padding: 1rem; background: var(--bg-tertiary); border: 2px solid var(--border); 
+                                border-radius: 8px; cursor: pointer; transition: all var(--transition); color: var(--text-primary);">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">💪</div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Esercizi Fatti</div>
+                            </button>
+                        </div>
+
+                        <div id="pagesInput" class="hidden form-group">
+                            <label for="studiedPages">Quante pagine hai studiato?</label>
+                            <input type="number" id="studiedPages" min="0" max="100" placeholder="es. 5" style="text-align: center;">
+                        </div>
+
+                        <div id="exercisesInput" class="hidden form-group">
+                            <label for="exercisesDone">Quanti esercizi hai fatto?</label>
+                            <input type="number" id="exercisesDone" min="0" max="50" placeholder="es. 3" style="text-align: center;">
+                            <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                                Ogni esercizio vale circa 1 pagina di studio
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div id="ratingStep" class="hidden text-center">
                         <p style="margin-bottom: 1.5rem;">Come ti senti dopo questa sessione?</p>
                         
                         <div class="form-group">
@@ -2682,8 +2780,76 @@
                 document.getElementById('ratingModal').style.display = 'flex';
             },
 
+            selectType(type) {
+                App.State.sessionType = type;
+                
+                // Update button styles
+                const studyBtn = document.getElementById('studySessionBtn');
+                const reviewBtn = document.getElementById('reviewSessionBtn');
+                
+                if (studyBtn && reviewBtn) {
+                    studyBtn.style.borderColor = type === 'study' ? 'var(--primary)' : 'var(--border)';
+                    studyBtn.style.background = type === 'study' ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-tertiary)';
+                    reviewBtn.style.borderColor = type === 'review' ? 'var(--primary)' : 'var(--border)';
+                    reviewBtn.style.background = type === 'review' ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-tertiary)';
+                }
+                
+                // Proceed to next step
+                setTimeout(() => {
+                    document.getElementById('sessionTypeStep').classList.add('hidden');
+                    
+                    if (type === 'study') {
+                        document.getElementById('progressStep').classList.remove('hidden');
+                    } else {
+                        document.getElementById('ratingStep').classList.remove('hidden');
+                    }
+                }, 300);
+            },
+
+            selectProgressType(type) {
+                App.State.progressType = type;
+                
+                // Update button styles
+                const pagesBtn = document.getElementById('pagesStudyBtn');
+                const exercisesBtn = document.getElementById('exercisesBtn');
+                
+                if (pagesBtn && exercisesBtn) {
+                    pagesBtn.style.borderColor = type === 'pages' ? 'var(--primary)' : 'var(--border)';
+                    pagesBtn.style.background = type === 'pages' ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-tertiary)';
+                    exercisesBtn.style.borderColor = type === 'exercises' ? 'var(--primary)' : 'var(--border)';
+                    exercisesBtn.style.background = type === 'exercises' ? 'rgba(139, 92, 246, 0.1)' : 'var(--bg-tertiary)';
+                }
+                
+                // Show appropriate input
+                document.getElementById('pagesInput').classList.toggle('hidden', type !== 'pages');
+                document.getElementById('exercisesInput').classList.toggle('hidden', type !== 'exercises');
+                
+                // Focus on input
+                if (type === 'pages') {
+                    document.getElementById('studiedPages').focus();
+                } else {
+                    document.getElementById('exercisesDone').focus();
+                }
+                
+                // Auto-proceed to rating after input
+                const targetInput = type === 'pages' ? 'studiedPages' : 'exercisesDone';
+                const inputElement = document.getElementById(targetInput);
+                
+                if (inputElement) {
+                    inputElement.addEventListener('input', function proceedToRating() {
+                        if (inputElement.value && parseInt(inputElement.value) > 0) {
+                            setTimeout(() => {
+                                document.getElementById('progressStep').classList.add('hidden');
+                                document.getElementById('ratingStep').classList.remove('hidden');
+                            }, 500);
+                            inputElement.removeEventListener('input', proceedToRating);
+                        }
+                    });
+                }
+            },
+
             submitRating(rating) {
-                const sessionNote = document.getElementById('sessionNote').value || '';
+                const sessionNote = document.getElementById('sessionNote')?.value || '';
                 const today = new Date().toDateString();
                 const hour = new Date().getHours();
                 
@@ -2695,17 +2861,42 @@
                     App.State.sessionRatings[today][hour] = [];
                 }
                 
+                // Collect progress data
+                let progressData = {
+                    sessionType: App.State.sessionType || 'review',
+                    progressType: App.State.progressType,
+                    studiedPages: 0,
+                    exercisesDone: 0
+                };
+                
+                if (App.State.sessionType === 'study' && App.State.progressType) {
+                    if (App.State.progressType === 'pages') {
+                        progressData.studiedPages = parseInt(document.getElementById('studiedPages')?.value) || 0;
+                    } else if (App.State.progressType === 'exercises') {
+                        progressData.exercisesDone = parseInt(document.getElementById('exercisesDone')?.value) || 0;
+                        // Convert exercises to page equivalents
+                        progressData.studiedPages = progressData.exercisesDone;
+                    }
+                }
+                
                 const sessionData = {
                     rating: rating,
                     note: sessionNote,
                     materia: App.State.currentSessionData?.materia || 'Sessione generica',
+                    materiaId: App.State.currentSessionData?.materiaId,
                     option: App.State.currentSessionData?.option || '',
                     timestamp: new Date().toISOString(),
-                    duration: App.State.timerState.workTime
+                    duration: App.State.timerState.workTime,
+                    ...progressData
                 };
                 
                 App.State.sessionRatings[today][hour].push(sessionData);
                 App.State.todayDetailedSessions.push(sessionData);
+                
+                // Update materia progress if study session with pages
+                if (App.State.sessionType === 'study' && progressData.studiedPages > 0 && App.State.currentSessionData?.materiaId) {
+                    this.updateMateriaProgress(App.State.currentSessionData.materiaId, progressData.studiedPages);
+                }
                 
                 App.saveToStorage();
                 
@@ -2722,7 +2913,37 @@
                     '🔥 Fantastico! Sei in zona di massima produttività!'
                 ];
                 
-                App.Utils.showMessage(messages[rating - 1]);
+                let finalMessage = messages[rating - 1];
+                if (App.State.sessionType === 'study' && progressData.studiedPages > 0) {
+                    finalMessage += ` +${progressData.studiedPages} pagine completate! 📚`;
+                }
+                
+                App.Utils.showMessage(finalMessage);
+            },
+
+            updateMateriaProgress(materiaId, pagineStudiate) {
+                const materia = App.State.materie.find(m => m.id === materiaId);
+                
+                if (materia && pagineStudiate > 0) {
+                    const oldProgress = materia.pagineStudiate || 0;
+                    const newProgress = Math.min(oldProgress + pagineStudiate, materia.pagine);
+                    
+                    materia.pagineStudiate = newProgress;
+                    App.saveToStorage();
+                    
+                    // Update views
+                    App.MaterieManager.load();
+                    App.SmartPlanner.generateTodaySchedule();
+                    App.PlanManager.generate();
+                    App.StatisticsManager.update();
+                    
+                    // Notify if materia completed
+                    if (newProgress === materia.pagine) {
+                        setTimeout(() => {
+                            App.Utils.showMessage(`🎉 Complimenti! Hai completato lo studio di ${materia.nome}! Ora puoi sostenere l'esame.`);
+                        }, 1000);
+                    }
+                }
             }
         };
 
@@ -2737,6 +2958,76 @@
                 element.classList.add('active');
                 
                 App.MaterieManager.filter();
+            },
+
+            toggleScoreExplanation() {
+                const details = document.getElementById('scoreExplanationDetails');
+                const icon = document.getElementById('scoreToggleIcon');
+                
+                if (details && icon) {
+                    if (details.classList.contains('hidden')) {
+                        details.classList.remove('hidden');
+                        icon.textContent = '▲';
+                    } else {
+                        details.classList.add('hidden');
+                        icon.textContent = '▼';
+                    }
+                }
+            },
+
+            showRecoveryOptions() {
+                // Create recovery modal
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.display = 'flex';
+                modal.innerHTML = `
+                    <div class="modal">
+                        <h3>🔧 Opzioni di Recupero</h3>
+                        <p>Hai ${App.Utils.formatTime(App.State.studyData.missedTime)} di studio da recuperare.</p>
+                        
+                        <div class="form-group">
+                            <label>Come vuoi recuperare?</label>
+                            <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                                <button class="btn btn-primary" onclick="App.UI.distributeRecovery()">
+                                    📊 Distribuisci nei prossimi giorni
+                                </button>
+                                <button class="btn btn-secondary" onclick="App.UI.addExtraSession()">
+                                    ➕ Aggiungi sessione extra oggi
+                                </button>
+                                <button class="btn btn-warning" onclick="App.UI.skipRecovery()">
+                                    ⏭️ Salta recupero
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-danger mt-2" onclick="this.parentElement.parentElement.remove()">
+                            ❌ Chiudi
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            },
+
+            distributeRecovery() {
+                const extraMinutesPerDay = Math.ceil(App.State.studyData.missedTime / 7);
+                App.Utils.showMessage(`📊 Aggiunti ${extraMinutesPerDay} minuti extra al giorno per i prossimi 7 giorni`);
+                App.State.studyData.missedTime = 0;
+                App.saveToStorage();
+                document.querySelector('.modal-overlay')?.remove();
+                App.SmartPlanner.generateTodaySchedule();
+            },
+
+            addExtraSession() {
+                App.Utils.showMessage('➕ Aggiungi una sessione extra nel tuo piano di oggi');
+                document.querySelector('.modal-overlay')?.remove();
+            },
+
+            skipRecovery() {
+                App.State.studyData.missedTime = 0;
+                App.saveToStorage();
+                App.Utils.showMessage('⏭️ Recupero saltato');
+                document.querySelector('.modal-overlay')?.remove();
+                App.SmartPlanner.generateTodaySchedule();
             },
 
             showCustomTimerDialog() {
@@ -2754,31 +3045,229 @@
 
         App.SmartPlanner = {
             generateTodaySchedule() {
-                // Simplified version - you can expand this based on your needs
+                if (App.State.materie.length === 0) {
+                    this.updateTodayDisplay(null, []);
+                    return;
+                }
+
                 const oggi = new Date();
                 const giornoSettimana = ['domenica', 'lunedi', 'martedi', 'mercoledi', 'giovedi', 'venerdi', 'sabato'][oggi.getDay()];
                 
-                const materieFiltrate = App.State.materie.filter(materia => {
-                    if (materia.status === 'completato') return false;
-                    return materia.slotSettimanali?.[giornoSettimana]?.length > 0;
-                });
-
-                this.updateTodayDisplay(materieFiltrate);
+                const scheduleOggi = this.generateIntelligentSchedule(giornoSettimana);
+                
+                this.updateTodayDisplay(scheduleOggi.nextTask, scheduleOggi.timeline);
+                this.updateMicroTasks(scheduleOggi.nextTask);
+                this.showSmartPlanningAlert(scheduleOggi.conflicts);
+                this.updateRecoveryDashboard();
             },
 
-            updateTodayDisplay(materieOggi) {
-                const container = document.getElementById('timelineOggi');
-                const taskMateria = document.getElementById('currentTaskMateria');
-                const taskTime = document.getElementById('currentTaskTime');
-                const startBtn = document.getElementById('startTaskBtn');
+            generateIntelligentSchedule(giornoSettimana) {
+                const materieFiltrate = App.State.materie.filter(materia => {
+                    if (materia.status === 'completato') return false;
+                    const slots = materia.slotSettimanali && materia.slotSettimanali[giornoSettimana];
+                    return slots && slots.length > 0;
+                });
+
+                if (materieFiltrate.length === 0) {
+                    return { nextTask: null, timeline: [], conflicts: [] };
+                }
+
+                const materieConPriorita = materieFiltrate.map(materia => ({
+                    ...materia,
+                    smartPriority: App.Utils.calculateSmartPriority(materia)
+                })).sort((a, b) => b.smartPriority - a.smartPriority);
+
+                const { resolvedSchedule, conflicts } = this.resolveTimeConflicts(materieConPriorita, giornoSettimana);
+                const timeline = this.buildTimeline(resolvedSchedule);
+                const nextTask = this.findNextTask(timeline);
+
+                return { nextTask, timeline, conflicts };
+            },
+
+            resolveTimeConflicts(materie, giornoSettimana) {
+                const allSlots = [];
+                const conflicts = [];
+
+                materie.forEach(materia => {
+                    const slots = materia.slotSettimanali[giornoSettimana] || [];
+                    slots.forEach(slot => {
+                        allSlots.push({
+                            materia: materia,
+                            slot: slot,
+                            priority: materia.smartPriority,
+                            start: this.timeToMinutes(slot.inizio),
+                            end: this.timeToMinutes(slot.fine)
+                        });
+                    });
+                });
+
+                allSlots.sort((a, b) => b.priority - a.priority);
+
+                const resolvedSchedule = [];
+                const usedTimes = [];
+
+                allSlots.forEach(item => {
+                    const hasConflict = usedTimes.some(used => 
+                        this.timesOverlap(item.start, item.end, used.start, used.end)
+                    );
+
+                    if (!hasConflict) {
+                        resolvedSchedule.push(item);
+                        usedTimes.push({ start: item.start, end: item.end });
+                    } else {
+                        conflicts.push({
+                            materia: item.materia.nome,
+                            originalSlot: `${item.slot.inizio}-${item.slot.fine}`
+                        });
+                    }
+                });
+
+                return { resolvedSchedule, conflicts };
+            },
+
+            buildTimeline(resolvedSchedule) {
+                return resolvedSchedule.map(item => ({
+                    materia: item.materia.nome,
+                    materiaId: item.materia.id,
+                    durata: App.Utils.calculateTaskDuration(item.slot.inizio, item.slot.fine),
+                    orarioInizio: item.slot.inizio,
+                    orarioFine: item.slot.fine,
+                    difficolta: item.materia.difficolta,
+                    priority: item.priority,
+                    pagineRimanenti: Math.max(0, item.materia.pagine - (item.materia.pagineStudiate || 0)),
+                    percentualeCompletamento: ((item.materia.pagineStudiate || 0) / item.materia.pagine) * 100,
+                    opzioni: this.generateTaskOptions(item.materia),
+                    smartReason: this.getSmartReason(item.materia)
+                })).sort((a, b) => a.orarioInizio.localeCompare(b.orarioInizio));
+            },
+
+            findNextTask(timeline) {
+                const now = new Date();
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
                 
-                if (materieOggi.length === 0) {
-                    if (taskMateria) taskMateria.textContent = 'Nessun task programmato';
-                    if (taskTime) taskTime.textContent = '⏱️ -- min';
-                    if (startBtn) startBtn.disabled = true;
+                let nextTask = timeline.find(task => task.orarioInizio > currentTime);
+                if (!nextTask && timeline.length > 0) {
+                    nextTask = timeline[0];
+                }
+                
+                return nextTask;
+            },
+
+            getSmartReason(materia) {
+                const daysToExam = App.Utils.getDaysToExam(materia.dataEsame);
+                const progress = ((materia.pagineStudiate || 0) / materia.pagine) * 100;
+                
+                if (daysToExam !== null && daysToExam <= 7) {
+                    return `Esame tra ${daysToExam} giorni - Priorità MASSIMA`;
+                } else if (materia.priorita === 'alta') {
+                    return 'Materia ad alta priorità';
+                } else if (materia.difficolta >= 4) {
+                    return 'Materia difficile - Meglio quando sei fresco';
+                } else if (progress < 10) {
+                    return 'Importante iniziare subito';
+                } else if (progress > 80) {
+                    return 'Vicino al completamento';
+                }
+                return 'Programmato nel piano di studio';
+            },
+
+            generateTaskOptions(materia) {
+                const percentualeCompletamento = ((materia.pagineStudiate || 0) / materia.pagine) * 100;
+                const pagineStudiate = materia.pagineStudiate || 0;
+                const options = [];
+
+                if (percentualeCompletamento < 15) {
+                    if (pagineStudiate === 0) {
+                        options.push({
+                            id: 'primo-approccio',
+                            titulo: '🚀 Primo Approccio',
+                            descrizione: 'Inizia con una panoramica generale e l\'indice del libro',
+                            motivazione: 'Il primo contatto è fondamentale per orientarsi nella materia'
+                        });
+                    }
                     
-                    if (container) {
-                        container.innerHTML = `
+                    options.push({
+                        id: 'concetti-base',
+                        titulo: '📚 Concetti Fondamentali',
+                        descrizione: 'Studio delle definizioni e teoremi principali',
+                        motivazione: 'Costruire basi solide è essenziale per il successo'
+                    });
+                } else if (percentualeCompletamento < 70) {
+                    options.push({
+                        id: 'approfondimento',
+                        titulo: '🔍 Approfondimento Teorico',
+                        descrizione: 'Continua con gli argomenti più complessi e le dimostrazioni',
+                        motivazione: 'Sviluppa una comprensione più profonda della materia'
+                    });
+                    
+                    options.push({
+                        id: 'esercizi-guidati',
+                        titulo: '💪 Esercizi Guidati',
+                        descrizione: 'Risolvi problemi ed esercizi con soluzioni disponibili',
+                        motivazione: 'La pratica guidata consolida la teoria appresa'
+                    });
+                } else if (percentualeCompletamento < 90) {
+                    options.push({
+                        id: 'esercizi-avanzati',
+                        titulo: '🏆 Esercizi Avanzati',
+                        descrizione: 'Affronta problemi complessi e casi particolari',
+                        motivazione: 'Gli esercizi difficili ti preparano per qualsiasi domanda'
+                    });
+                    
+                    options.push({
+                        id: 'simulazione-esame',
+                        titulo: '🎓 Simulazione Esame',
+                        descrizione: 'Prova a rispondere a domande tipo esame',
+                        motivazione: 'La simulazione ti prepara psicologicamente all\'esame'
+                    });
+                } else {
+                    options.push({
+                        id: 'ripasso-finale',
+                        titulo: '✨ Ripasso Finale',
+                        descrizione: 'Ultimo ripasso prima dell\'esame',
+                        motivazione: 'Rinfresca la memoria su tutto il programma'
+                    });
+                    
+                    options.push({
+                        id: 'esami-passati',
+                        titulo: '📝 Esami degli Anni Passati',
+                        descrizione: 'Risolvi prove d\'esame precedenti',
+                        motivazione: 'Le prove passate mostrano cosa aspettarsi'
+                    });
+                }
+
+                options.push({
+                    id: 'personalizzato',
+                    titulo: '⚙️ Studio Personalizzato',
+                    descrizione: 'Scegli tu cosa studiare in questa sessione',
+                    motivazione: 'Tu conosci meglio le tue necessità del momento'
+                });
+
+                return options;
+            },
+
+            updateTodayDisplay(nextTask, timeline) {
+                const elements = {
+                    currentTaskMateria: document.getElementById('currentTaskMateria'),
+                    currentTaskTime: document.getElementById('currentTaskTime'),
+                    currentTaskDesc: document.getElementById('currentTaskDesc'),
+                    currentTaskMotivation: document.getElementById('currentTaskMotivation'),
+                    taskOptions: document.getElementById('taskOptions'),
+                    taskOptionsList: document.getElementById('taskOptionsList'),
+                    startTaskBtn: document.getElementById('startTaskBtn'),
+                    timelineContainer: document.getElementById('timelineOggi')
+                };
+
+                if (!nextTask) {
+                    if (elements.currentTaskMateria) elements.currentTaskMateria.textContent = 'Nessun task programmato';
+                    if (elements.currentTaskTime) elements.currentTaskTime.textContent = '⏱️ -- min';
+                    if (elements.currentTaskDesc) elements.currentTaskDesc.textContent = 'Aggiungi slot temporali alle tue materie per vedere il piano giornaliero!';
+                    if (elements.currentTaskMotivation) elements.currentTaskMotivation.textContent = '💡 Definisci quando puoi studiare per ottimizzare la tua giornata';
+                    if (elements.taskOptions) elements.taskOptions.classList.add('hidden');
+                    if (elements.startTaskBtn) elements.startTaskBtn.disabled = true;
+                    
+                    if (elements.timelineContainer) {
+                        elements.timelineContainer.innerHTML = `
                             <div class="empty-state">
                                 <div class="empty-state-icon">📅</div>
                                 <p>Aggiungi materie con slot temporali per vedere il piano giornaliero</p>
@@ -2788,24 +3277,244 @@
                     return;
                 }
 
-                // Update current task
-                const nextTask = materieOggi[0];
-                if (nextTask && taskMateria) {
-                    taskMateria.textContent = nextTask.nome;
-                    App.State.selectedTaskOption = nextTask.id;
-                    App.State.currentSessionData = { materia: nextTask.nome };
-                    if (startBtn) startBtn.disabled = false;
+                if (elements.currentTaskMateria) elements.currentTaskMateria.textContent = nextTask.materia;
+                if (elements.currentTaskTime) elements.currentTaskTime.textContent = `⏱️ ${nextTask.durata} min`;
+                
+                if (nextTask.opzioni && nextTask.opzioni.length > 0) {
+                    if (elements.taskOptions) elements.taskOptions.classList.remove('hidden');
+                    if (elements.taskOptionsList) {
+                        elements.taskOptionsList.innerHTML = nextTask.opzioni.map(opzione => `
+                            <button class="task-option-btn" onclick="App.SmartPlanner.selectTaskOption('${opzione.id}', '${nextTask.materia}', ${nextTask.materiaId}, this)" 
+                                style="width: 100%; margin-bottom: 0.75rem; padding: 1rem; background: var(--bg-card); 
+                                border: 2px solid var(--border); color: var(--text-primary); border-radius: 8px; 
+                                cursor: pointer; transition: all var(--transition); text-align: left;">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">${opzione.titulo}</div>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">${opzione.descrizione}</div>
+                                <div style="font-size: 0.8rem; color: var(--secondary); margin-top: 0.5rem;">💡 ${opzione.motivazione}</div>
+                            </button>
+                        `).join('');
+                    }
+                    
+                    if (!App.State.selectedTaskOption) {
+                        this.selectTaskOption(nextTask.opzioni[0].id, nextTask.materia, nextTask.materiaId);
+                    }
+                } else {
+                    if (elements.taskOptions) elements.taskOptions.classList.add('hidden');
                 }
 
-                // Update timeline
-                if (container) {
-                    container.innerHTML = materieOggi.map(materia => `
-                        <div class="session-item">
-                            <strong>${materia.nome}</strong><br>
-                            <small>Priorità: ${materia.priorita} | CFU: ${materia.cfu}</small>
-                        </div>
-                    `).join('');
+                if (elements.startTaskBtn) elements.startTaskBtn.disabled = false;
+
+                if (timeline.length === 0) {
+                    if (elements.timelineContainer) {
+                        elements.timelineContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📅</div>
+                                <p>Nessun task programmato per oggi</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (elements.timelineContainer) {
+                        elements.timelineContainer.innerHTML = timeline.map(task => `
+                            <div style="display: flex; align-items: flex-start; padding: 1rem; margin-bottom: 1rem; 
+                                background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; 
+                                border-left: 4px solid var(--accent); gap: 1rem;">
+                                <div style="font-weight: 700; min-width: 80px; color: var(--accent); font-size: 1rem;">
+                                    ${task.orarioInizio}
+                                </div>
+                                <div style="flex: 1;">
+                                    <strong>${task.materia}</strong><br>
+                                    <span style="opacity: 0.8;">${task.smartReason}</span><br>
+                                    <small style="color: var(--secondary);">
+                                        ${task.durata} min • ${Math.round(task.percentualeCompletamento)}% completato
+                                        ${task.priority ? ` • Score: ${task.priority}` : ''}
+                                    </small>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
                 }
+            },
+
+            selectTaskOption(optionId, materia, materiaId, clickedElement) {
+                App.State.selectedTaskOption = optionId;
+                App.State.currentSessionData = { 
+                    materia: materia, 
+                    materiaId: materiaId,
+                    option: optionId 
+                };
+                
+                // Update UI
+                document.querySelectorAll('.task-option-btn').forEach(btn => {
+                    btn.style.borderColor = 'var(--border)';
+                    btn.style.background = 'var(--bg-card)';
+                });
+                
+                if (clickedElement) {
+                    clickedElement.style.borderColor = 'var(--primary)';
+                    clickedElement.style.background = 'rgba(139, 92, 246, 0.1)';
+                }
+                
+                // Update description based on selected option
+                const currentTask = this.getCurrentNextTask();
+                if (currentTask && currentTask.opzioni) {
+                    const selectedOption = currentTask.opzioni.find(opt => opt.id === optionId);
+                    if (selectedOption) {
+                        const descEl = document.getElementById('currentTaskDesc');
+                        const motivEl = document.getElementById('currentTaskMotivation');
+                        if (descEl) descEl.textContent = selectedOption.descrizione;
+                        if (motivEl) motivEl.innerHTML = `💡 ${selectedOption.motivazione}`;
+                    }
+                }
+            },
+
+            getCurrentNextTask() {
+                const oggi = new Date();
+                const giornoSettimana = ['domenica', 'lunedi', 'martedi', 'mercoledi', 'giovedi', 'venerdi', 'sabato'][oggi.getDay()];
+                const schedule = this.generateIntelligentSchedule(giornoSettimana);
+                return schedule.nextTask;
+            },
+
+            updateMicroTasks(nextTask) {
+                const microTasksContainer = document.getElementById('microTasks');
+                const microTasksList = document.getElementById('microTasksList');
+
+                if (!microTasksContainer || !microTasksList) return;
+
+                if (!nextTask) {
+                    microTasksContainer.classList.add('hidden');
+                    return;
+                }
+
+                const materia = App.State.materie.find(m => m.nome === nextTask.materia);
+                const tasks = this.generateSmartMicroTasks(materia);
+                
+                microTasksContainer.classList.remove('hidden');
+                
+                microTasksList.innerHTML = tasks.map(task => `
+                    <div onclick="App.SmartPlanner.startMicroTask('${task.text}', ${task.durata}, this)" 
+                        class="micro-task-item"
+                        style="background: rgba(16, 185, 129, 0.05); border-radius: 8px; padding: 1rem; 
+                        margin-bottom: 0.75rem; cursor: pointer; transition: all var(--transition); 
+                        border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <div>${task.text}</div>
+                        <div style="font-size: 0.8rem; color: var(--secondary); font-weight: 600;">${task.durata} min</div>
+                    </div>
+                `).join('');
+            },
+
+            generateSmartMicroTasks(materia) {
+                const universalTasks = [
+                    { text: "📖 Leggi il sommario del primo capitolo", durata: 5 },
+                    { text: "✏️ Scrivi 3 concetti che già conosci", durata: 3 },
+                    { text: "📝 Prepara il materiale di studio", durata: 2 },
+                    { text: "🎯 Definisci 1 obiettivo per oggi", durata: 2 }
+                ];
+
+                if (!materia) {
+                    return universalTasks.slice(0, 4);
+                }
+
+                const percentualeCompletamento = ((materia.pagineStudiate || 0) / materia.pagine) * 100;
+                let smartTasks = [];
+
+                if (percentualeCompletamento === 0) {
+                    smartTasks = [
+                        { text: `📖 Sfoglia l'indice di ${materia.nome}`, durata: 3 },
+                        { text: "🎯 Leggi l'introduzione del primo capitolo", durata: 5 },
+                        { text: "📝 Scrivi 3 obiettivi per questa materia", durata: 4 },
+                        { text: "🔍 Cerca info generali sulla materia online", durata: 5 }
+                    ];
+                } else if (percentualeCompletamento < 25) {
+                    smartTasks = [
+                        { text: `📚 Rileggi le ultime 2 pagine studiate di ${materia.nome}`, durata: 4 },
+                        { text: "✏️ Riassumi in 3 punti l'ultimo argomento", durata: 3 },
+                        { text: "🤔 Pensa a 2 domande sull'argomento corrente", durata: 2 },
+                        { text: "📋 Controlla se hai capito le definizioni base", durata: 4 }
+                    ];
+                } else if (percentualeCompletamento < 50) {
+                    smartTasks = [
+                        { text: `🔗 Collega l'ultimo argomento ai precedenti di ${materia.nome}`, durata: 4 },
+                        { text: "💡 Trova un esempio pratico dell'ultimo concetto", durata: 5 },
+                        { text: "📊 Fai un mini-schema dell'argomento corrente", durata: 6 },
+                        { text: "🎯 Identifica i punti più difficili finora", durata: 3 }
+                    ];
+                } else if (percentualeCompletamento < 75) {
+                    smartTasks = [
+                        { text: `🔄 Ripassa velocemente un capitolo di ${materia.nome}`, durata: 5 },
+                        { text: "💪 Prova a spiegare un concetto a voce alta", durata: 3 },
+                        { text: "📝 Scrivi le formule principali a memoria", durata: 4 },
+                        { text: "🤯 Identifica i collegamenti tra capitoli", durata: 5 }
+                    ];
+                } else {
+                    smartTasks = [
+                        { text: `🎓 Ripassa i concetti chiave di ${materia.nome}`, durata: 5 },
+                        { text: "⚡ Fai un ripasso lampo degli argomenti principali", durata: 4 },
+                        { text: "🧠 Pensa alle possibili domande d'esame", durata: 4 },
+                        { text: "✨ Rivedi i punti che ti sembrano meno chiari", durata: 5 }
+                    ];
+                }
+
+                return smartTasks;
+            },
+
+            startMicroTask(taskText, durata, clickedElement) {
+                App.State.currentSessionData = { materia: 'Micro-task', option: taskText };
+                App.TimerManager.setPreset(durata, Math.max(2, Math.floor(durata / 5)), null);
+                App.Utils.showMessage(`🚀 Micro-task avviato: ${taskText}`);
+                
+                if (clickedElement) {
+                    document.querySelectorAll('.micro-task-item').forEach(item => {
+                        item.style.transform = 'translateX(0)';
+                        item.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+                    });
+                    clickedElement.style.transform = 'translateX(8px)';
+                    clickedElement.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                }
+                
+                App.TimerManager.start();
+            },
+
+            showSmartPlanningAlert(conflicts) {
+                const alertEl = document.getElementById('smartPlanningAlert');
+                const messageEl = document.getElementById('smartPlanningMessage');
+                
+                if (!alertEl || !messageEl) return;
+                
+                if (conflicts.length > 0) {
+                    let message = `⚠️ Risolti ${conflicts.length} conflitti di orario. `;
+                    message += `Materie riprogrammate: ${conflicts.map(c => c.materia).join(', ')}`;
+                    messageEl.textContent = message;
+                    alertEl.classList.remove('hidden');
+                } else if (App.State.materie.length > 0) {
+                    messageEl.textContent = '✅ Piano ottimizzato con algoritmo intelligente - Nessun conflitto rilevato';
+                    alertEl.classList.remove('hidden');
+                } else {
+                    alertEl.classList.add('hidden');
+                }
+            },
+
+            updateRecoveryDashboard() {
+                const dashboard = document.getElementById('recoveryDashboard');
+                const missedTimeEl = document.getElementById('missedTime');
+                
+                if (!dashboard || !missedTimeEl) return;
+                
+                if (App.State.studyData.missedTime > 0) {
+                    dashboard.classList.remove('hidden');
+                    missedTimeEl.textContent = App.Utils.formatTime(App.State.studyData.missedTime);
+                } else {
+                    dashboard.classList.add('hidden');
+                }
+            },
+
+            timeToMinutes(timeStr) {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            },
+
+            timesOverlap(start1, end1, start2, end2) {
+                return start1 < end2 && end1 > start2;
             }
         };
 
@@ -3530,29 +4239,46 @@
 
                 const metrics = this.calculateMetrics(materieFiltrate);
                 this.updateOverview(metrics);
+                this.generateSuggestions(materieFiltrate, metrics);
                 this.generateDetails(materieFiltrate);
             },
 
             calculateMetrics(materie) {
                 let totalWeeklyHours = 0;
+                let totalPages = 0;
                 let totalRemainingPages = 0;
+                let estimatedCompletionWeeks = 0;
 
                 materie.forEach(materia => {
+                    let oreSettimanali = 0;
                     if (materia.slotSettimanali) {
                         Object.values(materia.slotSettimanali).forEach(slots => {
                             slots.forEach(slot => {
-                                totalWeeklyHours += App.Utils.calculateTaskDuration(slot.inizio, slot.fine) / 60;
+                                const durata = App.Utils.calculateTaskDuration(slot.inizio, slot.fine);
+                                oreSettimanali += durata;
                             });
                         });
                     }
-                    totalRemainingPages += materia.pagine - (materia.pagineStudiate || 0);
+                    totalWeeklyHours += oreSettimanali / 60;
+                    
+                    totalPages += materia.pagine;
+                    const pagineRimanenti = materia.pagine - (materia.pagineStudiate || 0);
+                    totalRemainingPages += pagineRimanenti;
+                    
+                    if (oreSettimanali > 0 && pagineRimanenti > 0) {
+                        const paginePerSettimana = (oreSettimanali / 60) * (materia.pagineOra || 8);
+                        const settimaneRimanenti = Math.ceil(pagineRimanenti / paginePerSettimana);
+                        estimatedCompletionWeeks = Math.max(estimatedCompletionWeeks, settimaneRimanenti);
+                    }
                 });
 
                 return {
                     totalWeeklyHours: Math.round(totalWeeklyHours * 10) / 10,
                     avgDailyHours: Math.round((totalWeeklyHours / 7) * 10) / 10,
+                    totalPages,
                     totalRemainingPages,
-                    estimatedWeeks: totalWeeklyHours > 0 ? Math.ceil(totalRemainingPages / (totalWeeklyHours * 8)) : 0
+                    estimatedCompletionWeeks,
+                    subjectsCount: materie.length
                 };
             },
 
@@ -3566,45 +4292,201 @@
                 };
 
                 if (elements.planSummary) {
-                    elements.planSummary.textContent = `Piano ottimizzato per ${App.State.materie.filter(m => m.status !== 'completato').length} materie`;
+                    const summaryText = `Piano ottimizzato per ${metrics.subjectsCount} materie con un carico di studio di ${metrics.totalWeeklyHours}h settimanali. Completamento stimato in ${metrics.estimatedCompletionWeeks || 'N/A'} settimane.`;
+                    elements.planSummary.textContent = summaryText;
                 }
 
                 if (elements.totalWeeklyHours) elements.totalWeeklyHours.textContent = `${metrics.totalWeeklyHours}h`;
                 if (elements.avgDailyHours) elements.avgDailyHours.textContent = `${metrics.avgDailyHours}h`;
                 if (elements.totalPages) elements.totalPages.textContent = metrics.totalRemainingPages;
-                if (elements.completionWeeks) elements.completionWeeks.textContent = metrics.estimatedWeeks;
+                if (elements.completionWeeks) elements.completionWeeks.textContent = metrics.estimatedCompletionWeeks || 'N/A';
             },
 
-            generateDetails(materie) {
-                const container = document.getElementById('pianDetails');
-                if (!container) return;
+            generateSuggestions(materieFiltrate, metrics) {
+                const suggestionsList = document.getElementById('suggestionsList');
+                if (!suggestionsList) return;
 
-                const sorted = materie
-                    .map(m => ({ ...m, priority: App.Utils.calculateSmartPriority(m) }))
-                    .sort((a, b) => b.priority - a.priority);
+                const suggestions = [];
+                
+                // Check workload
+                if (metrics.avgDailyHours > 6) {
+                    suggestions.push({
+                        title: "⚠️ Carico di Studio Intenso",
+                        description: `Con ${metrics.avgDailyHours}h al giorno, considera di distribuire meglio il carico per evitare il burnout.`
+                    });
+                } else if (metrics.avgDailyHours < 2) {
+                    suggestions.push({
+                        title: "⚡ Opportunità di Ottimizzazione",
+                        description: `Con solo ${metrics.avgDailyHours}h al giorno, potresti aumentare le ore di studio per raggiungere prima i tuoi obiettivi.`
+                    });
+                }
 
-                container.innerHTML = sorted.map(materia => `
-                    <div class="subject-item">
-                        <h4>${materia.nome}</h4>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${((materia.pagineStudiate || 0) / materia.pagine) * 100}%"></div>
-                        </div>
-                        <small>
-                            Priorità Score: ${materia.priority} | 
-                            Pagine: ${materia.pagineStudiate || 0}/${materia.pagine} | 
-                            CFU: ${materia.cfu}
-                        </small>
+                // Check upcoming exams
+                const materieConScadenza = materieFiltrate.filter(m => m.dataEsame);
+                if (materieConScadenza.length > 0) {
+                    const prossimeScadenze = materieConScadenza
+                        .map(m => ({ ...m, daysToExam: App.Utils.getDaysToExam(m.dataEsame) }))
+                        .filter(m => m.daysToExam <= 30 && m.daysToExam > 0)
+                        .sort((a, b) => a.daysToExam - b.daysToExam);
+
+                    if (prossimeScadenze.length > 0) {
+                        suggestions.push({
+                            title: "🎯 Focus su Priorità",
+                            description: `${prossimeScadenze[0].nome} ha l'esame tra ${prossimeScadenze[0].daysToExam} giorni. Concentra i tuoi sforzi!`
+                        });
+                    }
+                }
+
+                // Check time slots
+                const materieConSlots = materieFiltrate.filter(m => 
+                    m.slotSettimanali && Object.values(m.slotSettimanali).some(slots => slots.length > 0)
+                );
+                if (materieConSlots.length < materieFiltrate.length) {
+                    suggestions.push({
+                        title: "📅 Ottimizza Programmazione",
+                        description: `${materieFiltrate.length - materieConSlots.length} materie non hanno slot temporali definiti. Aggiungi degli orari per ottimizzare il piano.`
+                    });
+                }
+
+                if (suggestions.length === 0) {
+                    suggestions.push({
+                        title: "✅ Piano Ottimale",
+                        description: "Il tuo piano di studio è ben bilanciato! Continua così e mantieni la costanza."
+                    });
+                }
+
+                suggestionsList.innerHTML = suggestions.map(s => `
+                    <div class="fade-in-up" style="background: rgba(6, 214, 160, 0.05); border: 1px solid rgba(6, 214, 160, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="font-weight: 600; color: var(--secondary); margin-bottom: 0.5rem;">${s.title}</div>
+                        <div style="color: var(--text-primary);">${s.description}</div>
                     </div>
                 `).join('');
             },
 
+            generateDetails(materieFiltrate) {
+                const detailsContainer = document.getElementById('pianDetails');
+                if (!detailsContainer) return;
+
+                const materieOrdinate = materieFiltrate
+                    .map(m => ({ ...m, smartPriority: App.Utils.calculateSmartPriority(m) }))
+                    .sort((a, b) => b.smartPriority - a.smartPriority);
+
+                detailsContainer.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        ${materieOrdinate.map((materia, index) => {
+                            const progress = Math.round(((materia.pagineStudiate || 0) / materia.pagine) * 100);
+                            const pagineRimanenti = materia.pagine - (materia.pagineStudiate || 0);
+                            const daysToExam = App.Utils.getDaysToExam(materia.dataEsame);
+                            
+                            let oreTotaliSettimanali = 0;
+                            let slotsInfo = 'Nessun slot definito';
+                            
+                            if (materia.slotSettimanali) {
+                                const slots = [];
+                                Object.entries(materia.slotSettimanali).forEach(([giorno, slotArray]) => {
+                                    slotArray.forEach(slot => {
+                                        const durata = App.Utils.calculateTaskDuration(slot.inizio, slot.fine);
+                                        oreTotaliSettimanali += durata;
+                                        slots.push(`${giorno.charAt(0).toUpperCase() + giorno.slice(1)}: ${slot.inizio}-${slot.fine}`);
+                                    });
+                                });
+                                
+                                if (slots.length > 0) {
+                                    slotsInfo = slots.slice(0, 3).join('<br>') + (slots.length > 3 ? '<br>...' : '');
+                                }
+                            }
+                            
+                            const oreSettimanaliFormatted = Math.round(oreTotaliSettimanali / 60 * 10) / 10;
+                            const settimaneRimanenti = oreSettimanaliFormatted > 0 ? 
+                                Math.ceil(pagineRimanenti / ((oreSettimanaliFormatted) * (materia.pagineOra || 8))) : 'N/A';
+                            
+                            let borderColor = 'var(--border)';
+                            let priorityIcon = '📚';
+                            if (index === 0) { borderColor = 'var(--danger)'; priorityIcon = '🚨'; }
+                            else if (index === 1) { borderColor = 'var(--warning)'; priorityIcon = '🔥'; }
+                            else if (index === 2) { borderColor = 'var(--primary)'; priorityIcon = '⭐'; }
+                            
+                            return `
+                                <div class="fade-in-up" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--border-radius); padding: 1.5rem; border-left: 4px solid ${borderColor}; transition: all var(--transition);">
+                                    <div class="flex-between mb-2 flex-wrap">
+                                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--primary-light); flex: 1; min-width: 150px;">${materia.nome}</div>
+                                        <div class="flex gap-1 flex-wrap" style="align-items: center;">
+                                            <div style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; background: rgba(245, 158, 11, 0.2); color: #fcd34d;">${materia.priorita}</div>
+                                            <div style="background: ${borderColor}; color: white; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;" title="Posizione nella priorità">
+                                                ${priorityIcon} #${index + 1}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                                        <div style="text-align: center; padding: 0.75rem; background: var(--bg-card); border-radius: 8px;">
+                                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${progress}%</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Completato</div>
+                                        </div>
+                                        <div style="text-align: center; padding: 0.75rem; background: var(--bg-card); border-radius: 8px;">
+                                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">${pagineRimanenti}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Pagine Rim.</div>
+                                        </div>
+                                        <div style="text-align: center; padding: 0.75rem; background: var(--bg-card); border-radius: 8px;">
+                                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">${oreSettimanaliFormatted}h</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Ore/Sett.</div>
+                                        </div>
+                                        <div style="text-align: center; padding: 0.75rem; background: var(--bg-card); border-radius: 8px;">
+                                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">${settimaneRimanenti}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Sett. Stim.</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px;">
+                                        <div style="font-weight: 600; color: var(--primary-light); margin-bottom: 0.5rem;">🎯 Score Intelligente</div>
+                                        <div style="font-size: 0.9rem; color: var(--text-primary);">
+                                            <strong>${materia.smartPriority} punti</strong> • Posizione: <strong>#${index + 1}</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--secondary); margin-bottom: 0.5rem;">📅 Programma:</div>
+                                        <div style="font-size: 0.9rem; color: var(--text-secondary);">${slotsInfo}</div>
+                                    </div>
+                                    
+                                    ${materia.dataEsame ? `
+                                        <div style="margin-top: 1rem; padding: 0.75rem; background: ${daysToExam <= 14 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; border-radius: 8px;">
+                                            <strong>📅 Esame:</strong> ${new Date(materia.dataEsame).toLocaleDateString('it-IT')}<br>
+                                            <small style="color: ${daysToExam <= 14 ? 'var(--danger)' : 'var(--warning)'};">
+                                                ${daysToExam <= 7 ? '🚨 URGENTE: ' : '⚠️ '}Giorni rimanenti: ${daysToExam || 'N/A'}
+                                            </small>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            },
+
             showEmptyState() {
-                const container = document.getElementById('pianDetails');
-                if (container) {
-                    container.innerHTML = `
+                const detailsContainer = document.getElementById('pianDetails');
+                const suggestionsList = document.getElementById('suggestionsList');
+                
+                if (detailsContainer) {
+                    detailsContainer.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-icon">📋</div>
-                            <p>Aggiungi delle materie per generare il tuo piano!</p>
+                            <p>Aggiungi delle materie per generare il tuo piano personalizzato!</p>
+                            <p style="margin-top: 1rem;">
+                                <button class="btn btn-primary" onclick="App.Navigation.showSection('materie', document.querySelector('[data-section=\\'materie\\']'))">
+                                    ➕ Aggiungi Prima Materia
+                                </button>
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                if (suggestionsList) {
+                    suggestionsList.innerHTML = `
+                        <div style="background: rgba(6, 214, 160, 0.05); border: 1px solid rgba(6, 214, 160, 0.2); border-radius: 12px; padding: 1rem;">
+                            <div style="font-weight: 600; color: var(--secondary); margin-bottom: 0.5rem;">💡 Inizia il tuo percorso</div>
+                            <div style="color: var(--text-primary);">Aggiungi le tue materie per ricevere suggerimenti personalizzati!</div>
                         </div>
                     `;
                 }
