@@ -1414,19 +1414,19 @@
                 FinanceAI
             </div>
             <nav class="nav-tabs">
-                <button class="nav-tab active" onclick="showTab('dashboard', this)">
+                <button class="nav-tab active" onclick="TabManager.show('dashboard', this)">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </button>
-                <button class="nav-tab" onclick="showTab('transactions', this)">
+                <button class="nav-tab" onclick="TabManager.show('transactions', this)">
                     <i class="fas fa-exchange-alt"></i> Transazioni
                 </button>
-                <button class="nav-tab" onclick="showTab('analytics', this)">
+                <button class="nav-tab" onclick="TabManager.show('analytics', this)">
                     <i class="fas fa-chart-bar"></i> Analytics
                 </button>
-                <button class="nav-tab" onclick="showTab('calendar', this)">
+                <button class="nav-tab" onclick="TabManager.show('calendar', this)">
                     <i class="fas fa-calendar"></i> Calendario
                 </button>
-                <button class="nav-tab" onclick="showTab('goals', this)">
+                <button class="nav-tab" onclick="TabManager.show('goals', this)">
                     <i class="fas fa-target"></i> Obiettivi
                 </button>
             </nav>
@@ -1434,7 +1434,7 @@
     </header>
 
     <!-- Floating Action Button -->
-    <button class="btn btn-primary btn-floating gpu-accelerated" onclick="showQuickActions()" title="Azioni Rapide">
+    <button class="btn btn-primary btn-floating gpu-accelerated" onclick="ModalManager.showQuickActions()" title="Azioni Rapide">
         <i class="fas fa-plus"></i>
     </button>
 
@@ -1458,9 +1458,9 @@
                         <div class="balance-input">
                             <label class="form-label">Patrimonio Attuale (€)</label>
                             <input type="number" step="0.01" class="form-input" id="initial-balance" 
-                                   placeholder="0.00" onchange="updateInitialBalance()">
+                                   placeholder="0.00" onchange="BalanceManager.update()">
                         </div>
-                        <button class="btn btn-success balance-btn" onclick="updateInitialBalance()">
+                        <button class="btn btn-success balance-btn" onclick="BalanceManager.update()">
                             <i class="fas fa-save"></i> Aggiorna
                         </button>
                     </div>
@@ -1510,16 +1510,16 @@
                 </div>
                 <div class="card-body">
                     <div class="flex gap-2 flex-wrap">
-                        <button class="btn btn-success" onclick="openTransactionModal('income')">
+                        <button class="btn btn-success" onclick="TransactionManager.openModal('income')">
                             <i class="fas fa-arrow-up"></i> Aggiungi Entrata
                         </button>
-                        <button class="btn btn-danger" onclick="openTransactionModal('expense')">
+                        <button class="btn btn-danger" onclick="TransactionManager.openModal('expense')">
                             <i class="fas fa-arrow-down"></i> Aggiungi Spesa
                         </button>
-                        <button class="btn btn-primary" onclick="generateAIInsights()">
+                        <button class="btn btn-primary" onclick="AIInsights.generate()">
                             <i class="fas fa-magic"></i> Genera Insights AI
                         </button>
-                        <button class="btn btn-secondary" onclick="exportData()">
+                        <button class="btn btn-secondary" onclick="DataManager.export()">
                             <i class="fas fa-download"></i> Esporta Dati
                         </button>
                     </div>
@@ -1533,7 +1533,7 @@
                         <i class="fas fa-history"></i>
                         Transazioni Recenti
                     </h3>
-                    <button class="btn btn-secondary btn-sm" onclick="showTab('transactions')">
+                    <button class="btn btn-secondary btn-sm" onclick="TabManager.show('transactions')">
                         Vedi Tutto
                     </button>
                 </div>
@@ -1554,10 +1554,10 @@
                         Gestione Transazioni
                     </h3>
                     <div class="flex gap-2">
-                        <button class="btn btn-success btn-sm" onclick="openTransactionModal('income')">
+                        <button class="btn btn-success btn-sm" onclick="TransactionManager.openModal('income')">
                             <i class="fas fa-plus"></i> Entrata
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="openTransactionModal('expense')">
+                        <button class="btn btn-danger btn-sm" onclick="TransactionManager.openModal('expense')">
                             <i class="fas fa-plus"></i> Spesa
                         </button>
                     </div>
@@ -1567,19 +1567,19 @@
                     <div class="search-container">
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" class="form-input search-input" id="transaction-search" 
-                               placeholder="Cerca transazioni..." onkeyup="searchTransactions()">
+                               placeholder="Cerca transazioni..." onkeyup="TransactionRenderer.search()">
                     </div>
                     
                     <div class="form-row mb-4">
                         <div class="form-group">
                             <label class="form-label">Filtra per Categoria</label>
-                            <select class="form-select" id="category-filter" onchange="filterTransactions()">
+                            <select class="form-select" id="category-filter" onchange="TransactionRenderer.filter()">
                                 <option value="">Tutte le categorie</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Filtra per Tipo</label>
-                            <select class="form-select" id="type-filter" onchange="filterTransactions()">
+                            <select class="form-select" id="type-filter" onchange="TransactionRenderer.filter()">
                                 <option value="">Tutti i tipi</option>
                                 <option value="income">Entrate</option>
                                 <option value="expense">Spese</option>
@@ -1650,11 +1650,11 @@
                         Calendario Finanziario
                     </h3>
                     <div class="flex items-center gap-2">
-                        <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">
+                        <button class="btn btn-secondary btn-sm" onclick="CalendarManager.changeMonth(-1)">
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <span id="current-month" class="font-weight-600"></span>
-                        <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">
+                        <button class="btn btn-secondary btn-sm" onclick="CalendarManager.changeMonth(1)">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -1675,7 +1675,7 @@
                         <i class="fas fa-bullseye"></i>
                         Obiettivi di Risparmio
                     </h3>
-                    <button class="btn btn-primary" onclick="openGoalModal()">
+                    <button class="btn btn-primary" onclick="GoalsManager.openModal()">
                         <i class="fas fa-plus"></i> Nuovo Obiettivo
                     </button>
                 </div>
@@ -1691,20 +1691,20 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Azioni Rapide</h3>
-                <button class="modal-close" onclick="closeModal('quick-actions-modal')">&times;</button>
+                <button class="modal-close" onclick="ModalManager.close('quick-actions-modal')">&times;</button>
             </div>
             <div class="modal-body">
                 <div style="display: grid; gap: 1.5rem;">
-                    <button class="btn btn-success" onclick="openTransactionModal('income'); closeModal('quick-actions-modal')">
+                    <button class="btn btn-success" onclick="TransactionManager.openModal('income'); ModalManager.close('quick-actions-modal')">
                         <i class="fas fa-arrow-up"></i> Nuova Entrata
                     </button>
-                    <button class="btn btn-danger" onclick="openTransactionModal('expense'); closeModal('quick-actions-modal')">
+                    <button class="btn btn-danger" onclick="TransactionManager.openModal('expense'); ModalManager.close('quick-actions-modal')">
                         <i class="fas fa-arrow-down"></i> Nuova Spesa
                     </button>
-                    <button class="btn btn-primary" onclick="generateAIInsights(); closeModal('quick-actions-modal')">
+                    <button class="btn btn-primary" onclick="AIInsights.generate(); ModalManager.close('quick-actions-modal')">
                         <i class="fas fa-magic"></i> Insights AI
                     </button>
-                    <button class="btn btn-secondary" onclick="exportData(); closeModal('quick-actions-modal')">
+                    <button class="btn btn-secondary" onclick="DataManager.export(); ModalManager.close('quick-actions-modal')">
                         <i class="fas fa-download"></i> Esporta Dati
                     </button>
                 </div>
@@ -1717,10 +1717,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="modal-title">Nuova Transazione</h3>
-                <button class="modal-close" onclick="closeModal('transaction-modal')">&times;</button>
+                <button class="modal-close" onclick="ModalManager.close('transaction-modal')">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="transaction-form" onsubmit="handleTransactionSubmit(event)">
+                <form id="transaction-form" onsubmit="TransactionManager.handleSubmit(event)">
                     <div class="form-group">
                         <label class="form-label">Descrizione</label>
                         <input type="text" class="form-input" id="transaction-description" 
@@ -1750,7 +1750,7 @@
                     <input type="hidden" id="transaction-id">
                     
                     <div class="flex justify-between">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('transaction-modal')">
+                        <button type="button" class="btn btn-secondary" onclick="ModalManager.close('transaction-modal')">
                             <i class="fas fa-times"></i> Annulla
                         </button>
                         <button type="submit" class="btn btn-primary">
@@ -1767,10 +1767,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Nuovo Obiettivo</h3>
-                <button class="modal-close" onclick="closeModal('goal-modal')">&times;</button>
+                <button class="modal-close" onclick="ModalManager.close('goal-modal')">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="goal-form" onsubmit="handleGoalSubmit(event)">
+                <form id="goal-form" onsubmit="GoalsManager.handleSubmit(event)">
                     <div class="form-group">
                         <label class="form-label">Nome Obiettivo</label>
                         <input type="text" class="form-input" id="goal-name" 
@@ -1798,7 +1798,7 @@
                     <input type="hidden" id="goal-id">
                     
                     <div class="flex justify-between">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('goal-modal')">
+                        <button type="button" class="btn btn-secondary" onclick="ModalManager.close('goal-modal')">
                             <i class="fas fa-times"></i> Annulla
                         </button>
                         <button type="submit" class="btn btn-primary">
@@ -1811,668 +1811,598 @@
     </div>
 
     <script>
-        // Global Variables - Ottimizzate per performance
-        const CATEGORIES = Object.freeze({
-            income: [
-                'Stipendio', 'Freelance', 'Investimenti', 'Dividendi', 'Affitto Passivo',
-                'Bonus', 'Regali', 'Vendite', 'Rimborsi', 'Altro'
-            ],
-            expense: [
-                'Alimentari', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Carburante',
-                'Salute', 'Farmacia', 'Intrattenimento', 'Abbigliamento', 'Tecnologia',
-                'Viaggi', 'Ristoranti', 'Educazione', 'Sport/Fitness', 'Casa/Manutenzione',
-                'Assicurazioni', 'Tasse', 'Regali', 'Altro'
-            ]
+        // Constants - Improved organization
+        const CONSTANTS = Object.freeze({
+            CATEGORIES: {
+                income: [
+                    'Stipendio', 'Freelance', 'Investimenti', 'Dividendi', 'Affitto Passivo',
+                    'Bonus', 'Regali', 'Vendite', 'Rimborsi', 'Altro'
+                ],
+                expense: [
+                    'Alimentari', 'Bollette', 'Affitto/Mutuo', 'Trasporti', 'Carburante',
+                    'Salute', 'Farmacia', 'Intrattenimento', 'Abbigliamento', 'Tecnologia',
+                    'Viaggi', 'Ristoranti', 'Educazione', 'Sport/Fitness', 'Casa/Manutenzione',
+                    'Assicurazioni', 'Tasse', 'Regali', 'Altro'
+                ]
+            },
+            CATEGORY_COLORS: {
+                'Stipendio': '#06d6a0', 'Freelance': '#04a777', 'Investimenti': '#059669',
+                'Dividendi': '#10b981', 'Affitto Passivo': '#14b8a6', 'Bonus': '#0d9488',
+                'Regali': '#2563eb', 'Vendite': '#3b82f6', 'Rimborsi': '#60a5fa', 'Altro': '#8b5cf6',
+                'Alimentari': '#ef4444', 'Bollette': '#dc2626', 'Affitto/Mutuo': '#b91c1c',
+                'Trasporti': '#f59e0b', 'Carburante': '#d97706', 'Salute': '#ea580c',
+                'Farmacia': '#c2410c', 'Intrattenimento': '#7c3aed', 'Abbigliamento': '#a855f7',
+                'Tecnologia': '#8b5cf6', 'Viaggi': '#c084fc', 'Ristoranti': '#ec4899',
+                'Educazione': '#db2777', 'Sport/Fitness': '#be185d', 'Casa/Manutenzione': '#9d174d',
+                'Assicurazioni': '#831843', 'Tasse': '#701a75'
+            },
+            DEBOUNCE_DELAY: 300,
+            RESIZE_DELAY: 250,
+            AUTOSAVE_INTERVAL: 30000
         });
 
-        const CATEGORY_COLORS = Object.freeze({
-            'Stipendio': '#06d6a0', 'Freelance': '#04a777', 'Investimenti': '#059669',
-            'Dividendi': '#10b981', 'Affitto Passivo': '#14b8a6', 'Bonus': '#0d9488',
-            'Regali': '#2563eb', 'Vendite': '#3b82f6', 'Rimborsi': '#60a5fa', 'Altro': '#8b5cf6',
-            'Alimentari': '#ef4444', 'Bollette': '#dc2626', 'Affitto/Mutuo': '#b91c1c',
-            'Trasporti': '#f59e0b', 'Carburante': '#d97706', 'Salute': '#ea580c',
-            'Farmacia': '#c2410c', 'Intrattenimento': '#7c3aed', 'Abbigliamento': '#a855f7',
-            'Tecnologia': '#8b5cf6', 'Viaggi': '#c084fc', 'Ristoranti': '#ec4899',
-            'Educazione': '#db2777', 'Sport/Fitness': '#be185d', 'Casa/Manutenzione': '#9d174d',
-            'Assicurazioni': '#831843', 'Tasse': '#701a75'
-        });
-
-        // Performance optimized - no localStorage dependency
-        let appData = {
-            transactions: [],
-            goals: [],
-            initialBalance: 0,
-            settings: { currency: 'EUR', theme: 'dark', notifications: true }
+        // Global State Management - Optimized
+        const AppState = {
+            data: {
+                transactions: [],
+                goals: [],
+                initialBalance: 0,
+                settings: { currency: 'EUR', theme: 'dark', notifications: true }
+            },
+            ui: {
+                currentTab: 'dashboard',
+                currentMonth: new Date(),
+                charts: {},
+                searchTimeout: null,
+                resizeTimeout: null,
+                autoSaveInterval: null
+            },
+            cache: {
+                stats: null,
+                lastStatsUpdate: 0,
+                duration: 5000
+            }
         };
 
-        let currentTab = 'dashboard';
-        let currentMonth = new Date();
-        let charts = {};
-        
-        // Ottimizzazione: Debouncing per search e resize
-        let searchTimeout = null;
-        let resizeTimeout = null;
+        // Utility Functions - Optimized
+        const Utils = {
+            formatCurrency: (() => {
+                const formatter = new Intl.NumberFormat('it-IT', {
+                    style: 'currency',
+                    currency: 'EUR'
+                });
+                return amount => formatter.format(amount || 0);
+            })(),
 
-        // Error Handlers - Migliorati
-        window.addEventListener('error', function(e) {
-            console.error('Errore applicazione:', e.error);
-            showNotification('Si è verificato un errore. Ricarica la pagina se il problema persiste.', 'error');
-        });
+            formatDate: (() => {
+                const formatter = new Intl.DateTimeFormat('it-IT');
+                return date => formatter.format(new Date(date));
+            })(),
 
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Promise rejection:', e.reason);
-            e.preventDefault();
-        });
+            formatDateRelative(date) {
+                const now = new Date();
+                const diffTime = now - new Date(date);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) return 'Oggi';
+                if (diffDays === 1) return 'Ieri';
+                if (diffDays < 7) return `${diffDays} giorni fa`;
+                if (diffDays < 30) return `${Math.floor(diffDays / 7)} settimane fa`;
+                return this.formatDate(date);
+            },
 
-        // Performance: Resize event optimization
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                if (currentTab === 'analytics' && Object.keys(charts).length > 0) {
-                    Object.values(charts).forEach(chart => {
-                        if (chart && typeof chart.resize === 'function') {
-                            chart.resize();
-                        }
-                    });
-                }
-            }, 250);
-        });
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            },
 
-        // Modal click-outside to close
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal')) {
-                closeModal(e.target.id);
-            }
-        });
-
-        // Utility Functions - Ottimizzate
-        const formatCurrency = (function() {
-            const formatter = new Intl.NumberFormat('it-IT', {
-                style: 'currency',
-                currency: 'EUR'
-            });
-            return function(amount) {
-                return formatter.format(amount || 0);
-            };
-        })();
-
-        const formatDate = (function() {
-            const formatter = new Intl.DateTimeFormat('it-IT');
-            return function(date) {
-                return formatter.format(new Date(date));
-            };
-        })();
-
-        function formatDateRelative(date) {
-            const now = new Date();
-            const diffTime = now - new Date(date);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 0) return 'Oggi';
-            if (diffDays === 1) return 'Ieri';
-            if (diffDays < 7) return `${diffDays} giorni fa`;
-            if (diffDays < 30) return `${Math.floor(diffDays / 7)} settimane fa`;
-            return formatDate(date);
-        }
-
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
-        // Data Persistence Functions - Risolve il problema della perdita dati
-        function saveData() {
-            try {
-                // Auto-save periodico in background
-                const data = {
-                    exported_at: new Date().toISOString(),
-                    initial_balance: appData.initialBalance,
-                    transactions: appData.transactions,
-                    goals: appData.goals,
-                    settings: appData.settings
+            debounce(func, delay = CONSTANTS.DEBOUNCE_DELAY) {
+                let timeoutId;
+                return function(...args) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => func.apply(this, args), delay);
                 };
-                
-                // Salvataggio in memoria
-                window.financeAIData = data;
-                
-                // Aggiorna status
-                updateAutoSaveStatus('Dati salvati automaticamente');
-                
-                console.log('Data auto-saved successfully');
-            } catch (error) {
-                console.error('Errore nel salvataggio automatico:', error);
-            }
-        }
+            },
 
-        function loadData() {
-            try {
-                // Carica dai dati in memoria se disponibili
-                if (window.financeAIData) {
-                    const data = window.financeAIData;
-                    appData.initialBalance = data.initial_balance || 0;
-                    appData.transactions = data.transactions || [];
-                    appData.goals = data.goals || [];
-                    appData.settings = data.settings || { currency: 'EUR', theme: 'dark', notifications: true };
-                    
-                    updateAutoSaveStatus('Dati caricati dalla sessione');
+            safeUpdate(elementId, content, isHTML = false) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    if (isHTML) {
+                        element.innerHTML = content;
+                    } else {
+                        element.textContent = content;
+                    }
                     return true;
                 }
-            } catch (error) {
-                console.error('Errore nel caricamento:', error);
-            }
-            return false;
-        }
+                return false;
+            },
 
-        function exportData() {
-            try {
-                const data = {
-                    exported_at: new Date().toISOString(),
-                    app_version: '2.0',
-                    initial_balance: appData.initialBalance,
-                    transactions: appData.transactions,
-                    goals: appData.goals,
-                    settings: appData.settings,
-                    summary: {
-                        total_transactions: appData.transactions.length,
-                        total_goals: appData.goals.length,
-                        total_income: appData.transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0),
-                        total_expenses: Math.abs(appData.transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0))
+            withErrorBoundary(fn, errorMessage = 'Si è verificato un errore') {
+                return function(...args) {
+                    try {
+                        return fn.apply(this, args);
+                    } catch (error) {
+                        console.error(`Error in ${fn.name}:`, error);
+                        NotificationManager.show(errorMessage, 'error');
                     }
                 };
-                
-                const dataStr = JSON.stringify(data, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `financeai-backup-${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                
-                URL.revokeObjectURL(link.href);
-                
-                showNotification('Backup esportato con successo! File salvato nei download.', 'success');
-            } catch (error) {
-                console.error('Errore nell\'esportazione:', error);
-                showNotification('Errore nell\'esportazione dei dati.', 'error');
             }
-        }
+        };
 
-        function importData(fileInput) {
-            const file = fileInput.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
+        // Data Management - Improved
+        const DataManager = {
+            save() {
                 try {
-                    const data = JSON.parse(e.target.result);
+                    const data = {
+                        exported_at: new Date().toISOString(),
+                        initial_balance: AppState.data.initialBalance,
+                        transactions: AppState.data.transactions,
+                        goals: AppState.data.goals,
+                        settings: AppState.data.settings
+                    };
                     
-                    // Validazione dati
-                    if (!data.transactions && !data.goals && data.initial_balance === undefined) {
-                        throw new Error('File non valido: formato dati non riconosciuto');
-                    }
-                    
-                    // Conferma import
-                    if (confirm(`Importare ${data.transactions?.length || 0} transazioni e ${data.goals?.length || 0} obiettivi? I dati attuali verranno sostituiti.`)) {
-                        appData.initialBalance = data.initial_balance || 0;
-                        appData.transactions = data.transactions || [];
-                        appData.goals = data.goals || [];
-                        appData.settings = data.settings || appData.settings;
-                        
-                        saveData();
-                        updateDashboard();
-                        renderGoals();
-                        renderAllTransactions();
-                        loadInitialBalance();
-                        
-                        showNotification(`Dati importati: ${appData.transactions.length} transazioni, ${appData.goals.length} obiettivi`, 'success');
+                    window.financeAIData = data;
+                    console.log('Data auto-saved successfully');
+                } catch (error) {
+                    console.error('Errore nel salvataggio automatico:', error);
+                }
+            },
+
+            load() {
+                try {
+                    if (window.financeAIData) {
+                        const data = window.financeAIData;
+                        AppState.data.initialBalance = data.initial_balance || 0;
+                        AppState.data.transactions = data.transactions || [];
+                        AppState.data.goals = data.goals || [];
+                        AppState.data.settings = data.settings || AppState.data.settings;
+                        return true;
                     }
                 } catch (error) {
-                    console.error('Errore nell\'importazione:', error);
-                    showNotification('Errore: file non valido o corrotto.', 'error');
+                    console.error('Errore nel caricamento:', error);
                 }
-            };
-            
-            reader.readAsText(file);
-            fileInput.value = '';
-        }
+                return false;
+            },
 
-        function autoSaveData() {
-            saveData();
-            showNotification('Salvataggio manuale completato!', 'success');
-        }
-
-        function updateAutoSaveStatus(message) {
-            const statusEl = document.getElementById('auto-save-status');
-            if (statusEl) {
-                const timestamp = new Date().toLocaleTimeString('it-IT');
-                statusEl.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success-color);"></i> ${message} - ${timestamp}`;
-            }
-        }
-
-        // Enhanced Goals Management - Risolve personalizzazione importi
-        function addCustomAmount(goalId, isSubtraction) {
-            const input = document.getElementById(`custom-amount-${goalId}`);
-            if (!input) {
-                showNotification('Errore: campo importo non trovato', 'error');
-                return;
-            }
-            
-            const amount = parseFloat(input.value);
-            if (isNaN(amount) || amount <= 0) {
-                showNotification('Inserisci un importo valido maggiore di zero (es: 15.50)', 'error');
-                input.focus();
-                return;
-            }
-            
-            if (amount > 999999) {
-                showNotification('Importo troppo elevato (max €999,999)', 'error');
-                return;
-            }
-            
-            const finalAmount = isSubtraction ? -amount : amount;
-            updateGoalProgress(goalId, finalAmount);
-            
-            // Effetto visivo e pulizia
-            input.value = '';
-            input.style.transform = 'scale(1.05)';
-            setTimeout(() => {
-                if (input) input.style.transform = 'scale(1)';
-            }, 200);
-        }
-
-        function updateGoalProgress(goalId, amount) {
-            const goal = appData.goals.find(g => g.id === goalId);
-            if (!goal) {
-                showNotification('Errore: obiettivo non trovato', 'error');
-                return;
-            }
-            
-            const newAmount = goal.current + amount;
-            if (newAmount < 0) {
-                showNotification('Il progresso non può essere negativo', 'error');
-                return;
-            }
-            
-            const oldProgress = (goal.current / goal.target) * 100;
-            goal.current = newAmount;
-            const newProgress = (goal.current / goal.target) * 100;
-            
-            saveData();
-            renderGoals();
-            
-            const action = amount > 0 ? 'aggiunto a' : 'rimosso da';
-            let message = `${formatCurrency(Math.abs(amount))} ${action} "${goal.name}"`;
-            
-            // Messaggio speciale per traguardi
-            if (newProgress >= 100 && oldProgress < 100) {
-                message += ' 🎉 Obiettivo completato!';
-            } else if (newProgress >= 50 && oldProgress < 50) {
-                message += ' 🎯 Hai raggiunto il 50%!';
-            } else if (newProgress >= 75 && oldProgress < 75) {
-                message += ' 🚀 Ci sei quasi, 75% completato!';
-            }
-            
-            showNotification(message, newProgress >= 100 ? 'success' : 'info');
-        }
-
-        function completeGoal(goalId) {
-            const goal = appData.goals.find(g => g.id === goalId);
-            if (!goal) return;
-            
-            if (confirm(`Segnare "${goal.name}" come completato?`)) {
-                goal.current = goal.target;
-                goal.completed_at = new Date().toISOString();
-                
-                saveData();
-                renderGoals();
-                
-                showNotification(`🎉 Congratulazioni! Hai completato "${goal.name}"!`, 'success');
-            }
-        }
-
-        // Auto-save periodico ogni 30 secondi
-        let autoSaveInterval;
-        
-        function startAutoSave() {
-            autoSaveInterval = setInterval(() => {
-                if (appData.transactions.length > 0 || appData.goals.length > 0 || appData.initialBalance > 0) {
-                    saveData();
+            export() {
+                try {
+                    const data = {
+                        exported_at: new Date().toISOString(),
+                        app_version: '2.1',
+                        initial_balance: AppState.data.initialBalance,
+                        transactions: AppState.data.transactions,
+                        goals: AppState.data.goals,
+                        settings: AppState.data.settings,
+                        summary: {
+                            total_transactions: AppState.data.transactions.length,
+                            total_goals: AppState.data.goals.length,
+                            total_income: AppState.data.transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0),
+                            total_expenses: Math.abs(AppState.data.transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0))
+                        }
+                    };
+                    
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `financeai-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    link.click();
+                    
+                    URL.revokeObjectURL(link.href);
+                    
+                    NotificationManager.show('Backup esportato con successo! File salvato nei download.', 'success');
+                } catch (error) {
+                    console.error('Errore nell\'esportazione:', error);
+                    NotificationManager.show('Errore nell\'esportazione dei dati.', 'error');
                 }
-            }, 30000); // 30 secondi
-        }
+            },
 
-        function stopAutoSave() {
-            if (autoSaveInterval) {
-                clearInterval(autoSaveInterval);
-                autoSaveInterval = null;
+            startAutoSave() {
+                AppState.ui.autoSaveInterval = setInterval(() => {
+                    if (AppState.data.transactions.length > 0 || AppState.data.goals.length > 0 || AppState.data.initialBalance > 0) {
+                        this.save();
+                    }
+                }, CONSTANTS.AUTOSAVE_INTERVAL);
+            },
+
+            stopAutoSave() {
+                if (AppState.ui.autoSaveInterval) {
+                    clearInterval(AppState.ui.autoSaveInterval);
+                    AppState.ui.autoSaveInterval = null;
+                }
             }
-        }
+        };
 
-        function showNotification(message, type = 'info') {
-            if (!message) return;
-            
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(n => n.remove());
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOutNotification 0.6s ease-in forwards';
+        // Notification Management - Optimized
+        const NotificationManager = {
+            show(message, type = 'info', duration = 4000) {
+                if (!message) return;
+                
+                // Remove existing notifications
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(n => {
+                    n.style.animation = 'slideOutNotification 0.3s ease-in forwards';
+                    setTimeout(() => n.remove(), 300);
+                });
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                if (message.includes('<br>') || message.includes('<i class=')) {
+                    notification.innerHTML = message;
+                } else {
+                    notification.textContent = message;
+                }
+                
+                document.body.appendChild(notification);
+                
                 setTimeout(() => {
                     if (notification.parentNode) {
-                        notification.remove();
+                        notification.style.animation = 'slideOutNotification 0.6s ease-in forwards';
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 600);
                     }
-                }, 600);
-            }, 4000);
-        }
-
-        // Initial Balance Management
-        function updateInitialBalance() {
-            const balanceInput = document.getElementById('initial-balance');
-            const newBalance = parseFloat(balanceInput.value) || 0;
-            
-            if (newBalance < 0) {
-                showNotification('Il patrimonio iniziale non può essere negativo', 'error');
-                return;
+                }, duration);
             }
-            
-            appData.initialBalance = newBalance;
-            saveData();
-            updateDashboard();
-            
-            showNotification('Patrimonio iniziale aggiornato con successo!', 'success');
-        }
+        };
 
-        function loadInitialBalance() {
-            const balanceInput = document.getElementById('initial-balance');
-            const balanceDisplay = document.getElementById('initial-balance-display');
-            
-            if (balanceInput && balanceDisplay) {
-                balanceInput.value = appData.initialBalance || 0;
-                balanceDisplay.textContent = formatCurrency(appData.initialBalance || 0);
-            }
-        }
+        // Modal Management - Optimized
+        const ModalManager = {
+            open(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    const firstFocusable = modal.querySelector('input, button, select, textarea');
+                    if (firstFocusable) {
+                        setTimeout(() => firstFocusable.focus(), 100);
+                    }
+                }
+            },
 
-        // Tab Management - Ottimizzato
-        function showTab(tabName, clickedElement) {
-            if (!tabName || currentTab === tabName) return;
-            
-            // Fade out current content
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.opacity = '0.7';
+            close(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            },
+
+            showQuickActions() {
+                this.open('quick-actions-modal');
             }
-            
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    // Hide all tabs
+        };
+
+        // Tab Management - Optimized
+        const TabManager = {
+            show(tabName, clickedElement) {
+                if (!tabName || AppState.ui.currentTab === tabName) return;
+                
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.style.opacity = '0.8';
+                }
+                
+                requestAnimationFrame(() => {
                     document.querySelectorAll('.tab-content').forEach(tab => {
                         tab.classList.add('hidden');
                     });
                     
-                    // Remove active from all nav tabs
                     document.querySelectorAll('.nav-tab').forEach(tab => {
                         tab.classList.remove('active');
                     });
                     
-                    // Show target tab
                     const targetTab = document.getElementById(tabName + '-tab');
                     if (targetTab) {
                         targetTab.classList.remove('hidden');
                     }
                     
-                    // Set active nav tab
                     if (clickedElement) {
                         clickedElement.classList.add('active');
                     }
                     
-                    currentTab = tabName;
+                    AppState.ui.currentTab = tabName;
                     
-                    // Tab-specific initialization
-                    switch(tabName) {
-                        case 'analytics':
-                            setTimeout(updateCharts, 100); // Delay for DOM rendering
-                            break;
-                        case 'calendar':
-                            renderCalendar();
-                            break;
-                        case 'goals':
-                            renderGoals();
-                            break;
-                        case 'transactions':
-                            renderAllTransactions();
-                            populateCategoryFilters();
-                            break;
-                        case 'dashboard':
-                            updateDashboard();
-                            loadInitialBalance();
-                            break;
-                    }
-                    
-                    // Fade in new content
-                    if (container) {
-                        container.style.opacity = '1';
-                    }
-                }, 50);
-            });
-        }
-
-        // Modal Management
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                
-                // Focus management
-                const firstFocusable = modal.querySelector('input, button, select, textarea');
-                if (firstFocusable) {
-                    setTimeout(() => firstFocusable.focus(), 100);
-                }
-            }
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
-
-        function showQuickActions() {
-            openModal('quick-actions-modal');
-        }
-
-        function openTransactionModal(type, transaction = null) {
-            if (!type) return;
-            
-            const modal = document.getElementById('transaction-modal');
-            const form = document.getElementById('transaction-form');
-            const titleElement = document.getElementById('modal-title');
-            const categorySelect = document.getElementById('transaction-category');
-            
-            if (!modal || !form || !titleElement || !categorySelect) return;
-            
-            form.reset();
-            
-            // Set today's date
-            const dateInput = document.getElementById('transaction-date');
-            if (dateInput) {
-                const today = new Date();
-                const year = today.getFullYear();
-                const monthNum = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                dateInput.value = `${year}-${monthNum}-${day}`;
-            }
-            
-            // Populate categories
-            categorySelect.innerHTML = '';
-            const categories = CATEGORIES[type] || [];
-            
-            // Use DocumentFragment for better performance
-            const fragment = document.createDocumentFragment();
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                fragment.appendChild(option);
-            });
-            categorySelect.appendChild(fragment);
-            
-            // Fill form if editing
-            if (transaction) {
-                titleElement.textContent = 'Modifica Transazione';
-                const idInput = document.getElementById('transaction-id');
-                const descInput = document.getElementById('transaction-description');
-                const amountInput = document.getElementById('transaction-amount');
-                const dateEditInput = document.getElementById('transaction-date');
-                
-                if (idInput) idInput.value = transaction.id;
-                if (descInput) descInput.value = transaction.description;
-                if (amountInput) amountInput.value = Math.abs(transaction.amount);
-                if (dateEditInput) dateEditInput.value = transaction.date;
-                if (categorySelect) categorySelect.value = transaction.category;
-            } else {
-                titleElement.textContent = type === 'income' ? 'Nuova Entrata' : 'Nuova Spesa';
-                const idInput = document.getElementById('transaction-id');
-                if (idInput) idInput.value = '';
-            }
-            
-            const typeInput = document.getElementById('transaction-type');
-            if (typeInput) typeInput.value = type;
-            
-            openModal('transaction-modal');
-        }
-
-        function openGoalModal(goal = null) {
-            const form = document.getElementById('goal-form');
-            if (!form) return;
-            
-            form.reset();
-            
-            if (goal) {
-                const fields = ['goal-id', 'goal-name', 'goal-target', 'goal-date', 'goal-description'];
-                const values = [goal.id, goal.name, goal.target, goal.date, goal.description || ''];
-                
-                fields.forEach((fieldId, index) => {
-                    const field = document.getElementById(fieldId);
-                    if (field && values[index] !== undefined) {
-                        field.value = values[index];
-                    }
-                });
-            } else {
-                const idInput = document.getElementById('goal-id');
-                const dateInput = document.getElementById('goal-date');
-                
-                if (idInput) idInput.value = '';
-                if (dateInput) {
-                    const nextMonth = new Date();
-                    nextMonth.setMonth(nextMonth.getMonth() + 1);
-                    const year = nextMonth.getFullYear();
-                    const monthNum = String(nextMonth.getMonth() + 1).padStart(2, '0');
-                    const day = String(nextMonth.getDate()).padStart(2, '0');
-                    dateInput.value = `${year}-${monthNum}-${day}`;
-                }
-            }
-            
-            openModal('goal-modal');
-        }
-
-        // Transaction Management
-        function handleTransactionSubmit(e) {
-            if (e) e.preventDefault();
-            
-            const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
-            const originalText = submitBtn ? submitBtn.innerHTML : '';
-            
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-                submitBtn.disabled = true;
-            }
-            
-            setTimeout(() => {
-                try {
-                    const idInput = document.getElementById('transaction-id');
-                    const typeInput = document.getElementById('transaction-type');
-                    const descInput = document.getElementById('transaction-description');
-                    const amountInput = document.getElementById('transaction-amount');
-                    const dateInput = document.getElementById('transaction-date');
-                    const categoryInput = document.getElementById('transaction-category');
-                    
-                    if (!typeInput || !descInput || !amountInput || !dateInput || !categoryInput) {
-                        throw new Error('Campi del form mancanti');
-                    }
-                    
-                    const id = idInput ? idInput.value : '';
-                    const type = typeInput.value;
-                    const description = descInput.value;
-                    const amount = parseFloat(amountInput.value);
-                    const date = dateInput.value;
-                    const category = categoryInput.value;
-                    
-                    if (!type || !description || isNaN(amount) || !date || !category) {
-                        throw new Error('Dati del form non validi');
-                    }
-                    
-                    const transaction = {
-                        id: id || generateId(),
-                        type,
-                        description,
-                        amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
-                        date,
-                        category,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    if (id) {
-                        const index = appData.transactions.findIndex(t => t.id === id);
-                        if (index !== -1) {
-                            appData.transactions[index] = transaction;
+                    setTimeout(() => {
+                        switch(tabName) {
+                            case 'analytics':
+                                AnalyticsManager.updateCharts();
+                                break;
+                            case 'calendar':
+                                CalendarManager.render();
+                                break;
+                            case 'goals':
+                                GoalsRenderer.render();
+                                break;
+                            case 'transactions':
+                                TransactionRenderer.renderAll();
+                                TransactionRenderer.populateCategoryFilters();
+                                break;
+                            case 'dashboard':
+                                DashboardManager.update();
+                                BalanceManager.load();
+                                break;
                         }
-                    } else {
-                        appData.transactions.push(transaction);
-                    }
+                        
+                        if (container) {
+                            container.style.opacity = '1';
+                        }
+                    }, 50);
+                });
+            }
+        };
+
+        // Balance Management
+        const BalanceManager = {
+            update() {
+                const balanceInput = document.getElementById('initial-balance');
+                const newBalance = parseFloat(balanceInput.value) || 0;
+                
+                if (newBalance < 0) {
+                    NotificationManager.show('Il patrimonio iniziale non può essere negativo', 'error');
+                    return;
+                }
+                
+                AppState.data.initialBalance = newBalance;
+                DataManager.save();
+                DashboardManager.update();
+                
+                NotificationManager.show('Patrimonio iniziale aggiornato con successo!', 'success');
+            },
+
+            load() {
+                const balanceInput = document.getElementById('initial-balance');
+                const balanceDisplay = document.getElementById('initial-balance-display');
+                
+                if (balanceInput && balanceDisplay) {
+                    balanceInput.value = AppState.data.initialBalance || 0;
+                    balanceDisplay.textContent = Utils.formatCurrency(AppState.data.initialBalance || 0);
+                }
+            }
+        };
+
+        // Stats Management - Cached for performance
+        const StatsManager = {
+            getStats() {
+                const now = Date.now();
+                if (AppState.cache.stats && (now - AppState.cache.lastStatsUpdate) < AppState.cache.duration) {
+                    return AppState.cache.stats;
+                }
+                
+                const totalIncome = AppState.data.transactions
+                    .filter(t => t.amount > 0)
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const totalExpenses = Math.abs(AppState.data.transactions
+                    .filter(t => t.amount < 0)
+                    .reduce((sum, t) => sum + t.amount, 0));
+                
+                const totalBalance = AppState.data.initialBalance + totalIncome - totalExpenses;
+                
+                AppState.cache.stats = { totalIncome, totalExpenses, totalBalance };
+                AppState.cache.lastStatsUpdate = now;
+                
+                return AppState.cache.stats;
+            },
+
+            update() {
+                const stats = this.getStats();
+                
+                const elements = {
+                    'initial-balance-display': AppState.data.initialBalance,
+                    'total-income': stats.totalIncome,
+                    'total-expenses': stats.totalExpenses,
+                    'total-balance': stats.totalBalance
+                };
+                
+                requestAnimationFrame(() => {
+                    Object.entries(elements).forEach(([id, value]) => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            const oldValue = parseFloat(element.textContent.replace(/[^\d.-]/g, '')) || 0;
+                            const newValue = value;
+                            
+                            element.textContent = Utils.formatCurrency(newValue);
+                            
+                            if (Math.abs(oldValue - newValue) > 0.01) {
+                                element.classList.add('bounce-in');
+                                setTimeout(() => element.classList.remove('bounce-in'), 800);
+                            }
+                        }
+                    });
+                });
+            }
+        };
+
+        // Dashboard Management
+        const DashboardManager = {
+            update() {
+                StatsManager.update();
+                TransactionRenderer.renderRecent();
+                AIInsights.update();
+            }
+        };
+
+        // Transaction Management - Complete refactor
+        const TransactionManager = {
+            openModal(type, transaction = null) {
+                if (!type) return;
+                
+                const modal = document.getElementById('transaction-modal');
+                const form = document.getElementById('transaction-form');
+                const titleElement = document.getElementById('modal-title');
+                const categorySelect = document.getElementById('transaction-category');
+                
+                if (!modal || !form || !titleElement || !categorySelect) return;
+                
+                form.reset();
+                
+                // Set today's date
+                const dateInput = document.getElementById('transaction-date');
+                if (dateInput) {
+                    const today = new Date();
+                    dateInput.value = today.toISOString().split('T')[0];
+                }
+                
+                // Populate categories
+                categorySelect.innerHTML = '';
+                const categories = CONSTANTS.CATEGORIES[type] || [];
+                
+                const fragment = document.createDocumentFragment();
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    fragment.appendChild(option);
+                });
+                categorySelect.appendChild(fragment);
+                
+                // Fill form if editing
+                if (transaction) {
+                    titleElement.textContent = 'Modifica Transazione';
+                    Utils.safeUpdate('transaction-id', transaction.id);
+                    Utils.safeUpdate('transaction-description', transaction.description);
+                    Utils.safeUpdate('transaction-amount', Math.abs(transaction.amount));
+                    Utils.safeUpdate('transaction-date', transaction.date);
+                    categorySelect.value = transaction.category;
+                } else {
+                    titleElement.textContent = type === 'income' ? 'Nuova Entrata' : 'Nuova Spesa';
+                    Utils.safeUpdate('transaction-id', '');
+                }
+                
+                Utils.safeUpdate('transaction-type', type);
+                ModalManager.open('transaction-modal');
+            },
+
+            validateForm() {
+                const description = document.getElementById('transaction-description').value.trim();
+                const amount = parseFloat(document.getElementById('transaction-amount').value);
+                const date = document.getElementById('transaction-date').value;
+                const category = document.getElementById('transaction-category').value;
+                
+                const errors = [];
+                
+                if (!description || description.length < 2) {
+                    errors.push('La descrizione deve essere di almeno 2 caratteri');
+                }
+                if (isNaN(amount) || amount <= 0 || amount > 999999) {
+                    errors.push('L\'importo deve essere un numero positivo valido (max €999,999)');
+                }
+                if (!date) {
+                    errors.push('La data è obbligatoria');
+                } else {
+                    const transDate = new Date(date);
+                    const today = new Date();
+                    const oneYearAgo = new Date();
+                    const oneYearFromNow = new Date();
+                    oneYearAgo.setFullYear(today.getFullYear() - 1);
+                    oneYearFromNow.setFullYear(today.getFullYear() + 1);
                     
-                    saveData();
-                    updateDashboard();
-                    renderAllTransactions();
-                    closeModal('transaction-modal');
-                    
-                    showNotification(`Transazione ${id ? 'aggiornata' : 'aggiunta'} con successo!`, 'success');
-                    
-                } catch (error) {
-                    console.error('Errore nel salvare la transazione:', error);
-                    showNotification('Errore nel salvare la transazione. Riprova.', 'error');
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
+                    if (transDate < oneYearAgo || transDate > oneYearFromNow) {
+                        errors.push('La data deve essere compresa tra un anno fa e un anno nel futuro');
                     }
                 }
-            }, 300);
-        }
+                if (!category) {
+                    errors.push('La categoria è obbligatoria');
+                }
+                
+                return errors;
+            },
 
-        function deleteTransaction(id) {
-            if (!id) return;
-            
-            if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
-                appData.transactions = appData.transactions.filter(t => t.id !== id);
-                saveData();
-                updateDashboard();
-                renderAllTransactions();
-                showNotification('Transazione eliminata', 'info');
+            handleSubmit(e) {
+                if (e) e.preventDefault();
+                
+                const errors = this.validateForm();
+                if (errors.length > 0) {
+                    NotificationManager.show(errors.join('<br>'), 'error');
+                    return;
+                }
+                
+                const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
+                const originalText = submitBtn ? submitBtn.innerHTML : '';
+                
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                    submitBtn.disabled = true;
+                }
+                
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        try {
+                            const id = document.getElementById('transaction-id').value;
+                            const type = document.getElementById('transaction-type').value;
+                            const description = document.getElementById('transaction-description').value.trim();
+                            const amount = parseFloat(document.getElementById('transaction-amount').value);
+                            const date = document.getElementById('transaction-date').value;
+                            const category = document.getElementById('transaction-category').value;
+                            
+                            const transaction = {
+                                id: id || Utils.generateId(),
+                                type,
+                                description,
+                                amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
+                                date,
+                                category,
+                                createdAt: new Date().toISOString()
+                            };
+                            
+                            if (id) {
+                                const index = AppState.data.transactions.findIndex(t => t.id === id);
+                                if (index !== -1) {
+                                    AppState.data.transactions[index] = transaction;
+                                }
+                            } else {
+                                AppState.data.transactions.push(transaction);
+                            }
+                            
+                            // Clear cache and update
+                            AppState.cache.stats = null;
+                            DataManager.save();
+                            
+                            requestAnimationFrame(() => {
+                                DashboardManager.update();
+                                if (AppState.ui.currentTab === 'transactions') {
+                                    TransactionRenderer.renderAll();
+                                }
+                            });
+                            
+                            ModalManager.close('transaction-modal');
+                            NotificationManager.show(`Transazione ${id ? 'aggiornata' : 'aggiunta'} con successo!`, 'success');
+                            
+                        } catch (error) {
+                            console.error('Errore nel salvare la transazione:', error);
+                            NotificationManager.show('Errore nel salvare la transazione. Riprova.', 'error');
+                        } finally {
+                            if (submitBtn) {
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        }
+                    }, 200);
+                });
+            },
+
+            delete(id) {
+                if (!id) return;
+                
+                if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
+                    AppState.data.transactions = AppState.data.transactions.filter(t => t.id !== id);
+                    AppState.cache.stats = null;
+                    DataManager.save();
+                    DashboardManager.update();
+                    TransactionRenderer.renderAll();
+                    NotificationManager.show('Transazione eliminata', 'info');
+                }
             }
-        }
+        };
 
-        // Search and Filter - Ottimizzato con debouncing
-        function searchTransactions() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
+        // Transaction Renderer - Optimized with virtual scrolling concepts
+        const TransactionRenderer = {
+            searchDebounced: Utils.debounce(function() {
                 const searchInput = document.getElementById('transaction-search');
                 const categoryFilter = document.getElementById('category-filter');
                 const typeFilter = document.getElementById('type-filter');
@@ -2481,1469 +2411,953 @@
                 const categoryValue = categoryFilter ? categoryFilter.value : '';
                 const typeValue = typeFilter ? typeFilter.value : '';
                 
-                renderAllTransactions(categoryValue, typeValue, searchTerm);
-            }, 300);
-        }
+                this.renderAll(categoryValue, typeValue, searchTerm);
+            }),
 
-        function filterTransactions() {
-            const searchInput = document.getElementById('transaction-search');
-            const categoryFilter = document.getElementById('category-filter');
-            const typeFilter = document.getElementById('type-filter');
-            
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            const categoryValue = categoryFilter ? categoryFilter.value : '';
-            const typeValue = typeFilter ? typeFilter.value : '';
-            
-            renderAllTransactions(categoryValue, typeValue, searchTerm);
-        }
+            search() {
+                this.searchDebounced();
+            },
 
-        function populateCategoryFilters() {
-            const categoryFilter = document.getElementById('category-filter');
-            if (!categoryFilter) return;
-            
-            const allCategories = [...new Set(appData.transactions.map(t => t.category))];
-            
-            categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>';
-            const fragment = document.createDocumentFragment();
-            
-            allCategories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                fragment.appendChild(option);
-            });
-            
-            categoryFilter.appendChild(fragment);
-        }
-
-        function renderAllTransactions(categoryFilter = '', typeFilter = '', searchTerm = '') {
-            const container = document.getElementById('all-transactions');
-            if (!container) return;
-            
-            let transactions = [...appData.transactions];
-            
-            // Apply filters
-            if (categoryFilter) {
-                transactions = transactions.filter(t => t.category === categoryFilter);
-            }
-            if (typeFilter) {
-                transactions = transactions.filter(t => t.type === typeFilter);
-            }
-            if (searchTerm) {
-                transactions = transactions.filter(t => 
-                    t.description.toLowerCase().includes(searchTerm) ||
-                    t.category.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            if (transactions.length === 0) {
-                container.innerHTML = '<p class="text-center">Nessuna transazione trovata.</p>';
-                return;
-            }
-            
-            // Use DocumentFragment for better performance
-            const fragment = document.createDocumentFragment();
-            
-            transactions.forEach((transaction, index) => {
-                const transactionElement = document.createElement('div');
-                transactionElement.className = 'transaction-item slide-in-left gpu-accelerated';
-                transactionElement.style.animationDelay = `${index * 0.03}s`;
+            filter() {
+                const searchInput = document.getElementById('transaction-search');
+                const categoryFilter = document.getElementById('category-filter');
+                const typeFilter = document.getElementById('type-filter');
                 
-                const transactionJson = JSON.stringify(transaction).replace(/"/g, '&quot;');
-                transactionElement.innerHTML = `
-                    <div class="transaction-info">
-                        <div class="transaction-details">
-                            <h4>${transaction.description}</h4>
-                            <div class="transaction-meta">
-                                ${transaction.category} • ${formatDateRelative(transaction.date)}
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="transaction-amount ${transaction.amount >= 0 ? 'stat-positive' : 'stat-negative'}">
-                            ${formatCurrency(transaction.amount)}
-                        </div>
-                        <div class="transaction-actions mt-4">
-                            <button class="btn btn-sm btn-secondary" onclick="openTransactionModal('${transaction.type}', ${transactionJson})" title="Modifica">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteTransaction('${transaction.id}')" title="Elimina">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                const categoryValue = categoryFilter ? categoryFilter.value : '';
+                const typeValue = typeFilter ? typeFilter.value : '';
                 
-                fragment.appendChild(transactionElement);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(fragment);
-        }
+                this.renderAll(categoryValue, typeValue, searchTerm);
+            },
 
-        function renderRecentTransactions() {
-            const container = document.getElementById('recent-transactions');
-            if (!container) return;
-            
-            const recentTransactions = appData.transactions
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                .slice(0, 5);
-            
-            if (recentTransactions.length === 0) {
-                container.innerHTML = '<p class="text-center">Nessuna transazione ancora. Aggiungi la prima!</p>';
-                return;
-            }
-            
-            const fragment = document.createDocumentFragment();
-            
-            recentTransactions.forEach((transaction, index) => {
-                const transactionElement = document.createElement('div');
-                transactionElement.className = 'transaction-item slide-in-right gpu-accelerated';
-                transactionElement.style.animationDelay = `${index * 0.1}s`;
-                transactionElement.innerHTML = `
-                    <div class="transaction-info">
-                        <div class="transaction-icon" style="background: ${CATEGORY_COLORS[transaction.category] || '#3b82f6'}">
-                            <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
-                        </div>
-                        <div class="transaction-details">
-                            <h4>${transaction.description}</h4>
-                            <div class="transaction-meta">
-                                ${transaction.category} • ${formatDateRelative(transaction.date)}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transaction-amount ${transaction.amount >= 0 ? 'stat-positive' : 'stat-negative'}">
-                        ${formatCurrency(transaction.amount)}
-                    </div>
-                `;
-                fragment.appendChild(transactionElement);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(fragment);
-        }
-
-        // Goals Management - Complete Implementation
-        function handleGoalSubmit(e) {
-            if (e) e.preventDefault();
-            
-            const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
-            const originalText = submitBtn ? submitBtn.innerHTML : '';
-            
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-                submitBtn.disabled = true;
-            }
-            
-            setTimeout(() => {
-                try {
-                    const idInput = document.getElementById('goal-id');
-                    const nameInput = document.getElementById('goal-name');
-                    const targetInput = document.getElementById('goal-target');
-                    const dateInput = document.getElementById('goal-date');
-                    const descInput = document.getElementById('goal-description');
-                    
-                    if (!nameInput || !targetInput || !dateInput) {
-                        throw new Error('Campi del form mancanti');
-                    }
-                    
-                    const id = idInput ? idInput.value : '';
-                    const name = nameInput.value;
-                    const target = parseFloat(targetInput.value);
-                    const date = dateInput.value;
-                    const description = descInput ? descInput.value : '';
-                    
-                    if (!name || isNaN(target) || target <= 0 || !date) {
-                        throw new Error('Dati del form non validi');
-                    }
-                    
-                    const goal = {
-                        id: id || generateId(),
-                        name,
-                        target,
-                        current: 0,
-                        date,
-                        description,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    if (id) {
-                        const index = appData.goals.findIndex(g => g.id === id);
-                        if (index !== -1) {
-                            goal.current = appData.goals[index].current; // Mantieni il progresso attuale
-                            appData.goals[index] = goal;
-                        }
-                    } else {
-                        appData.goals.push(goal);
-                    }
-                    
-                    saveData();
-                    renderGoals();
-                    closeModal('goal-modal');
-                    
-                    showNotification(`Obiettivo ${id ? 'aggiornato' : 'creato'} con successo!`, 'success');
-                    
-                } catch (error) {
-                    console.error('Errore nel salvare l\'obiettivo:', error);
-                    showNotification('Errore nel salvare l\'obiettivo. Riprova.', 'error');
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-                    }
-                }
-            }, 300);
-        }
-
-        // Custom amount function for goals
-        function addCustomAmount(goalId, isSubtraction) {
-            const input = document.getElementById(`custom-amount-${goalId}`);
-            if (!input) return;
-            
-            const amount = parseFloat(input.value);
-            if (isNaN(amount) || amount <= 0) {
-                showNotification('Inserisci un importo valido maggiore di zero', 'error');
-                return;
-            }
-            
-            const finalAmount = isSubtraction ? -amount : amount;
-            updateGoalProgress(goalId, finalAmount);
-            
-            // Clear input after use
-            input.value = '';
-        }
-
-        function updateGoalProgress(goalId, amount) {
-            const goal = appData.goals.find(g => g.id === goalId);
-            if (!goal) return;
-            
-            const newAmount = goal.current + amount;
-            if (newAmount < 0) {
-                showNotification('Il progresso non può essere negativo', 'error');
-                return;
-            }
-            
-            goal.current = newAmount;
-            saveData();
-            renderGoals();
-            
-            const action = amount > 0 ? 'aggiunto a' : 'rimosso da';
-            showNotification(`${formatCurrency(Math.abs(amount))} ${action} "${goal.name}"`, 'success');
-        }
-
-        function deleteGoal(goalId) {
-            if (!goalId) return;
-            
-            if (confirm('Sei sicuro di voler eliminare questo obiettivo?')) {
-                appData.goals = appData.goals.filter(g => g.id !== goalId);
-                saveData();
-                renderGoals();
-                showNotification('Obiettivo eliminato', 'info');
-            }
-        }
-
-        function renderGoals() {
-            const container = document.getElementById('goals-container');
-            if (!container) return;
-            
-            if (appData.goals.length === 0) {
-                container.innerHTML = '<p class="text-center">Nessun obiettivo impostato. Crea il primo!</p>';
-                return;
-            }
-            
-            const fragment = document.createDocumentFragment();
-            
-            appData.goals.forEach((goal, index) => {
-                const progress = Math.min((goal.current / goal.target) * 100, 100);
-                const remaining = Math.max(goal.target - goal.current, 0);
-                const targetDate = new Date(goal.date);
-                const today = new Date();
-                const daysRemaining = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+            populateCategoryFilters() {
+                const categoryFilter = document.getElementById('category-filter');
+                if (!categoryFilter) return;
                 
-                let status = 'in-progress';
-                let statusText = 'In corso';
-                if (progress >= 100) {
-                    status = 'completed';
-                    statusText = 'Completato';
-                } else if (daysRemaining < 0) {
-                    status = 'expired';
-                    statusText = 'Scaduto';
-                }
+                const allCategories = [...new Set(AppState.data.transactions.map(t => t.category))];
                 
-                const goalElement = document.createElement('div');
-                goalElement.className = 'goal-card slide-in-left gpu-accelerated';
-                goalElement.style.animationDelay = `${index * 0.1}s`;
-                goalElement.innerHTML = `
-                    <div class="goal-header">
-                        <div class="goal-title">
-                            <i class="fas fa-bullseye"></i>
-                            ${goal.name}
-                            <div class="goal-status ${status}">
-                                <i class="fas fa-${status === 'completed' ? 'check' : status === 'expired' ? 'times' : 'clock'}"></i>
-                                ${statusText}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="goal-body">
-                        <div class="goal-progress-section">
-                            <div class="goal-progress-header">
-                                <div class="goal-amounts">
-                                    <span>${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
-                                </div>
-                                <div class="goal-percentage">${Math.round(progress)}%</div>
-                            </div>
-                            <div class="enhanced-progress-bar">
-                                <div class="enhanced-progress-fill" style="width: ${progress}%"></div>
-                            </div>
-                            <div class="goal-details">
-                                <div class="goal-detail-item">
-                                    <div class="goal-detail-value stat-negative">${formatCurrency(remaining)}</div>
-                                    <div class="goal-detail-label">Rimanente</div>
-                                </div>
-                                <div class="goal-detail-item">
-                                    <div class="goal-detail-value ${daysRemaining >= 0 ? 'stat-neutral' : 'stat-negative'}">
-                                        ${daysRemaining >= 0 ? daysRemaining : Math.abs(daysRemaining)} giorni
-                                    </div>
-                                    <div class="goal-detail-label">${daysRemaining >= 0 ? 'Rimanenti' : 'In ritardo'}</div>
-                                </div>
-                            </div>
-                            ${goal.description ? `<p style="color: var(--text-secondary); margin-bottom: 1rem;">${goal.description}</p>` : ''}
-                        </div>
-                        <div class="goal-actions">
-                            <button class="amount-btn" onclick="updateGoalProgress('${goal.id}', 50)">
-                                <i class="fas fa-plus"></i> +€50
-                            </button>
-                            <button class="amount-btn" onclick="updateGoalProgress('${goal.id}', 100)">
-                                <i class="fas fa-plus"></i> +€100
-                            </button>
-                            <button class="amount-btn" onclick="updateGoalProgress('${goal.id}', 500)">
-                                <i class="fas fa-plus"></i> +€500
-                            </button>
-                            <button class="amount-btn negative" onclick="updateGoalProgress('${goal.id}', -50)">
-                                <i class="fas fa-minus"></i> -€50
-                            </button>
-                            <button class="btn btn-secondary btn-sm" onclick="openGoalModal(${JSON.stringify(goal).replace(/"/g, '&quot;')})">
-                                <i class="fas fa-edit"></i> Modifica
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteGoal('${goal.id}')">
-                                <i class="fas fa-trash"></i> Elimina
-                            </button>
-                        </div>
-                    </div>
-                `;
+                categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>';
+                const fragment = document.createDocumentFragment();
                 
-                fragment.appendChild(goalElement);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(fragment);
-        }
-
-        // Dashboard Update Functions
-        function updateDashboard() {
-            updateStats();
-            renderRecentTransactions();
-            updateAIInsights();
-        }
-
-        function updateStats() {
-            const totalIncome = appData.transactions
-                .filter(t => t.amount > 0)
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            const totalExpenses = Math.abs(appData.transactions
-                .filter(t => t.amount < 0)
-                .reduce((sum, t) => sum + t.amount, 0));
-            
-            const totalBalance = appData.initialBalance + totalIncome - totalExpenses;
-            
-            // Update DOM elements
-            const elements = {
-                'initial-balance-display': appData.initialBalance,
-                'total-income': totalIncome,
-                'total-expenses': totalExpenses,
-                'total-balance': totalBalance
-            };
-            
-            Object.entries(elements).forEach(([id, value]) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = formatCurrency(value);
-                    
-                    // Add animation class for visual feedback
-                    element.classList.add('bounce-in');
-                    setTimeout(() => element.classList.remove('bounce-in'), 800);
-                }
-            });
-        }
-
-        // AI Insights Function
-        function generateAIInsights() {
-            const insights = document.getElementById('ai-insights');
-            if (!insights) return;
-            
-            if (appData.transactions.length === 0) {
-                insights.innerHTML = 'Aggiungi alcune transazioni per ricevere insights personalizzati sui tuoi comportamenti finanziari.';
-                return;
-            }
-            
-            // Calculate insights
-            const totalIncome = appData.transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
-            const totalExpenses = Math.abs(appData.transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
-            const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
-            
-            // Category analysis
-            const expensesByCategory = {};
-            appData.transactions.filter(t => t.amount < 0).forEach(t => {
-                expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
-            });
-            
-            const topCategory = Object.keys(expensesByCategory).reduce((a, b) => 
-                expensesByCategory[a] > expensesByCategory[b] ? a : b, '');
-            
-            // Recent spending pattern
-            const last7Days = appData.transactions.filter(t => {
-                const transDate = new Date(t.date);
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return transDate >= weekAgo;
-            });
-            
-            const recentSpending = Math.abs(last7Days.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
-            const avgDailySpending = recentSpending / 7;
-            
-            // Generate insights
-            let insightText = '<div style="line-height: 1.8;">';
-            
-            if (savingsRate > 20) {
-                insightText += `<p><i class="fas fa-thumbs-up" style="color: var(--accent-color);"></i> <strong>Ottimo controllo finanziario!</strong> Stai risparmiando il ${savingsRate.toFixed(1)}% delle tue entrate.</p>`;
-            } else if (savingsRate > 0) {
-                insightText += `<p><i class="fas fa-chart-line" style="color: var(--warning-color);"></i> Stai risparmiando il ${savingsRate.toFixed(1)}% delle entrate. Considera di ridurre alcune spese per migliorare.</p>`;
-            } else {
-                insightText += `<p><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> <strong>Attenzione:</strong> Stai spendendo più di quanto guadagni. È importante rivedere il budget.</p>`;
-            }
-            
-            if (topCategory) {
-                const categorySpending = expensesByCategory[topCategory];
-                const categoryPercentage = (categorySpending / totalExpenses * 100).toFixed(1);
-                insightText += `<p><i class="fas fa-chart-pie" style="color: var(--primary-light);"></i> La tua categoria di spesa principale è <strong>${topCategory}</strong> (${categoryPercentage}% del totale, ${formatCurrency(categorySpending)}).</p>`;
-            }
-            
-            if (avgDailySpending > 0) {
-                insightText += `<p><i class="fas fa-calendar-day" style="color: var(--accent-color);"></i> Negli ultimi 7 giorni hai speso in media ${formatCurrency(avgDailySpending)} al giorno.</p>`;
-            }
-            
-            // Goals insight
-            if (appData.goals.length > 0) {
-                const activeGoals = appData.goals.filter(g => {
-                    const progress = (g.current / g.target) * 100;
-                    return progress < 100;
+                allCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    fragment.appendChild(option);
                 });
                 
-                if (activeGoals.length > 0) {
-                    insightText += `<p><i class="fas fa-target" style="color: var(--primary-color);"></i> Hai ${activeGoals.length} obiettivi attivi. Con la tua attuale capacità di risparmio, potresti raggiungerli più velocemente!</p>`;
+                categoryFilter.appendChild(fragment);
+            },
+
+            renderAll(categoryFilter = '', typeFilter = '', searchTerm = '') {
+                const container = document.getElementById('all-transactions');
+                if (!container) return;
+                
+                let transactions = [...AppState.data.transactions];
+                
+                // Apply filters
+                if (categoryFilter) {
+                    transactions = transactions.filter(t => t.category === categoryFilter);
                 }
-            }
-            
-            insightText += '</div>';
-            insights.innerHTML = insightText;
-            
-            showNotification('Insights AI generati con successo!', 'success');
-        }
-
-        function updateAIInsights() {
-            // Auto-generate insights when data changes
-            if (appData.transactions.length > 0) {
-                generateAIInsights();
-            }
-        }
-
-        // Calendar Functions
-        function renderCalendar() {
-            const calendarGrid = document.getElementById('calendar-grid');
-            const currentMonthElement = document.getElementById('current-month');
-            
-            if (!calendarGrid || !currentMonthElement) return;
-            
-            const year = currentMonth.getFullYear();
-            const month = currentMonth.getMonth();
-            
-            // Update month display
-            currentMonthElement.textContent = new Intl.DateTimeFormat('it-IT', { 
-                month: 'long', 
-                year: 'numeric' 
-            }).format(currentMonth);
-            
-            // Get first day of month and number of days
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const startingDay = (firstDay.getDay() + 6) % 7; // Make Monday = 0
-            const numberOfDays = lastDay.getDate();
-            
-            // Get transactions for this month
-            const monthTransactions = appData.transactions.filter(t => {
-                const transDate = new Date(t.date);
-                return transDate.getFullYear() === year && transDate.getMonth() === month;
-            });
-            
-            // Group transactions by day
-            const transactionsByDay = {};
-            monthTransactions.forEach(t => {
-                const day = new Date(t.date).getDate();
-                if (!transactionsByDay[day]) transactionsByDay[day] = [];
-                transactionsByDay[day].push(t);
-            });
-            
-            // Clear calendar
-            calendarGrid.innerHTML = '';
-            
-            // Add empty cells for days before month starts
-            for (let i = 0; i < startingDay; i++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.style.opacity = '0.3';
-                calendarGrid.appendChild(dayElement);
-            }
-            
-            // Add days of the month
-            for (let day = 1; day <= numberOfDays; day++) {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
+                if (typeFilter) {
+                    transactions = transactions.filter(t => t.type === typeFilter);
+                }
+                if (searchTerm) {
+                    transactions = transactions.filter(t => 
+                        t.description.toLowerCase().includes(searchTerm) ||
+                        t.category.toLowerCase().includes(searchTerm)
+                    );
+                }
                 
-                let dayHTML = `<div class="calendar-day-number">${day}</div>`;
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
-                if (transactionsByDay[day]) {
-                    transactionsByDay[day].slice(0, 3).forEach((transaction, index) => {
-                        dayHTML += `
-                            <div class="calendar-event" style="background: ${CATEGORY_COLORS[transaction.category] || '#3b82f6'}; animation-delay: ${index * 0.1}s">
-                                ${transaction.description.substring(0, 15)}${transaction.description.length > 15 ? '...' : ''}
-                            </div>
-                        `;
-                    });
+                if (transactions.length === 0) {
+                    container.innerHTML = '<p class="text-center">Nessuna transazione trovata.</p>';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                
+                transactions.forEach((transaction, index) => {
+                    const transactionElement = document.createElement('div');
+                    transactionElement.className = 'transaction-item slide-in-left gpu-accelerated';
+                    transactionElement.style.animationDelay = `${index * 0.03}s`;
                     
-                    if (transactionsByDay[day].length > 3) {
-                        dayHTML += `<div class="calendar-event" style="background: var(--text-muted);">+${transactionsByDay[day].length - 3} altre</div>`;
+                    const transactionJson = JSON.stringify(transaction).replace(/"/g, '&quot;');
+                    transactionElement.innerHTML = `
+                        <div class="transaction-info">
+                            <div class="transaction-details">
+                                <h4>${transaction.description}</h4>
+                                <div class="transaction-meta">
+                                    ${transaction.category} • ${Utils.formatDateRelative(transaction.date)}
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="transaction-amount ${transaction.amount >= 0 ? 'stat-positive' : 'stat-negative'}">
+                                ${Utils.formatCurrency(transaction.amount)}
+                            </div>
+                            <div class="transaction-actions mt-4">
+                                <button class="btn btn-sm btn-secondary" onclick="TransactionManager.openModal('${transaction.type}', ${transactionJson})" title="Modifica">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="TransactionManager.delete('${transaction.id}')" title="Elimina">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    fragment.appendChild(transactionElement);
+                });
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            },
+
+            renderRecent() {
+                const container = document.getElementById('recent-transactions');
+                if (!container) return;
+                
+                const recentTransactions = AppState.data.transactions
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 5);
+                
+                if (recentTransactions.length === 0) {
+                    container.innerHTML = '<p class="text-center">Nessuna transazione ancora. Aggiungi la prima!</p>';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                
+                recentTransactions.forEach((transaction, index) => {
+                    const transactionElement = document.createElement('div');
+                    transactionElement.className = 'transaction-item slide-in-right gpu-accelerated';
+                    transactionElement.style.animationDelay = `${index * 0.1}s`;
+                    transactionElement.innerHTML = `
+                        <div class="transaction-info">
+                            <div class="transaction-icon" style="background: ${CONSTANTS.CATEGORY_COLORS[transaction.category] || '#3b82f6'}">
+                                <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>${transaction.description}</h4>
+                                <div class="transaction-meta">
+                                    ${transaction.category} • ${Utils.formatDateRelative(transaction.date)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${transaction.amount >= 0 ? 'stat-positive' : 'stat-negative'}">
+                            ${Utils.formatCurrency(transaction.amount)}
+                        </div>
+                    `;
+                    fragment.appendChild(transactionElement);
+                });
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            }
+        };
+
+        // Goals Management - Complete implementation
+        const GoalsManager = {
+            openModal(goal = null) {
+                const form = document.getElementById('goal-form');
+                if (!form) return;
+                
+                form.reset();
+                
+                if (goal) {
+                    const fields = ['goal-id', 'goal-name', 'goal-target', 'goal-date', 'goal-description'];
+                    const values = [goal.id, goal.name, goal.target, goal.date, goal.description || ''];
+                    
+                    fields.forEach((fieldId, index) => {
+                        const field = document.getElementById(fieldId);
+                        if (field && values[index] !== undefined) {
+                            field.value = values[index];
+                        }
+                    });
+                } else {
+                    const idInput = document.getElementById('goal-id');
+                    const dateInput = document.getElementById('goal-date');
+                    
+                    if (idInput) idInput.value = '';
+                    if (dateInput) {
+                        const nextMonth = new Date();
+                        nextMonth.setMonth(nextMonth.getMonth() + 1);
+                        dateInput.value = nextMonth.toISOString().split('T')[0];
                     }
                 }
                 
-                dayElement.innerHTML = dayHTML;
-                calendarGrid.appendChild(dayElement);
-            }
-        }
+                ModalManager.open('goal-modal');
+            },
 
-        function changeMonth(direction) {
-            currentMonth.setMonth(currentMonth.getMonth() + direction);
-            renderCalendar();
-        }
-
-        // Analytics Functions
-        function updateCharts() {
-            requestAnimationFrame(() => {
-                updateMonthlyChart();
-                updateCategoryChart();
-                updateIncomeExpenseChart();
-            });
-        }
-
-        function updateMonthlyChart() {
-            const canvas = document.getElementById('monthly-chart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Destroy existing chart
-            if (charts.monthlyChart) {
-                charts.monthlyChart.destroy();
-            }
-            
-            // Prepare data - last 12 months
-            const months = [];
-            const incomeData = [];
-            const expenseData = [];
-            
-            for (let i = 11; i >= 0; i--) {
-                const date = new Date();
-                date.setMonth(date.getMonth() - i);
-                const year = date.getFullYear();
-                const month = date.getMonth();
+            validateForm() {
+                const name = document.getElementById('goal-name').value.trim();
+                const target = parseFloat(document.getElementById('goal-target').value);
+                const date = document.getElementById('goal-date').value;
                 
-                months.push(new Intl.DateTimeFormat('it-IT', { month: 'short' }).format(date));
+                const errors = [];
                 
-                const monthTransactions = appData.transactions.filter(t => {
+                if (!name || name.length < 2) {
+                    errors.push('Il nome deve essere di almeno 2 caratteri');
+                }
+                if (isNaN(target) || target <= 0 || target > 9999999) {
+                    errors.push('L\'importo target deve essere un numero positivo valido (max €9,999,999)');
+                }
+                if (!date) {
+                    errors.push('La data obiettivo è obbligatoria');
+                } else {
+                    const goalDate = new Date(date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (goalDate < today) {
+                        errors.push('La data obiettivo deve essere nel futuro');
+                    }
+                }
+                
+                return errors;
+            },
+
+            handleSubmit(e) {
+                if (e) e.preventDefault();
+                
+                const errors = this.validateForm();
+                if (errors.length > 0) {
+                    NotificationManager.show(errors.join('<br>'), 'error');
+                    return;
+                }
+                
+                const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
+                const originalText = submitBtn ? submitBtn.innerHTML : '';
+                
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                    submitBtn.disabled = true;
+                }
+                
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        try {
+                            const id = document.getElementById('goal-id').value;
+                            const name = document.getElementById('goal-name').value.trim();
+                            const target = parseFloat(document.getElementById('goal-target').value);
+                            const date = document.getElementById('goal-date').value;
+                            const description = document.getElementById('goal-description').value.trim();
+                            
+                            const goal = {
+                                id: id || Utils.generateId(),
+                                name,
+                                target,
+                                current: 0,
+                                date,
+                                description,
+                                createdAt: new Date().toISOString()
+                            };
+                            
+                            if (id) {
+                                const index = AppState.data.goals.findIndex(g => g.id === id);
+                                if (index !== -1) {
+                                    goal.current = AppState.data.goals[index].current;
+                                    AppState.data.goals[index] = goal;
+                                }
+                            } else {
+                                AppState.data.goals.push(goal);
+                            }
+                            
+                            DataManager.save();
+                            
+                            requestAnimationFrame(() => {
+                                GoalsRenderer.render();
+                            });
+                            
+                            ModalManager.close('goal-modal');
+                            NotificationManager.show(`Obiettivo ${id ? 'aggiornato' : 'creato'} con successo!`, 'success');
+                            
+                        } catch (error) {
+                            console.error('Errore nel salvare l\'obiettivo:', error);
+                            NotificationManager.show('Errore nel salvare l\'obiettivo. Riprova.', 'error');
+                        } finally {
+                            if (submitBtn) {
+                                submitBtn.innerHTML = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        }
+                    }, 200);
+                });
+            },
+
+            updateProgress(goalId, amount) {
+                const goal = AppState.data.goals.find(g => g.id === goalId);
+                if (!goal) return;
+                
+                const newAmount = goal.current + amount;
+                if (newAmount < 0) {
+                    NotificationManager.show('Il progresso non può essere negativo', 'error');
+                    return;
+                }
+                
+                const oldProgress = (goal.current / goal.target) * 100;
+                goal.current = newAmount;
+                const newProgress = (goal.current / goal.target) * 100;
+                
+                DataManager.save();
+                GoalsRenderer.render();
+                
+                const action = amount > 0 ? 'aggiunto a' : 'rimosso da';
+                let message = `${Utils.formatCurrency(Math.abs(amount))} ${action} "${goal.name}"`;
+                
+                if (newProgress >= 100 && oldProgress < 100) {
+                    message += ' 🎉 Obiettivo completato!';
+                } else if (newProgress >= 50 && oldProgress < 50) {
+                    message += ' 🎯 Hai raggiunto il 50%!';
+                } else if (newProgress >= 75 && oldProgress < 75) {
+                    message += ' 🚀 Ci sei quasi, 75% completato!';
+                }
+                
+                NotificationManager.show(message, newProgress >= 100 ? 'success' : 'info');
+            },
+
+            delete(goalId) {
+                if (!goalId) return;
+                
+                if (confirm('Sei sicuro di voler eliminare questo obiettivo?')) {
+                    AppState.data.goals = AppState.data.goals.filter(g => g.id !== goalId);
+                    DataManager.save();
+                    GoalsRenderer.render();
+                    NotificationManager.show('Obiettivo eliminato', 'info');
+                }
+            }
+        };
+
+        // Goals Renderer
+        const GoalsRenderer = {
+            render() {
+                const container = document.getElementById('goals-container');
+                if (!container) return;
+                
+                if (AppState.data.goals.length === 0) {
+                    container.innerHTML = '<p class="text-center">Nessun obiettivo impostato. Crea il primo!</p>';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                
+                AppState.data.goals.forEach((goal, index) => {
+                    const progress = Math.min((goal.current / goal.target) * 100, 100);
+                    const remaining = Math.max(goal.target - goal.current, 0);
+                    const targetDate = new Date(goal.date);
+                    const today = new Date();
+                    const daysRemaining = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    let status = 'in-progress';
+                    let statusText = 'In corso';
+                    if (progress >= 100) {
+                        status = 'completed';
+                        statusText = 'Completato';
+                    } else if (daysRemaining < 0) {
+                        status = 'expired';
+                        statusText = 'Scaduto';
+                    }
+                    
+                    const goalElement = document.createElement('div');
+                    goalElement.className = 'goal-card slide-in-left gpu-accelerated';
+                    goalElement.style.animationDelay = `${index * 0.1}s`;
+                    goalElement.innerHTML = `
+                        <div class="goal-header">
+                            <div class="goal-title">
+                                <i class="fas fa-bullseye"></i>
+                                ${goal.name}
+                                <div class="goal-status ${status}">
+                                    <i class="fas fa-${status === 'completed' ? 'check' : status === 'expired' ? 'times' : 'clock'}"></i>
+                                    ${statusText}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="goal-body">
+                            <div class="goal-progress-section">
+                                <div class="goal-progress-header">
+                                    <div class="goal-amounts">
+                                        <span>${Utils.formatCurrency(goal.current)} / ${Utils.formatCurrency(goal.target)}</span>
+                                    </div>
+                                    <div class="goal-percentage">${Math.round(progress)}%</div>
+                                </div>
+                                <div class="enhanced-progress-bar">
+                                    <div class="enhanced-progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="goal-details">
+                                    <div class="goal-detail-item">
+                                        <div class="goal-detail-value stat-negative">${Utils.formatCurrency(remaining)}</div>
+                                        <div class="goal-detail-label">Rimanente</div>
+                                    </div>
+                                    <div class="goal-detail-item">
+                                        <div class="goal-detail-value ${daysRemaining >= 0 ? 'stat-neutral' : 'stat-negative'}">
+                                            ${daysRemaining >= 0 ? daysRemaining : Math.abs(daysRemaining)} giorni
+                                        </div>
+                                        <div class="goal-detail-label">${daysRemaining >= 0 ? 'Rimanenti' : 'In ritardo'}</div>
+                                    </div>
+                                </div>
+                                ${goal.description ? `<p style="color: var(--text-secondary); margin-bottom: 1rem;">${goal.description}</p>` : ''}
+                            </div>
+                            <div class="goal-actions">
+                                <button class="amount-btn" onclick="GoalsManager.updateProgress('${goal.id}', 50)">
+                                    <i class="fas fa-plus"></i> +€50
+                                </button>
+                                <button class="amount-btn" onclick="GoalsManager.updateProgress('${goal.id}', 100)">
+                                    <i class="fas fa-plus"></i> +€100
+                                </button>
+                                <button class="amount-btn" onclick="GoalsManager.updateProgress('${goal.id}', 500)">
+                                    <i class="fas fa-plus"></i> +€500
+                                </button>
+                                <button class="amount-btn negative" onclick="GoalsManager.updateProgress('${goal.id}', -50)">
+                                    <i class="fas fa-minus"></i> -€50
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="GoalsManager.openModal(${JSON.stringify(goal).replace(/"/g, '&quot;')})">
+                                    <i class="fas fa-edit"></i> Modifica
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="GoalsManager.delete('${goal.id}')">
+                                    <i class="fas fa-trash"></i> Elimina
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    fragment.appendChild(goalElement);
+                });
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            }
+        };
+
+        // Calendar Management
+        const CalendarManager = {
+            render() {
+                const calendarGrid = document.getElementById('calendar-grid');
+                const currentMonthElement = document.getElementById('current-month');
+                
+                if (!calendarGrid || !currentMonthElement) return;
+                
+                const year = AppState.ui.currentMonth.getFullYear();
+                const month = AppState.ui.currentMonth.getMonth();
+                
+                currentMonthElement.textContent = new Intl.DateTimeFormat('it-IT', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                }).format(AppState.ui.currentMonth);
+                
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const startingDay = (firstDay.getDay() + 6) % 7;
+                const numberOfDays = lastDay.getDate();
+                
+                const monthTransactions = AppState.data.transactions.filter(t => {
                     const transDate = new Date(t.date);
                     return transDate.getFullYear() === year && transDate.getMonth() === month;
                 });
                 
-                const income = monthTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
-                const expenses = Math.abs(monthTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
+                const transactionsByDay = {};
+                monthTransactions.forEach(t => {
+                    const day = new Date(t.date).getDate();
+                    if (!transactionsByDay[day]) transactionsByDay[day] = [];
+                    transactionsByDay[day].push(t);
+                });
                 
-                incomeData.push(income);
-                expenseData.push(expenses);
-            }
-            
-            charts.monthlyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Entrate',
-                        data: incomeData,
-                        borderColor: '#06d6a0',
-                        backgroundColor: 'rgba(6, 214, 160, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Spese',
-                        data: expenseData,
-                        borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#f8fafc' }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: '#e2e8f0' },
-                            grid: { color: 'rgba(75, 85, 99, 0.2)' }
-                        },
-                        y: {
-                            ticks: { 
-                                color: '#e2e8f0',
-                                callback: function(value) {
-                                    return '€' + value.toLocaleString('it-IT');
-                                }
-                            },
-                            grid: { color: 'rgba(75, 85, 99, 0.2)' }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateCategoryChart() {
-            const canvas = document.getElementById('category-chart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Destroy existing chart
-            if (charts.categoryChart) {
-                charts.categoryChart.destroy();
-            }
-            
-            // Prepare expense data by category
-            const expensesByCategory = {};
-            appData.transactions.filter(t => t.amount < 0).forEach(t => {
-                expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
-            });
-            
-            const categories = Object.keys(expensesByCategory);
-            const amounts = Object.values(expensesByCategory);
-            const colors = categories.map(cat => CATEGORY_COLORS[cat] || '#8b5cf6');
-            
-            if (categories.length === 0) {
-                ctx.fillStyle = '#e2e8f0';
-                ctx.font = '16px Inter';
-                ctx.textAlign = 'center';
-                ctx.fillText('Nessuna spesa registrata', canvas.width / 2, canvas.height / 2);
-                return;
-            }
-            
-            charts.categoryChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        data: amounts,
-                        backgroundColor: colors,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { 
-                                color: '#f8fafc',
-                                padding: 15
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateIncomeExpenseChart() {
-            const canvas = document.getElementById('income-expense-chart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            
-            // Destroy existing chart
-            if (charts.incomeExpenseChart) {
-                charts.incomeExpenseChart.destroy();
-            }
-            
-            const totalIncome = appData.transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
-            const totalExpenses = Math.abs(appData.transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
-            
-            charts.incomeExpenseChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Entrate', 'Spese', 'Differenza'],
-                    datasets: [{
-                        data: [totalIncome, totalExpenses, totalIncome - totalExpenses],
-                        backgroundColor: ['#06d6a0', '#ef4444', totalIncome >= totalExpenses ? '#06d6a0' : '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: '#e2e8f0' },
-                            grid: { color: 'rgba(75, 85, 99, 0.2)' }
-                        },
-                        y: {
-                            ticks: { 
-                                color: '#e2e8f0',
-                                callback: function(value) {
-                                    return '€' + value.toLocaleString('it-IT');
-                                }
-                            },
-                            grid: { color: 'rgba(75, 85, 99, 0.2)' }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Export Function
-        function exportData() {
-            const data = {
-                exported_at: new Date().toISOString(),
-                initial_balance: appData.initialBalance,
-                transactions: appData.transactions,
-                goals: appData.goals,
-                settings: appData.settings
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `financeai-export-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            
-            showNotification('Dati esportati con successo!', 'success');
-        }
-
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', function(e) {
-            // ESC to close modals
-            if (e.key === 'Escape') {
-                const activeModal = document.querySelector('.modal.active');
-                if (activeModal) {
-                    closeModal(activeModal.id);
-                }
-            }
-            
-            // Quick actions with Ctrl/Cmd key
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case '1':
-                        e.preventDefault();
-                        showTab('dashboard');
-                        break;
-                    case '2':
-                        e.preventDefault();
-                        showTab('transactions');
-                        break;
-                    case '3':
-                        e.preventDefault();
-                        showTab('analytics');
-                        break;
-                    case '4':
-                        e.preventDefault();
-                        showTab('calendar');
-                        break;
-                    case '5':
-                        e.preventDefault();
-                        showTab('goals');
-                        break;
-                    case 'n':
-                        e.preventDefault();
-                        showQuickActions();
-                        break;
-                }
-            }
-        });
-
-        // Enhanced form validation
-        function validateTransactionForm() {
-            const description = document.getElementById('transaction-description').value.trim();
-            const amount = parseFloat(document.getElementById('transaction-amount').value);
-            const date = document.getElementById('transaction-date').value;
-            const category = document.getElementById('transaction-category').value;
-            
-            const errors = [];
-            
-            if (!description || description.length < 2) {
-                errors.push('La descrizione deve essere di almeno 2 caratteri');
-            }
-            if (isNaN(amount) || amount <= 0 || amount > 999999) {
-                errors.push('L\'importo deve essere un numero positivo valido (max €999,999)');
-            }
-            if (!date) {
-                errors.push('La data è obbligatoria');
-            } else {
-                const transDate = new Date(date);
-                const today = new Date();
-                const oneYearAgo = new Date();
-                const oneYearFromNow = new Date();
-                oneYearAgo.setFullYear(today.getFullYear() - 1);
-                oneYearFromNow.setFullYear(today.getFullYear() + 1);
+                calendarGrid.innerHTML = '';
                 
-                if (transDate < oneYearAgo || transDate > oneYearFromNow) {
-                    errors.push('La data deve essere compresa tra un anno fa e un anno nel futuro');
+                // Empty cells for days before month starts
+                for (let i = 0; i < startingDay; i++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    dayElement.style.opacity = '0.3';
+                    calendarGrid.appendChild(dayElement);
                 }
-            }
-            if (!category) {
-                errors.push('La categoria è obbligatoria');
-            }
-            
-            return errors;
-        }
-
-        function validateGoalForm() {
-            const name = document.getElementById('goal-name').value.trim();
-            const target = parseFloat(document.getElementById('goal-target').value);
-            const date = document.getElementById('goal-date').value;
-            
-            const errors = [];
-            
-            if (!name || name.length < 2) {
-                errors.push('Il nome deve essere di almeno 2 caratteri');
-            }
-            if (isNaN(target) || target <= 0 || target > 9999999) {
-                errors.push('L\'importo target deve essere un numero positivo valido (max €9,999,999)');
-            }
-            if (!date) {
-                errors.push('La data obiettivo è obbligatoria');
-            } else {
-                const goalDate = new Date(date);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
                 
-                if (goalDate < today) {
-                    errors.push('La data obiettivo deve essere nel futuro');
-                }
-            }
-            
-            return errors;
-        }
-
-        // Enhanced error handling and performance optimizations
-        function handleTransactionSubmit(e) {
-            if (e) e.preventDefault();
-            
-            const errors = validateTransactionForm();
-            if (errors.length > 0) {
-                showNotification(errors.join('<br>'), 'error');
-                return;
-            }
-            
-            const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
-            const originalText = submitBtn ? submitBtn.innerHTML : '';
-            
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-                submitBtn.disabled = true;
-            }
-            
-            // Use requestAnimationFrame for smooth UI updates
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    try {
-                        const idInput = document.getElementById('transaction-id');
-                        const typeInput = document.getElementById('transaction-type');
-                        const descInput = document.getElementById('transaction-description');
-                        const amountInput = document.getElementById('transaction-amount');
-                        const dateInput = document.getElementById('transaction-date');
-                        const categoryInput = document.getElementById('transaction-category');
-                        
-                        const id = idInput ? idInput.value : '';
-                        const type = typeInput.value;
-                        const description = descInput.value.trim();
-                        const amount = parseFloat(amountInput.value);
-                        const date = dateInput.value;
-                        const category = categoryInput.value;
-                        
-                        const transaction = {
-                            id: id || generateId(),
-                            type,
-                            description,
-                            amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
-                            date,
-                            category,
-                            createdAt: new Date().toISOString()
-                        };
-                        
-                        if (id) {
-                            const index = appData.transactions.findIndex(t => t.id === id);
-                            if (index !== -1) {
-                                appData.transactions[index] = transaction;
-                            }
-                        } else {
-                            appData.transactions.push(transaction);
-                        }
-                        
-                        saveData();
-                        
-                        // Batch DOM updates for better performance
-                        requestAnimationFrame(() => {
-                            updateDashboard();
-                            if (currentTab === 'transactions') {
-                                renderAllTransactions();
-                            }
+                // Days of the month
+                for (let day = 1; day <= numberOfDays; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    
+                    let dayHTML = `<div class="calendar-day-number">${day}</div>`;
+                    
+                    if (transactionsByDay[day]) {
+                        transactionsByDay[day].slice(0, 3).forEach((transaction, index) => {
+                            dayHTML += `
+                                <div class="calendar-event" style="background: ${CONSTANTS.CATEGORY_COLORS[transaction.category] || '#3b82f6'}; animation-delay: ${index * 0.1}s">
+                                    ${transaction.description.substring(0, 15)}${transaction.description.length > 15 ? '...' : ''}
+                                </div>
+                            `;
                         });
                         
-                        closeModal('transaction-modal');
-                        showNotification(`Transazione ${id ? 'aggiornata' : 'aggiunta'} con successo!`, 'success');
-                        
-                    } catch (error) {
-                        console.error('Errore nel salvare la transazione:', error);
-                        showNotification('Errore nel salvare la transazione. Riprova.', 'error');
-                    } finally {
-                        if (submitBtn) {
-                            submitBtn.innerHTML = originalText;
-                            submitBtn.disabled = false;
+                        if (transactionsByDay[day].length > 3) {
+                            dayHTML += `<div class="calendar-event" style="background: var(--text-muted);">+${transactionsByDay[day].length - 3} altre</div>`;
                         }
-                    }
-                }, 200);
-            });
-        }
-
-        function handleGoalSubmit(e) {
-            if (e) e.preventDefault();
-            
-            const errors = validateGoalForm();
-            if (errors.length > 0) {
-                showNotification(errors.join('<br>'), 'error');
-                return;
-            }
-            
-            const submitBtn = e ? e.target.querySelector('button[type="submit"]') : null;
-            const originalText = submitBtn ? submitBtn.innerHTML : '';
-            
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-                submitBtn.disabled = true;
-            }
-            
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    try {
-                        const idInput = document.getElementById('goal-id');
-                        const nameInput = document.getElementById('goal-name');
-                        const targetInput = document.getElementById('goal-target');
-                        const dateInput = document.getElementById('goal-date');
-                        const descInput = document.getElementById('goal-description');
-                        
-                        const id = idInput ? idInput.value : '';
-                        const name = nameInput.value.trim();
-                        const target = parseFloat(targetInput.value);
-                        const date = dateInput.value;
-                        const description = descInput ? descInput.value.trim() : '';
-                        
-                        const goal = {
-                            id: id || generateId(),
-                            name,
-                            target,
-                            current: 0,
-                            date,
-                            description,
-                            createdAt: new Date().toISOString()
-                        };
-                        
-                        if (id) {
-                            const index = appData.goals.findIndex(g => g.id === id);
-                            if (index !== -1) {
-                                goal.current = appData.goals[index].current;
-                                appData.goals[index] = goal;
-                            }
-                        } else {
-                            appData.goals.push(goal);
-                        }
-                        
-                        saveData();
-                        
-                        requestAnimationFrame(() => {
-                            renderGoals();
-                        });
-                        
-                        closeModal('goal-modal');
-                        showNotification(`Obiettivo ${id ? 'aggiornato' : 'creato'} con successo!`, 'success');
-                        
-                    } catch (error) {
-                        console.error('Errore nel salvare l\'obiettivo:', error);
-                        showNotification('Errore nel salvare l\'obiettivo. Riprova.', 'error');
-                    } finally {
-                        if (submitBtn) {
-                            submitBtn.innerHTML = originalText;
-                            submitBtn.disabled = false;
-                        }
-                    }
-                }, 200);
-            });
-        }
-
-        // Performance-optimized data caching
-        let cachedStats = null;
-        let lastStatsUpdate = 0;
-        const STATS_CACHE_DURATION = 5000; // 5 seconds
-
-        function getStats() {
-            const now = Date.now();
-            if (cachedStats && (now - lastStatsUpdate) < STATS_CACHE_DURATION) {
-                return cachedStats;
-            }
-            
-            const totalIncome = appData.transactions
-                .filter(t => t.amount > 0)
-                .reduce((sum, t) => sum + t.amount, 0);
-            
-            const totalExpenses = Math.abs(appData.transactions
-                .filter(t => t.amount < 0)
-                .reduce((sum, t) => sum + t.amount, 0));
-            
-            const totalBalance = appData.initialBalance + totalIncome - totalExpenses;
-            
-            cachedStats = { totalIncome, totalExpenses, totalBalance };
-            lastStatsUpdate = now;
-            
-            return cachedStats;
-        }
-
-        function updateStats() {
-            const stats = getStats();
-            
-            const elements = {
-                'initial-balance-display': appData.initialBalance,
-                'total-income': stats.totalIncome,
-                'total-expenses': stats.totalExpenses,
-                'total-balance': stats.totalBalance
-            };
-            
-            // Batch DOM updates
-            requestAnimationFrame(() => {
-                Object.entries(elements).forEach(([id, value]) => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        const oldValue = parseFloat(element.textContent.replace(/[^\d.-]/g, '')) || 0;
-                        const newValue = value;
-                        
-                        element.textContent = formatCurrency(newValue);
-                        
-                        // Animate if value changed significantly
-                        if (Math.abs(oldValue - newValue) > 0.01) {
-                            element.classList.add('bounce-in');
-                            setTimeout(() => element.classList.remove('bounce-in'), 800);
-                        }
-                    }
-                });
-            });
-        }
-
-        // Lazy loading for charts
-        let chartsInitialized = false;
-        
-        function initializeChartsIfNeeded() {
-            if (!chartsInitialized && currentTab === 'analytics') {
-                chartsInitialized = true;
-                updateCharts();
-            }
-        }
-
-        // Enhanced tab management with lazy loading
-        function showTab(tabName, clickedElement) {
-            if (!tabName || currentTab === tabName) return;
-            
-            const container = document.querySelector('.container');
-            if (container) {
-                container.style.opacity = '0.8';
-            }
-            
-            requestAnimationFrame(() => {
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.add('hidden');
-                });
-                
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                
-                const targetTab = document.getElementById(tabName + '-tab');
-                if (targetTab) {
-                    targetTab.classList.remove('hidden');
-                }
-                
-                if (clickedElement) {
-                    clickedElement.classList.add('active');
-                }
-                
-                currentTab = tabName;
-                
-                // Lazy initialization based on tab
-                setTimeout(() => {
-                    switch(tabName) {
-                        case 'analytics':
-                            initializeChartsIfNeeded();
-                            break;
-                        case 'calendar':
-                            renderCalendar();
-                            break;
-                        case 'goals':
-                            renderGoals();
-                            break;
-                        case 'transactions':
-                            renderAllTransactions();
-                            populateCategoryFilters();
-                            break;
-                        case 'dashboard':
-                            updateDashboard();
-                            loadInitialBalance();
-                            break;
                     }
                     
-                    if (container) {
-                        container.style.opacity = '1';
-                    }
-                }, 50);
-            });
-        }
-
-        // Enhanced AI insights with more intelligent analysis
-        function generateAIInsights() {
-            const insights = document.getElementById('ai-insights');
-            if (!insights) return;
-            
-            if (appData.transactions.length === 0) {
-                insights.innerHTML = `
-                    <div style="line-height: 1.8; text-align: center;">
-                        <i class="fas fa-lightbulb" style="color: var(--accent-color); font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
-                        <p>Aggiungi alcune transazioni per ricevere insights personalizzati e consigli intelligenti sui tuoi comportamenti finanziari.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const stats = getStats();
-            const { totalIncome, totalExpenses, totalBalance } = stats;
-            const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
-            
-            // Advanced category analysis
-            const expensesByCategory = {};
-            appData.transactions.filter(t => t.amount < 0).forEach(t => {
-                expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
-            });
-            
-            const topCategories = Object.entries(expensesByCategory)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 3);
-            
-            // Spending trends analysis
-            const last30Days = appData.transactions.filter(t => {
-                const transDate = new Date(t.date);
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                return transDate >= thirtyDaysAgo;
-            });
-            
-            const last30Income = last30Days.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
-            const last30Expenses = Math.abs(last30Days.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
-            
-            // Generate comprehensive insights
-            let insightText = '<div style="line-height: 1.8;">';
-            
-            // Financial health assessment
-            if (savingsRate > 30) {
-                insightText += `<p><i class="fas fa-medal" style="color: var(--accent-color);"></i> <strong>Eccellente gestione finanziaria!</strong> Stai risparmiando il ${savingsRate.toFixed(1)}% delle tue entrate. Sei sulla strada giusta per raggiungere i tuoi obiettivi.</p>`;
-            } else if (savingsRate > 15) {
-                insightText += `<p><i class="fas fa-thumbs-up" style="color: var(--success-color);"></i> <strong>Buon controllo finanziario!</strong> Stai risparmiando il ${savingsRate.toFixed(1)}% delle entrate. Considera di aumentare leggermente il risparmio.</p>`;
-            } else if (savingsRate > 0) {
-                insightText += `<p><i class="fas fa-chart-line" style="color: var(--warning-color);"></i> Stai risparmiando il ${savingsRate.toFixed(1)}% delle entrate. C'è margine di miglioramento per una maggiore sicurezza finanziaria.</p>`;
-            } else {
-                insightText += `<p><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> <strong>Attenzione:</strong> Stai spendendo più di quanto guadagni. È importante rivedere il budget e ridurre le spese non essenziali.</p>`;
-            }
-            
-            // Category insights
-            if (topCategories.length > 0) {
-                const [topCategory, topAmount] = topCategories[0];
-                const categoryPercentage = (topAmount / totalExpenses * 100).toFixed(1);
-                insightText += `<p><i class="fas fa-chart-pie" style="color: var(--primary-light);"></i> La tua categoria di spesa principale è <strong>${topCategory}</strong> (${categoryPercentage}% del totale, ${formatCurrency(topAmount)}). `;
-                
-                if (categoryPercentage > 40) {
-                    insightText += `Considera di bilanciare meglio le spese.</p>`;
-                } else {
-                    insightText += `Un buon equilibrio nelle spese.</p>`;
+                    dayElement.innerHTML = dayHTML;
+                    calendarGrid.appendChild(dayElement);
                 }
-            }
-            
-            // Monthly trend analysis
-            if (last30Days.length > 0) {
-                const monthlyBalance = last30Income - last30Expenses;
-                insightText += `<p><i class="fas fa-calendar-month" style="color: var(--accent-color);"></i> Negli ultimi 30 giorni: ${formatCurrency(last30Income)} entrate, ${formatCurrency(last30Expenses)} spese. `;
-                insightText += `Bilancio mensile: <strong style="color: ${monthlyBalance >= 0 ? 'var(--success-color)' : 'var(--danger-color)'}">${formatCurrency(monthlyBalance)}</strong></p>`;
-            }
-            
-            // Goals insight
-            if (appData.goals.length > 0) {
-                const activeGoals = appData.goals.filter(g => (g.current / g.target) < 1);
-                const avgProgress = appData.goals.reduce((sum, g) => sum + (g.current / g.target), 0) / appData.goals.length * 100;
-                
-                insightText += `<p><i class="fas fa-target" style="color: var(--primary-color);"></i> Hai ${appData.goals.length} obiettivi con progresso medio del ${avgProgress.toFixed(1)}%. `;
-                
-                if (savingsRate > 10 && activeGoals.length > 0) {
-                    const monthlySavings = totalIncome * (savingsRate / 100);
-                    const avgGoalAmount = activeGoals.reduce((sum, g) => sum + (g.target - g.current), 0) / activeGoals.length;
-                    const monthsToGoal = Math.ceil(avgGoalAmount / monthlySavings);
-                    insightText += `Con il tuo tasso di risparmio attuale, potresti raggiungere un obiettivo medio in circa ${monthsToGoal} mesi.</p>`;
-                } else {
-                    insightText += `Aumenta il risparmio per raggiungere più velocemente i tuoi obiettivi!</p>`;
-                }
-            }
-            
-            // Personalized recommendations
-            insightText += '<hr style="margin: 1.5rem 0; border: none; height: 1px; background: rgba(255,255,255,0.1);">';
-            insightText += '<p><i class="fas fa-robot" style="color: var(--accent-color);"></i> <strong>Consigli personalizzati:</strong></p>';
-            insightText += '<ul style="margin-left: 1.5rem; line-height: 2;">';
-            
-            if (savingsRate < 20) {
-                insightText += '<li>Prova la regola 50/30/20: 50% bisogni essenziali, 30% desideri, 20% risparmi</li>';
-            }
-            if (topCategories.length > 0 && topCategories[0][1] > totalIncome * 0.3) {
-                insightText += `<li>La spesa in ${topCategories[0][0]} è alta. Cerca alternative per ridurre questi costi</li>`;
-            }
-            if (appData.goals.length === 0) {
-                insightText += '<li>Imposta degli obiettivi di risparmio per motivarti e tracciare i progressi</li>';
-            }
-            
-            insightText += '</ul></div>';
-            insights.innerHTML = insightText;
-            
-            showNotification('Insights AI aggiornati con analisi avanzata!', 'success');
-        }
+            },
 
-        // Initialize App with enhanced data persistence
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Clear any cached data
-                cachedStats = null;
-                lastStatsUpdate = 0;
-                
-                // Tenta di caricare dati esistenti
-                const dataLoaded = loadData();
-                if (dataLoaded) {
-                    updateAutoSaveStatus('Dati della sessione precedente ripristinati');
-                } else {
-                    updateAutoSaveStatus('Nuova sessione avviata');
-                }
-                
-                // Load initial data
-                loadInitialBalance();
-                updateDashboard();
-                
-                // Initialize current tab
-                showTab('dashboard');
-                
-                // Avvia auto-save
-                startAutoSave();
-                
-                // Cleanup DOM
-                const debugElements = document.querySelectorAll('.debug, [data-debug]');
-                debugElements.forEach(el => el.remove());
-                
-                // Messaggio di benvenuto
-                setTimeout(() => {
-                    if (appData.transactions.length === 0 && appData.goals.length === 0 && appData.initialBalance === 0) {
-                        showNotification('Benvenuto in FinanceAI! Inizia impostando il tuo patrimonio iniziale e aggiungendo transazioni.', 'info');
-                    }
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Errore nell\'inizializzazione:', error);
-                showNotification('Errore nell\'inizializzazione dell\'applicazione', 'error');
-            }
-        });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function(e) {
-            // Salvataggio finale prima di chiudere
-            saveData();
-            stopAutoSave();
-        });
-
-        // Handle visibility change (tab switching)
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'hidden') {
-                saveData(); // Salva quando l'utente switcha tab
-            }
-        });
-
-        // Enhanced notification system
-        function showNotification(message, type = 'info', duration = 4000) {
-            if (!message) return;
-            
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(n => {
-                n.style.animation = 'slideOutNotification 0.3s ease-in forwards';
-                setTimeout(() => n.remove(), 300);
-            });
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            
-            // Allow HTML in notifications for better formatting
-            if (message.includes('<br>') || message.includes('<i class=')) {
-                notification.innerHTML = message;
-            } else {
-                notification.textContent = message;
-            }
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.style.animation = 'slideOutNotification 0.6s ease-in forwards';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.remove();
-                        }
-                    }, 600);
-                }
-            }, duration);
-        }
-
-        // Clean console output for production
-        const originalConsoleError = console.error;
-        console.error = function(...args) {
-            // Keep error logging but filter out non-critical warnings
-            if (args.some(arg => typeof arg === 'string' && 
-                (arg.includes('Errore') || arg.includes('Error') || arg.includes('failed')))) {
-                originalConsoleError.apply(console, args);
+            changeMonth(direction) {
+                AppState.ui.currentMonth.setMonth(AppState.ui.currentMonth.getMonth() + direction);
+                this.render();
             }
         };
 
-        // Performance optimization: Passive event listeners
-        document.addEventListener('scroll', function() {
-            // Scroll performance optimization
-        }, { passive: true });
+        // Analytics Management - Optimized chart handling
+        const AnalyticsManager = {
+            updateCharts() {
+                requestAnimationFrame(() => {
+                    this.updateMonthlyChart();
+                    this.updateCategoryChart();
+                    this.updateIncomeExpenseChart();
+                });
+            },
 
-        document.addEventListener('touchstart', function() {
-            // Touch performance optimization
-        }, { passive: true });
-
-        // Keyboard shortcuts enhancement
-        document.addEventListener('keydown', function(e) {
-            // ESC to close modals
-            if (e.key === 'Escape') {
-                const activeModal = document.querySelector('.modal.active');
-                if (activeModal) {
-                    closeModal(activeModal.id);
+            destroyChart(chartName) {
+                if (AppState.ui.charts[chartName]) {
+                    AppState.ui.charts[chartName].destroy();
+                    AppState.ui.charts[chartName] = null;
                 }
-            }
-            
-            // Quick actions with Ctrl/Cmd key
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case '1':
-                        e.preventDefault();
-                        showTab('dashboard');
-                        break;
-                    case '2':
-                        e.preventDefault();
-                        showTab('transactions');
-                        break;
-                    case '3':
-                        e.preventDefault();
-                        showTab('analytics');
-                        break;
-                    case '4':
-                        e.preventDefault();
-                        showTab('calendar');
-                        break;
-                    case '5':
-                        e.preventDefault();
-                        showTab('goals');
-                        break;
-                    case 'n':
-                        e.preventDefault();
-                        showQuickActions();
-                        break;
-                    case 's':
-                        e.preventDefault();
-                        autoSaveData();
-                        break;
-                    case 'e':
-                        e.preventDefault();
-                        exportData();
-                        break;
-                }
-            }
-        });
+            },
 
-        // Helper function for safe DOM updates
-        function safeUpdate(elementId, content, isHTML = false) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                if (isHTML) {
-                    element.innerHTML = content;
+            updateMonthlyChart() {
+                const canvas = document.getElementById('monthly-chart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                this.destroyChart('monthlyChart');
+                
+                const months = [];
+                const incomeData = [];
+                const expenseData = [];
+                
+                for (let i = 11; i >= 0; i--) {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+                    const year = date.getFullYear();
+                    const month = date.getMonth();
+                    
+                    months.push(new Intl.DateTimeFormat('it-IT', { month: 'short' }).format(date));
+                    
+                    const monthTransactions = AppState.data.transactions.filter(t => {
+                        const transDate = new Date(t.date);
+                        return transDate.getFullYear() === year && transDate.getMonth() === month;
+                    });
+                    
+                    const income = monthTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+                    const expenses = Math.abs(monthTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
+                    
+                    incomeData.push(income);
+                    expenseData.push(expenses);
+                }
+                
+                AppState.ui.charts.monthlyChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Entrate',
+                            data: incomeData,
+                            borderColor: '#06d6a0',
+                            backgroundColor: 'rgba(6, 214, 160, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Spese',
+                            data: expenseData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#f8fafc' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#e2e8f0' },
+                                grid: { color: 'rgba(75, 85, 99, 0.2)' }
+                            },
+                            y: {
+                                ticks: { 
+                                    color: '#e2e8f0',
+                                    callback: function(value) {
+                                        return '€' + value.toLocaleString('it-IT');
+                                    }
+                                },
+                                grid: { color: 'rgba(75, 85, 99, 0.2)' }
+                            }
+                        }
+                    }
+                });
+            },
+
+            updateCategoryChart() {
+                const canvas = document.getElementById('category-chart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                this.destroyChart('categoryChart');
+                
+                const expensesByCategory = {};
+                AppState.data.transactions.filter(t => t.amount < 0).forEach(t => {
+                    expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
+                });
+                
+                const categories = Object.keys(expensesByCategory);
+                const amounts = Object.values(expensesByCategory);
+                const colors = categories.map(cat => CONSTANTS.CATEGORY_COLORS[cat] || '#8b5cf6');
+                
+                if (categories.length === 0) {
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '16px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Nessuna spesa registrata', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
+                
+                AppState.ui.charts.categoryChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: amounts,
+                            backgroundColor: colors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { 
+                                    color: '#f8fafc',
+                                    padding: 15
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+
+            updateIncomeExpenseChart() {
+                const canvas = document.getElementById('income-expense-chart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                this.destroyChart('incomeExpenseChart');
+                
+                const stats = StatsManager.getStats();
+                const { totalIncome, totalExpenses } = stats;
+                
+                AppState.ui.charts.incomeExpenseChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Entrate', 'Spese', 'Differenza'],
+                        datasets: [{
+                            data: [totalIncome, totalExpenses, totalIncome - totalExpenses],
+                            backgroundColor: ['#06d6a0', '#ef4444', totalIncome >= totalExpenses ? '#06d6a0' : '#ef4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#e2e8f0' },
+                                grid: { color: 'rgba(75, 85, 99, 0.2)' }
+                            },
+                            y: {
+                                ticks: { 
+                                    color: '#e2e8f0',
+                                    callback: function(value) {
+                                        return '€' + value.toLocaleString('it-IT');
+                                    }
+                                },
+                                grid: { color: 'rgba(75, 85, 99, 0.2)' }
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
+        // AI Insights - Enhanced with better analysis
+        const AIInsights = {
+            generate() {
+                const insights = document.getElementById('ai-insights');
+                if (!insights) return;
+                
+                if (AppState.data.transactions.length === 0) {
+                    insights.innerHTML = `
+                        <div style="line-height: 1.8; text-align: center;">
+                            <i class="fas fa-lightbulb" style="color: var(--accent-color); font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                            <p>Aggiungi alcune transazioni per ricevere insights personalizzati e consigli intelligenti sui tuoi comportamenti finanziari.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const stats = StatsManager.getStats();
+                const { totalIncome, totalExpenses, totalBalance } = stats;
+                const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome * 100) : 0;
+                
+                // Advanced category analysis
+                const expensesByCategory = {};
+                AppState.data.transactions.filter(t => t.amount < 0).forEach(t => {
+                    expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
+                });
+                
+                const topCategories = Object.entries(expensesByCategory)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 3);
+                
+                // Spending trends analysis
+                const last30Days = AppState.data.transactions.filter(t => {
+                    const transDate = new Date(t.date);
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    return transDate >= thirtyDaysAgo;
+                });
+                
+                const last30Income = last30Days.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+                const last30Expenses = Math.abs(last30Days.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0));
+                
+                let insightText = '<div style="line-height: 1.8;">';
+                
+                // Financial health assessment
+                if (savingsRate > 30) {
+                    insightText += `<p><i class="fas fa-medal" style="color: var(--accent-color);"></i> <strong>Eccellente gestione finanziaria!</strong> Stai risparmiando il ${savingsRate.toFixed(1)}% delle tue entrate. Sei sulla strada giusta per raggiungere i tuoi obiettivi.</p>`;
+                } else if (savingsRate > 15) {
+                    insightText += `<p><i class="fas fa-thumbs-up" style="color: var(--success-color);"></i> <strong>Buon controllo finanziario!</strong> Stai risparmiando il ${savingsRate.toFixed(1)}% delle entrate. Considera di aumentare leggermente il risparmio.</p>`;
+                } else if (savingsRate > 0) {
+                    insightText += `<p><i class="fas fa-chart-line" style="color: var(--warning-color);"></i> Stai risparmiando il ${savingsRate.toFixed(1)}% delle entrate. C'è margine di miglioramento per una maggiore sicurezza finanziaria.</p>`;
                 } else {
-                    element.textContent = content;
+                    insightText += `<p><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> <strong>Attenzione:</strong> Stai spendendo più di quanto guadagni. È importante rivedere il budget e ridurre le spese non essenziali.</p>`;
                 }
-                return true;
+                
+                // Category insights
+                if (topCategories.length > 0) {
+                    const [topCategory, topAmount] = topCategories[0];
+                    const categoryPercentage = (topAmount / totalExpenses * 100).toFixed(1);
+                    insightText += `<p><i class="fas fa-chart-pie" style="color: var(--primary-light);"></i> La tua categoria di spesa principale è <strong>${topCategory}</strong> (${categoryPercentage}% del totale, ${Utils.formatCurrency(topAmount)}). `;
+                    
+                    if (categoryPercentage > 40) {
+                        insightText += `Considera di bilanciare meglio le spese.</p>`;
+                    } else {
+                        insightText += `Un buon equilibrio nelle spese.</p>`;
+                    }
+                }
+                
+                // Monthly trend analysis
+                if (last30Days.length > 0) {
+                    const monthlyBalance = last30Income - last30Expenses;
+                    insightText += `<p><i class="fas fa-calendar-month" style="color: var(--accent-color);"></i> Negli ultimi 30 giorni: ${Utils.formatCurrency(last30Income)} entrate, ${Utils.formatCurrency(last30Expenses)} spese. `;
+                    insightText += `Bilancio mensile: <strong style="color: ${monthlyBalance >= 0 ? 'var(--success-color)' : 'var(--danger-color)'}">${Utils.formatCurrency(monthlyBalance)}</strong></p>`;
+                }
+                
+                // Goals insight
+                if (AppState.data.goals.length > 0) {
+                    const activeGoals = AppState.data.goals.filter(g => (g.current / g.target) < 1);
+                    const avgProgress = AppState.data.goals.reduce((sum, g) => sum + (g.current / g.target), 0) / AppState.data.goals.length * 100;
+                    
+                    insightText += `<p><i class="fas fa-target" style="color: var(--primary-color);"></i> Hai ${AppState.data.goals.length} obiettivi con progresso medio del ${avgProgress.toFixed(1)}%. `;
+                    
+                    if (savingsRate > 10 && activeGoals.length > 0) {
+                        const monthlySavings = totalIncome * (savingsRate / 100);
+                        const avgGoalAmount = activeGoals.reduce((sum, g) => sum + (g.target - g.current), 0) / activeGoals.length;
+                        const monthsToGoal = Math.ceil(avgGoalAmount / monthlySavings);
+                        insightText += `Con il tuo tasso di risparmio attuale, potresti raggiungere un obiettivo medio in circa ${monthsToGoal} mesi.</p>`;
+                    } else {
+                        insightText += `Aumenta il risparmio per raggiungere più velocemente i tuoi obiettivi!</p>`;
+                    }
+                }
+                
+                // Personalized recommendations
+                insightText += '<hr style="margin: 1.5rem 0; border: none; height: 1px; background: rgba(255,255,255,0.1);">';
+                insightText += '<p><i class="fas fa-robot" style="color: var(--accent-color);"></i> <strong>Consigli personalizzati:</strong></p>';
+                insightText += '<ul style="margin-left: 1.5rem; line-height: 2;">';
+                
+                if (savingsRate < 20) {
+                    insightText += '<li>Prova la regola 50/30/20: 50% bisogni essenziali, 30% desideri, 20% risparmi</li>';
+                }
+                if (topCategories.length > 0 && topCategories[0][1] > totalIncome * 0.3) {
+                    insightText += `<li>La spesa in ${topCategories[0][0]} è alta. Cerca alternative per ridurre questi costi</li>`;
+                }
+                if (AppState.data.goals.length === 0) {
+                    insightText += '<li>Imposta degli obiettivi di risparmio per motivarti e tracciare i progressi</li>';
+                }
+                
+                insightText += '</ul></div>';
+                insights.innerHTML = insightText;
+                
+                NotificationManager.show('Insights AI aggiornati con analisi avanzata!', 'success');
+            },
+
+            update() {
+                if (AppState.data.transactions.length > 0) {
+                    this.generate();
+                }
             }
-            return false;
-        }
+        };
 
-        // Error boundary for critical functions
-        function withErrorBoundary(fn, errorMessage = 'Si è verificato un errore') {
-            return function(...args) {
+        // Event Listeners - Optimized
+        const EventManager = {
+            init() {
+                // Modal click-outside to close
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('modal')) {
+                        ModalManager.close(e.target.id);
+                    }
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        const activeModal = document.querySelector('.modal.active');
+                        if (activeModal) {
+                            ModalManager.close(activeModal.id);
+                        }
+                    }
+                    
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key) {
+                            case '1':
+                                e.preventDefault();
+                                TabManager.show('dashboard');
+                                break;
+                            case '2':
+                                e.preventDefault();
+                                TabManager.show('transactions');
+                                break;
+                            case '3':
+                                e.preventDefault();
+                                TabManager.show('analytics');
+                                break;
+                            case '4':
+                                e.preventDefault();
+                                TabManager.show('calendar');
+                                break;
+                            case '5':
+                                e.preventDefault();
+                                TabManager.show('goals');
+                                break;
+                            case 'n':
+                                e.preventDefault();
+                                ModalManager.showQuickActions();
+                                break;
+                            case 's':
+                                e.preventDefault();
+                                DataManager.save();
+                                NotificationManager.show('Salvataggio manuale completato!', 'success');
+                                break;
+                            case 'e':
+                                e.preventDefault();
+                                DataManager.export();
+                                break;
+                        }
+                    }
+                });
+
+                // Optimized resize handler
+                window.addEventListener('resize', Utils.debounce(() => {
+                    if (AppState.ui.currentTab === 'analytics' && Object.keys(AppState.ui.charts).length > 0) {
+                        Object.values(AppState.ui.charts).forEach(chart => {
+                            if (chart && typeof chart.resize === 'function') {
+                                chart.resize();
+                            }
+                        });
+                    }
+                }, CONSTANTS.RESIZE_DELAY));
+
+                // Page lifecycle events
+                window.addEventListener('beforeunload', function() {
+                    DataManager.save();
+                    DataManager.stopAutoSave();
+                });
+
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'hidden') {
+                        DataManager.save();
+                    }
+                });
+
+                // Error handlers
+                window.addEventListener('error', function(e) {
+                    console.error('Errore applicazione:', e.error);
+                    NotificationManager.show('Si è verificato un errore. Ricarica la pagina se il problema persiste.', 'error');
+                });
+
+                window.addEventListener('unhandledrejection', function(e) {
+                    console.error('Promise rejection:', e.reason);
+                    e.preventDefault();
+                });
+            }
+        };
+
+        // Application Initialization - Optimized
+        const App = {
+            init() {
                 try {
-                    return fn.apply(this, args);
+                    console.log('🚀 Initializing FinanceAI v2.1...');
+                    
+                    // Clear any cached data
+                    AppState.cache.stats = null;
+                    AppState.cache.lastStatsUpdate = 0;
+                    
+                    // Load existing data
+                    const dataLoaded = DataManager.load();
+                    if (dataLoaded) {
+                        console.log('✅ Data loaded from previous session');
+                    } else {
+                        console.log('🆕 New session started');
+                    }
+                    
+                    // Initialize UI
+                    BalanceManager.load();
+                    DashboardManager.update();
+                    EventManager.init();
+                    
+                    // Start auto-save
+                    DataManager.startAutoSave();
+                    
+                    // Initialize current tab
+                    TabManager.show('dashboard');
+                    
+                    // Welcome message for new users
+                    setTimeout(() => {
+                        if (AppState.data.transactions.length === 0 && 
+                            AppState.data.goals.length === 0 && 
+                            AppState.data.initialBalance === 0) {
+                            NotificationManager.show('Benvenuto in FinanceAI! Inizia impostando il tuo patrimonio iniziale e aggiungendo transazioni.', 'info');
+                        }
+                    }, 1000);
+                    
+                    console.log('✅ FinanceAI initialized successfully!');
+                    
                 } catch (error) {
-                    console.error(`Error in ${fn.name}:`, error);
-                    showNotification(errorMessage, 'error');
+                    console.error('❌ Error during initialization:', error);
+                    NotificationManager.show('Errore nell\'inizializzazione dell\'applicazione', 'error');
                 }
-            };
-        }
+            }
+        };
 
-        // Wrap critical functions with error boundaries
-        const safeUpdateDashboard = withErrorBoundary(updateDashboard, 'Errore nell\'aggiornamento dashboard');
-        const safeRenderGoals = withErrorBoundary(renderGoals, 'Errore nel rendering obiettivi');
-        const safeRenderTransactions = withErrorBoundary(renderAllTransactions, 'Errore nel rendering transazioni');
+        // Initialize the application when DOM is ready
+        document.addEventListener('DOMContentLoaded', App.init);
     </script>
 </body>
-</html>-icon" style="background: ${CATEGORY_COLORS[transaction.category] || '#3b82f6'}">
-                            <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
-                        </div>
-                        <div class="transaction
+</html>
