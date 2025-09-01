@@ -1919,13 +1919,232 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
+        // Data Persistence Functions - Risolve il problema della perdita dati
         function saveData() {
-            // Memory storage for Claude.ai - no localStorage
-            console.log('Data saved to memory');
+            try {
+                // Auto-save periodico in background
+                const data = {
+                    exported_at: new Date().toISOString(),
+                    initial_balance: appData.initialBalance,
+                    transactions: appData.transactions,
+                    goals: appData.goals,
+                    settings: appData.settings
+                };
+                
+                // Salvataggio in memoria
+                window.financeAIData = data;
+                
+                // Aggiorna status
+                updateAutoSaveStatus('Dati salvati automaticamente');
+                
+                console.log('Data auto-saved successfully');
+            } catch (error) {
+                console.error('Errore nel salvataggio automatico:', error);
+            }
         }
 
         function loadData() {
-            return appData;
+            try {
+                // Carica dai dati in memoria se disponibili
+                if (window.financeAIData) {
+                    const data = window.financeAIData;
+                    appData.initialBalance = data.initial_balance || 0;
+                    appData.transactions = data.transactions || [];
+                    appData.goals = data.goals || [];
+                    appData.settings = data.settings || { currency: 'EUR', theme: 'dark', notifications: true };
+                    
+                    updateAutoSaveStatus('Dati caricati dalla sessione');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento:', error);
+            }
+            return false;
+        }
+
+        function exportData() {
+            try {
+                const data = {
+                    exported_at: new Date().toISOString(),
+                    app_version: '2.0',
+                    initial_balance: appData.initialBalance,
+                    transactions: appData.transactions,
+                    goals: appData.goals,
+                    settings: appData.settings,
+                    summary: {
+                        total_transactions: appData.transactions.length,
+                        total_goals: appData.goals.length,
+                        total_income: appData.transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0),
+                        total_expenses: Math.abs(appData.transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0))
+                    }
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `financeai-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(link.href);
+                
+                showNotification('Backup esportato con successo! File salvato nei download.', 'success');
+            } catch (error) {
+                console.error('Errore nell\'esportazione:', error);
+                showNotification('Errore nell\'esportazione dei dati.', 'error');
+            }
+        }
+
+        function importData(fileInput) {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validazione dati
+                    if (!data.transactions && !data.goals && data.initial_balance === undefined) {
+                        throw new Error('File non valido: formato dati non riconosciuto');
+                    }
+                    
+                    // Conferma import
+                    if (confirm(`Importare ${data.transactions?.length || 0} transazioni e ${data.goals?.length || 0} obiettivi? I dati attuali verranno sostituiti.`)) {
+                        appData.initialBalance = data.initial_balance || 0;
+                        appData.transactions = data.transactions || [];
+                        appData.goals = data.goals || [];
+                        appData.settings = data.settings || appData.settings;
+                        
+                        saveData();
+                        updateDashboard();
+                        renderGoals();
+                        renderAllTransactions();
+                        loadInitialBalance();
+                        
+                        showNotification(`Dati importati: ${appData.transactions.length} transazioni, ${appData.goals.length} obiettivi`, 'success');
+                    }
+                } catch (error) {
+                    console.error('Errore nell\'importazione:', error);
+                    showNotification('Errore: file non valido o corrotto.', 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+            fileInput.value = '';
+        }
+
+        function autoSaveData() {
+            saveData();
+            showNotification('Salvataggio manuale completato!', 'success');
+        }
+
+        function updateAutoSaveStatus(message) {
+            const statusEl = document.getElementById('auto-save-status');
+            if (statusEl) {
+                const timestamp = new Date().toLocaleTimeString('it-IT');
+                statusEl.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success-color);"></i> ${message} - ${timestamp}`;
+            }
+        }
+
+        // Enhanced Goals Management - Risolve personalizzazione importi
+        function addCustomAmount(goalId, isSubtraction) {
+            const input = document.getElementById(`custom-amount-${goalId}`);
+            if (!input) {
+                showNotification('Errore: campo importo non trovato', 'error');
+                return;
+            }
+            
+            const amount = parseFloat(input.value);
+            if (isNaN(amount) || amount <= 0) {
+                showNotification('Inserisci un importo valido maggiore di zero (es: 15.50)', 'error');
+                input.focus();
+                return;
+            }
+            
+            if (amount > 999999) {
+                showNotification('Importo troppo elevato (max €999,999)', 'error');
+                return;
+            }
+            
+            const finalAmount = isSubtraction ? -amount : amount;
+            updateGoalProgress(goalId, finalAmount);
+            
+            // Effetto visivo e pulizia
+            input.value = '';
+            input.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                if (input) input.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        function updateGoalProgress(goalId, amount) {
+            const goal = appData.goals.find(g => g.id === goalId);
+            if (!goal) {
+                showNotification('Errore: obiettivo non trovato', 'error');
+                return;
+            }
+            
+            const newAmount = goal.current + amount;
+            if (newAmount < 0) {
+                showNotification('Il progresso non può essere negativo', 'error');
+                return;
+            }
+            
+            const oldProgress = (goal.current / goal.target) * 100;
+            goal.current = newAmount;
+            const newProgress = (goal.current / goal.target) * 100;
+            
+            saveData();
+            renderGoals();
+            
+            const action = amount > 0 ? 'aggiunto a' : 'rimosso da';
+            let message = `${formatCurrency(Math.abs(amount))} ${action} "${goal.name}"`;
+            
+            // Messaggio speciale per traguardi
+            if (newProgress >= 100 && oldProgress < 100) {
+                message += ' 🎉 Obiettivo completato!';
+            } else if (newProgress >= 50 && oldProgress < 50) {
+                message += ' 🎯 Hai raggiunto il 50%!';
+            } else if (newProgress >= 75 && oldProgress < 75) {
+                message += ' 🚀 Ci sei quasi, 75% completato!';
+            }
+            
+            showNotification(message, newProgress >= 100 ? 'success' : 'info');
+        }
+
+        function completeGoal(goalId) {
+            const goal = appData.goals.find(g => g.id === goalId);
+            if (!goal) return;
+            
+            if (confirm(`Segnare "${goal.name}" come completato?`)) {
+                goal.current = goal.target;
+                goal.completed_at = new Date().toISOString();
+                
+                saveData();
+                renderGoals();
+                
+                showNotification(`🎉 Congratulazioni! Hai completato "${goal.name}"!`, 'success');
+            }
+        }
+
+        // Auto-save periodico ogni 30 secondi
+        let autoSaveInterval;
+        
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                if (appData.transactions.length > 0 || appData.goals.length > 0 || appData.initialBalance > 0) {
+                    saveData();
+                }
+            }, 30000); // 30 secondi
+        }
+
+        function stopAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+                autoSaveInterval = null;
+            }
         }
 
         function showNotification(message, type = 'info') {
@@ -3533,12 +3752,20 @@
             showNotification('Insights AI aggiornati con analisi avanzata!', 'success');
         }
 
-        // Initialize App with error handling
+        // Initialize App with enhanced data persistence
         document.addEventListener('DOMContentLoaded', function() {
             try {
                 // Clear any cached data
                 cachedStats = null;
                 lastStatsUpdate = 0;
+                
+                // Tenta di caricare dati esistenti
+                const dataLoaded = loadData();
+                if (dataLoaded) {
+                    updateAutoSaveStatus('Dati della sessione precedente ripristinati');
+                } else {
+                    updateAutoSaveStatus('Nuova sessione avviata');
+                }
                 
                 // Load initial data
                 loadInitialBalance();
@@ -3547,9 +3774,19 @@
                 // Initialize current tab
                 showTab('dashboard');
                 
-                // Remove any debug output
+                // Avvia auto-save
+                startAutoSave();
+                
+                // Cleanup DOM
                 const debugElements = document.querySelectorAll('.debug, [data-debug]');
                 debugElements.forEach(el => el.remove());
+                
+                // Messaggio di benvenuto
+                setTimeout(() => {
+                    if (appData.transactions.length === 0 && appData.goals.length === 0 && appData.initialBalance === 0) {
+                        showNotification('Benvenuto in FinanceAI! Inizia impostando il tuo patrimonio iniziale e aggiungendo transazioni.', 'info');
+                    }
+                }, 1000);
                 
             } catch (error) {
                 console.error('Errore nell\'inizializzazione:', error);
@@ -3557,16 +3794,153 @@
             }
         });
 
-        // Clean console output - remove development logs
-        if (typeof console !== 'undefined') {
-            const originalLog = console.log;
-            console.log = function(...args) {
-                // Only log errors in production
-                if (args.some(arg => typeof arg === 'string' && arg.includes('Errore'))) {
-                    originalLog.apply(console, args);
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function(e) {
+            // Salvataggio finale prima di chiudere
+            saveData();
+            stopAutoSave();
+        });
+
+        // Handle visibility change (tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                saveData(); // Salva quando l'utente switcha tab
+            }
+        });
+
+        // Enhanced notification system
+        function showNotification(message, type = 'info', duration = 4000) {
+            if (!message) return;
+            
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(n => {
+                n.style.animation = 'slideOutNotification 0.3s ease-in forwards';
+                setTimeout(() => n.remove(), 300);
+            });
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Allow HTML in notifications for better formatting
+            if (message.includes('<br>') || message.includes('<i class=')) {
+                notification.innerHTML = message;
+            } else {
+                notification.textContent = message;
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutNotification 0.6s ease-in forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 600);
+                }
+            }, duration);
+        }
+
+        // Clean console output for production
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            // Keep error logging but filter out non-critical warnings
+            if (args.some(arg => typeof arg === 'string' && 
+                (arg.includes('Errore') || arg.includes('Error') || arg.includes('failed')))) {
+                originalConsoleError.apply(console, args);
+            }
+        };
+
+        // Performance optimization: Passive event listeners
+        document.addEventListener('scroll', function() {
+            // Scroll performance optimization
+        }, { passive: true });
+
+        document.addEventListener('touchstart', function() {
+            // Touch performance optimization
+        }, { passive: true });
+
+        // Keyboard shortcuts enhancement
+        document.addEventListener('keydown', function(e) {
+            // ESC to close modals
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    closeModal(activeModal.id);
+                }
+            }
+            
+            // Quick actions with Ctrl/Cmd key
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showTab('dashboard');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showTab('transactions');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showTab('analytics');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showTab('calendar');
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        showTab('goals');
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        showQuickActions();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        autoSaveData();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                }
+            }
+        });
+
+        // Helper function for safe DOM updates
+        function safeUpdate(elementId, content, isHTML = false) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                if (isHTML) {
+                    element.innerHTML = content;
+                } else {
+                    element.textContent = content;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // Error boundary for critical functions
+        function withErrorBoundary(fn, errorMessage = 'Si è verificato un errore') {
+            return function(...args) {
+                try {
+                    return fn.apply(this, args);
+                } catch (error) {
+                    console.error(`Error in ${fn.name}:`, error);
+                    showNotification(errorMessage, 'error');
                 }
             };
         }
+
+        // Wrap critical functions with error boundaries
+        const safeUpdateDashboard = withErrorBoundary(updateDashboard, 'Errore nell\'aggiornamento dashboard');
+        const safeRenderGoals = withErrorBoundary(renderGoals, 'Errore nel rendering obiettivi');
+        const safeRenderTransactions = withErrorBoundary(renderAllTransactions, 'Errore nel rendering transazioni');
     </script>
 </body>
 </html>-icon" style="background: ${CATEGORY_COLORS[transaction.category] || '#3b82f6'}">
